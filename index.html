@@ -12,8 +12,8 @@
     <title>Ghost | Steel Anchor Terminal</title>
     <style>
         :root {
-            --ios-blue: #007aff; [cite: 1]
-            --ios-grey: #262629; [cite: 2]
+            --ios-blue: #007aff;
+            --ios-grey: #262629;
             --love-pink: #FFF0F5;
             --love-pink-dark: #FFB6C1;
             --love-text: #333;
@@ -21,330 +21,202 @@
 
         /* 解决 iOS 底部显示不全的核心代码 */
         body, html { 
-            background: #000; [cite: 2]
-            color: white; [cite: 3]
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; [cite: 3]
+            background: #000; color: white; 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
             margin: 0; padding: 0; 
-            height: 100%; height: -webkit-fill-available; [cite: 3]
-            width: 100vw; [cite: 4]
-            overflow: hidden; [cite: 5]
+            height: 100%; height: -webkit-fill-available; /* 适配 iOS Safari 高度 */
+            width: 100vw;
+            overflow: hidden; 
             position: fixed; 
-            -webkit-tap-highlight-color: transparent; [cite: 5]
+            -webkit-tap-highlight-color: transparent;
         }
 
         #dynamic-bg {
-            position: absolute; [cite: 5]
-            top: 0; left: 0; width: 100%; height: 100%; [cite: 6]
-            background-size: cover; background-position: center; z-index: -2;
-        } [cite: 7]
-
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center; z-index: -2; 
+        }
+        /* 聊天区主背景：微微变暗一点点，保证聊天气泡清晰 */
         .bg-overlay {
-            position: absolute; [cite: 7]
-            top: 0; left: 0; width: 100%; height: 100%; [cite: 8]
-            background: rgba(0,0,0,0.45); /* 稍微降低暗度，增加透明感 */
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: -1; [cite: 8]
-        } [cite: 9]
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: -1;
+        }
 
         /* ================= 基础 UI 组件 ================= */
-        .btn { background: rgba(255,255,255,0.1); [cite: 9]
-            color: white; padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; font-size: 15px; font-weight: 600; margin-bottom: 10px; [cite: 10]
-            transition: 0.2s;} [cite: 11]
-        .btn:active { transform: scale(0.98); background: rgba(255,255,255,0.2); [cite: 11]
-        } [cite: 12]
-        .btn.danger { color: #ff453a; background: rgba(255, 69, 58, 0.1); [cite: 12]
-        } [cite: 13]
-        input[type="text"], input[type="password"], textarea { font-size: 16px !important; [cite: 13]
-        } [cite: 14]
+        .btn { background: rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; font-size: 15px; font-weight: 600; margin-bottom: 10px; transition: 0.2s;}
+        .btn:active { transform: scale(0.98); background: rgba(255,255,255,0.2); }
+        .btn.danger { color: #ff453a; background: rgba(255, 69, 58, 0.1); }
+        input[type="text"], input[type="password"], textarea { font-size: 16px !important; } /* iOS 防缩放 */
 
         /* ================= 主聊天区域 ================= */
         .chat-area { 
-            position: absolute; [cite: 14]
-            inset: 0; [cite: 15]
+            position: absolute; inset: 0;
             display: flex; flex-direction: column; 
             z-index: 10;
         }
         .chat-header { 
-            padding: max(15px, env(safe-area-inset-top)) 20px 15px 20px; [cite: 15]
-            border-bottom: 1px solid rgba(255,255,255,0.1); [cite: 16]
+            padding: max(15px, env(safe-area-inset-top)) 20px 15px 20px; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
             display: flex; align-items: center; 
-            background: rgba(10,10,10,0.5); /* 稍微调透一点 */
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); [cite: 16]
-            z-index: 20;
-        } [cite: 17]
-        .avatar { width: 42px; height: 42px; background: #1a1a1a; border-radius: 50%; margin-right: 12px; [cite: 17]
-            display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid rgba(255,255,255,0.1); [cite: 18]
-        } [cite: 19]
-        .header-info b { font-size: 16px; display: block; [cite: 19]
-        } [cite: 20]
-        .header-info span { font-size: 12px; color: #888; [cite: 20]
-        } [cite: 21]
-        .header-actions { margin-left: auto; display: flex; align-items: center; [cite: 21]
-        } [cite: 22]
+            background: rgba(10,10,10,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            z-index: 20; 
+        }
+        .avatar { width: 42px; height: 42px; background: #1a1a1a; border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid rgba(255,255,255,0.1); }
+        .header-info b { font-size: 16px; display: block; }
+        .header-info span { font-size: 12px; color: #888; }
+        .header-actions { margin-left: auto; display: flex; align-items: center; }
         
-        .menu-btn { font-size: 24px; [cite: 22]
-            color: white; padding: 5px 10px; cursor: pointer; } [cite: 23]
+        .menu-btn { font-size: 24px; color: white; padding: 5px 10px; cursor: pointer; }
 
         #chat-window { 
-            flex: 1; [cite: 23]
-            padding: 20px 5% 10px 5%; [cite: 24]
+            flex: 1; padding: 20px 5% 10px 5%; 
             overflow-y: auto; -webkit-overflow-scrolling: touch; 
-            display: flex; flex-direction: column; scroll-behavior: smooth; [cite: 24]
-        } [cite: 25]
-        .msg-wrap { margin-bottom: 18px; display: flex; flex-direction: column; animation: fadeIn 0.3s ease; [cite: 25]
-        } [cite: 26]
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); [cite: 26]
-        } to { opacity: 1; transform: translateY(0); } } [cite: 27]
-        .msg-wrap.user { align-items: flex-end; [cite: 27]
-        } [cite: 28]
-        .msg-wrap.bot { align-items: flex-start; [cite: 28]
-        } [cite: 29]
-        .bubble { max-width: 80%; padding: 12px 16px; font-size: 16px; line-height: 1.5; [cite: 29]
-            word-wrap: break-word; box-shadow: 0 4px 15px rgba(0,0,0,0.2); } [cite: 30]
-        .user .bubble { background: var(--ios-blue); [cite: 30]
-            border-radius: 18px 18px 2px 18px; color: white; } [cite: 31]
-        .bot .bubble { background: var(--ios-grey); [cite: 31]
-            border-radius: 18px 18px 18px 2px; color: white; } [cite: 32]
-        .status { font-size: 11px; [cite: 32]
-            color: #888; margin-top: 6px; padding: 0 5px; } [cite: 33]
-
-        /* 聊天输入框：针对高度偏高进行修正 */
-        .input-bar { 
-            padding: 8px 5% calc(5px + env(safe-area-inset-bottom)) 5%; 
-            background: rgba(10,10,10,0.5); /* 增加透明感 */
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
-            border-top: 1px solid rgba(255,255,255,0.05); [cite: 35]
-            flex-shrink: 0; [cite: 35]
+            display: flex; flex-direction: column; scroll-behavior: smooth; 
         }
-        .input-box { background: rgba(255,255,255,0.1); [cite: 35]
-            border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; display: flex; padding: 2px 16px; align-items: center; [cite: 36]
-        } 
-        #user-input { flex: 1; background: transparent; border: none; color: white; 
-            padding: 10px 0; outline: none; } [cite: 38]
-        .send-btn { color: var(--ios-blue); font-weight: 600; [cite: 38]
-            font-size: 20px; padding-left: 10px; cursor: pointer; } [cite: 39]
+        .msg-wrap { margin-bottom: 18px; display: flex; flex-direction: column; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .msg-wrap.user { align-items: flex-end; }
+        .msg-wrap.bot { align-items: flex-start; }
+        .bubble { max-width: 80%; padding: 12px 16px; font-size: 16px; line-height: 1.5; word-wrap: break-word; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .user .bubble { background: var(--ios-blue); border-radius: 18px 18px 2px 18px; color: white; }
+        .bot .bubble { background: var(--ios-grey); border-radius: 18px 18px 18px 2px; color: white; }
+        .status { font-size: 11px; color: #888; margin-top: 6px; padding: 0 5px; }
+
+        /* 聊天输入框：修复遮挡问题 */
+        .input-bar { 
+            padding: 10px 5% calc(10px + env(safe-area-inset-bottom)) 5%; 
+            background: rgba(10,10,10,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0; /* 防止被挤压 */
+        }
+        .input-box { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; display: flex; padding: 4px 16px; align-items: center; }
+        #user-input { flex: 1; background: transparent; border: none; color: white; padding: 12px 0; outline: none; }
+        .send-btn { color: var(--ios-blue); font-weight: 600; font-size: 20px; padding-left: 10px; cursor: pointer; }
 
         /* ================= 独立全屏视图 (毛玻璃半透明) ================= */
         .full-view {
-            position: fixed; [cite: 39]
-            inset: 0; [cite: 40]
-            background: rgba(15, 15, 15, 0.65); [cite: 40]
-            backdrop-filter: blur(25px); 
-            -webkit-backdrop-filter: blur(25px); 
+            position: fixed; inset: 0;
+            background: rgba(15, 15, 15, 0.65); /* 半透明底色 */
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); /* 强模糊防止文字重叠 */
             z-index: 100;
-            display: flex; 
-            flex-direction: column; [cite: 42]
-            transform: translateX(100%); [cite: 42]
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); [cite: 43]
+            display: flex; flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .full-view.active { transform: translateX(0); [cite: 43]
-        } [cite: 44]
+        .full-view.active { transform: translateX(0); }
         
         .view-header {
-            padding: max(15px, env(safe-area-inset-top)) 20px 15px 20px; [cite: 44]
-            display: flex; align-items: center; justify-content: space-between; [cite: 45]
-            background: rgba(15, 15, 17, 0.4); border-bottom: 1px solid rgba(255,255,255,0.08); [cite: 45]
-            font-weight: 600; font-size: 17px; [cite: 46]
-            z-index: 10;
+            padding: max(15px, env(safe-area-inset-top)) 20px 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(15, 15, 17, 0.4); border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-weight: 600; font-size: 17px; z-index: 10;
         }
-        .view-back { color: var(--ios-blue); cursor: pointer; font-size: 16px; display: flex; [cite: 46]
-            align-items: center;} [cite: 47]
+        .view-back { color: var(--ios-blue); cursor: pointer; font-size: 16px; display: flex; align-items: center;}
         .view-body {
-            flex: 1; [cite: 47]
-            overflow-y: auto; -webkit-overflow-scrolling: touch; [cite: 48]
-            padding: 20px 5% calc(30px + env(safe-area-inset-bottom)) 5%; [cite: 49]
+            flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+            padding: 20px 5% calc(30px + env(safe-area-inset-bottom)) 5%;
         }
 
         /* ================= 菜单控制面板 ================= */
-        .menu-container { padding: 30px 5%; [cite: 49]
-        } [cite: 50]
-        .menu-top-row { display: flex; gap: 15px; margin-bottom: 25px; [cite: 50]
-        } [cite: 51]
-        .menu-top-card { flex: 1; background: rgba(255,255,255,0.08); border-radius: 16px; padding: 25px 15px; [cite: 51]
-            text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); } [cite: 52]
-        .menu-top-card:active { background: rgba(255,255,255,0.15); [cite: 52]
-        } [cite: 53]
-        .menu-top-card .icon { font-size: 32px; margin-bottom: 10px; [cite: 53]
-        } [cite: 54]
-        .menu-top-card .title { font-weight: 600; font-size: 15px; [cite: 54]
-        } [cite: 55]
+        .menu-container { padding: 30px 5%; }
+        .menu-top-row { display: flex; gap: 15px; margin-bottom: 25px; }
+        .menu-top-card { flex: 1; background: rgba(255,255,255,0.08); border-radius: 16px; padding: 25px 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
+        .menu-top-card:active { background: rgba(255,255,255,0.15); }
+        .menu-top-card .icon { font-size: 32px; margin-bottom: 10px; }
+        .menu-top-card .title { font-weight: 600; font-size: 15px; }
 
-        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; [cite: 55]
-        } [cite: 56]
-        .menu-grid-item { background: rgba(255,255,255,0.08); border-radius: 16px; padding: 20px 15px; display: flex; [cite: 56]
-            flex-direction: column; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.02);} [cite: 57]
-        .menu-grid-item:active { background: rgba(255,255,255,0.15); [cite: 57]
-        } [cite: 58]
-        .menu-grid-item .icon { font-size: 26px; margin-bottom: 8px; [cite: 58]
-        } [cite: 59]
-        .menu-grid-item .title { font-size: 14px; color: #ddd; [cite: 59]
-        } [cite: 60]
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
+        .menu-grid-item { background: rgba(255,255,255,0.08); border-radius: 16px; padding: 20px 15px; display: flex; flex-direction: column; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.02);}
+        .menu-grid-item:active { background: rgba(255,255,255,0.15); }
+        .menu-grid-item .icon { font-size: 26px; margin-bottom: 8px; }
+        .menu-grid-item .title { font-size: 14px; color: #ddd; }
 
-        .menu-settings-row { background: rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 20px; display: flex; [cite: 60]
-            align-items: center; justify-content: center; gap: 10px; cursor: pointer; border: 1px solid rgba(255,255,255,0.02);} [cite: 61]
-        .menu-settings-row:active { background: rgba(255,255,255,0.15); [cite: 61]
-        } [cite: 62]
+        .menu-settings-row { background: rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; border: 1px solid rgba(255,255,255,0.02);}
+        .menu-settings-row:active { background: rgba(255,255,255,0.15); }
 
         /* ================= 各功能面板样式 ================= */
-        .view-section-title { font-size: 13px; [cite: 62]
-            color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 5px; [cite: 63]
-        } [cite: 64]
+        .view-section-title { font-size: 13px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 5px; }
         
         /* 待办 */
-        .task-item { display: flex; [cite: 64]
-            align-items: center; background: rgba(255,255,255,0.08); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; [cite: 65]
-        } [cite: 66]
-        .task-item input[type="checkbox"] { margin-right: 12px; transform: scale(1.3); accent-color: var(--ios-blue); [cite: 66]
-        } [cite: 67]
-        .task-item input[type="text"] { flex: 1; background: transparent; border: none; color: white; [cite: 67]
-            outline: none; } [cite: 68]
-        .task-item.done span, .task-item.done input[type="text"] { text-decoration: line-through; color: #888; [cite: 68]
-        } [cite: 69]
+        .task-item { display: flex; align-items: center; background: rgba(255,255,255,0.08); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; }
+        .task-item input[type="checkbox"] { margin-right: 12px; transform: scale(1.3); accent-color: var(--ios-blue); }
+        .task-item input[type="text"] { flex: 1; background: transparent; border: none; color: white; outline: none; }
+        .task-item.done span, .task-item.done input[type="text"] { text-decoration: line-through; color: #888; }
 
         /* 日历 */
-        .calendar-header { display: flex; [cite: 69]
-            justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 18px;} [cite: 70]
-        .calendar-header button { background: none; [cite: 70]
-            border: none; color: white; font-size: 24px; } [cite: 71]
-        .calendar-grid { display: grid; [cite: 71]
-            grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 20px;} [cite: 72]
-        .cal-day-name { text-align: center; font-size: 12px; [cite: 72]
-            color: #aaa; margin-bottom: 5px; } [cite: 73]
-        .cal-day { background: rgba(255,255,255,0.08); border-radius: 8px; padding: 6px; [cite: 73]
-            min-height: 50px; display: flex; flex-direction: column; align-items: center;} [cite: 74]
-        .cal-day.today { border: 1px solid var(--ios-blue); [cite: 74]
-        } [cite: 75]
-        .cal-date { font-size: 14px; font-weight: 600; [cite: 75]
-        } [cite: 76]
-        .cal-mark { width: 6px; height: 6px; border-radius: 50%; background: #007aff; margin-top: 5px; [cite: 76]
-        } [cite: 77]
-        .cal-check { font-size: 12px; color: #34c759; margin-top: auto; [cite: 77]
-        } [cite: 78]
-        .cal-events-wrap { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 15px; [cite: 78]
-        } [cite: 79]
-        .cal-events-item { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; [cite: 79]
-            margin-bottom: 8px;} [cite: 80]
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 18px;}
+        .calendar-header button { background: none; border: none; color: white; font-size: 24px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 20px;}
+        .cal-day-name { text-align: center; font-size: 12px; color: #aaa; margin-bottom: 5px; }
+        .cal-day { background: rgba(255,255,255,0.08); border-radius: 8px; padding: 6px; min-height: 50px; display: flex; flex-direction: column; align-items: center;}
+        .cal-day.today { border: 1px solid var(--ios-blue); }
+        .cal-date { font-size: 14px; font-weight: 600; }
+        .cal-mark { width: 6px; height: 6px; border-radius: 50%; background: #007aff; margin-top: 5px; }
+        .cal-check { font-size: 12px; color: #34c759; margin-top: auto; }
+        .cal-events-wrap { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 15px; }
+        .cal-events-item { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; margin-bottom: 8px;}
 
         /* 宠物 */
-        .pet-container { text-align: center; [cite: 80]
-            margin-top: 20px; } [cite: 81]
-        .dog-emoji { font-size: 90px; margin-bottom: 10px; [cite: 81]
-        } [cite: 82]
-        .pet-thoughts { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 16px; font-style: italic; font-size: 15px; [cite: 82]
-            margin: 20px 0; } [cite: 83]
-        .pet-bar { background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 15px; [cite: 83]
-            text-align: left; margin-bottom: 12px;} [cite: 84]
-        .pet-bar-head { display: flex; justify-content: space-between; margin-bottom: 8px; [cite: 84]
-            font-size: 13px;} [cite: 85]
-        .pet-bar-track { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; [cite: 85]
-        } [cite: 86]
-        .pet-bar-fill { height: 100%; width: 0%; background: var(--ios-blue); transition: 0.3s; [cite: 86]
-        } [cite: 87]
+        .pet-container { text-align: center; margin-top: 20px; }
+        .dog-emoji { font-size: 90px; margin-bottom: 10px; }
+        .pet-thoughts { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 16px; font-style: italic; font-size: 15px; margin: 20px 0; }
+        .pet-bar { background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 15px; text-align: left; margin-bottom: 12px;}
+        .pet-bar-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;}
+        .pet-bar-track { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; }
+        .pet-bar-fill { height: 100%; width: 0%; background: var(--ios-blue); transition: 0.3s; }
 
         /* 金库 */
-        .balance-card { background: linear-gradient(135deg, rgba(30,30,30,0.8), rgba(42,42,45,0.8)); [cite: 87]
-            padding: 25px; border-radius: 20px; text-align: center; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05);} [cite: 88]
-        .balance-card h3 { margin: 0; [cite: 88]
-            color: #aaa; font-size: 14px; font-weight: normal; } [cite: 89]
-        .balance-card .amount { font-size: 38px; [cite: 89]
-            font-weight: bold; margin: 10px 0; } [cite: 90]
-        .expense-item { background: rgba(255,255,255,0.08); padding: 15px; [cite: 90]
-            border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;} [cite: 91]
-        .expense-info b { display: block; [cite: 91]
-            font-size: 15px; margin-bottom: 4px; } [cite: 92]
-        .expense-info span { font-size: 12px; color: #888; [cite: 92]
-        } [cite: 93]
-        .expense-cost { font-weight: bold; [cite: 93]
-            font-size: 16px;} [cite: 94]
+        .balance-card { background: linear-gradient(135deg, rgba(30,30,30,0.8), rgba(42,42,45,0.8)); padding: 25px; border-radius: 20px; text-align: center; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05);}
+        .balance-card h3 { margin: 0; color: #aaa; font-size: 14px; font-weight: normal; }
+        .balance-card .amount { font-size: 38px; font-weight: bold; margin: 10px 0; }
+        .expense-item { background: rgba(255,255,255,0.08); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
+        .expense-info b { display: block; font-size: 15px; margin-bottom: 4px; }
+        .expense-info span { font-size: 12px; color: #888; }
+        .expense-cost { font-weight: bold; font-size: 16px;}
 
         /* 设置 */
-        .setting-item { margin-bottom: 20px; [cite: 94]
-        } [cite: 95]
-        .setting-item input { width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); [cite: 95]
-            color: white; border-radius: 12px; padding: 14px; box-sizing: border-box; } [cite: 96]
+        .setting-item { margin-bottom: 20px; }
+        .setting-item input { width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 12px; padding: 14px; box-sizing: border-box; }
 
         /* ================= Love Space (带毛玻璃的粉色半透明) ================= */
-        #lovespace-view { background: rgba(255, 240, 245, 0.85); [cite: 96]
-            color: var(--love-text); } [cite: 97]
-        #lovespace-view .view-header { background: rgba(255, 240, 245, 0.6); [cite: 97]
-            border-bottom: 1px solid rgba(255,182,193,0.4); color: var(--love-text);} [cite: 98]
-        .ls-compose { background: rgba(255,255,255,0.9); border-radius: 16px; [cite: 98]
-            padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(255,182,193,0.2); } [cite: 99]
-        .ls-compose textarea { width: 100%; [cite: 99]
-            border: none; outline: none; resize: none; font-family: inherit; min-height: 60px; background: transparent; [cite: 100]
-            color: #333;} [cite: 101]
-        .ls-btn { background: var(--ios-blue); color: white; border: none; padding: 8px 20px; [cite: 101]
-            border-radius: 20px; font-weight: 600;} [cite: 102]
-        .tweet { background: rgba(255,255,255,0.9); border-radius: 16px; padding: 15px; [cite: 102]
-            margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); } [cite: 103]
-        .tweet-header { display: flex; [cite: 103]
-            align-items: center; margin-bottom: 10px; } [cite: 104]
-        .t-avatar { font-size: 24px; margin-right: 12px; background: #f5f5f5; [cite: 104]
-            width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 50%; [cite: 105]
-        } [cite: 106]
-        .tweet-body { font-size: 15px; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; [cite: 106]
-        } [cite: 107]
-        .tweet-actions { display: flex; gap: 20px; color: #888; font-size: 14px; [cite: 107]
-            border-top: 1px solid rgba(255,182,193,0.3); padding-top: 10px;} [cite: 108]
-        .comments-section { margin-top: 10px; [cite: 108]
-            background: rgba(253, 245, 247, 0.8); border-radius: 12px; padding: 12px; display: none;} [cite: 109]
-        .comments-section.open { display: block; [cite: 109]
-        } [cite: 110]
-        .comment { display: flex; margin-bottom: 10px; font-size: 14px; [cite: 110]
-            align-items: flex-start;} [cite: 111]
-        .c-avatar { font-size: 18px; margin-right: 8px; background: white; [cite: 111]
-            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; [cite: 112]
-            flex-shrink: 0;} [cite: 113]
-        .c-content { background: white; padding: 8px 12px; [cite: 113]
-            border-radius: 14px; flex: 1; } [cite: 114]
-        .c-input-area { display: flex; margin-top: 10px; gap: 10px; [cite: 114]
-        } [cite: 115]
-        .c-input-area input { flex: 1; border: 1px solid #eee; background: white; [cite: 115]
-            color: #333; padding: 10px 14px; border-radius: 20px;} [cite: 116]
+        #lovespace-view { background: rgba(255, 240, 245, 0.85); color: var(--love-text); }
+        #lovespace-view .view-header { background: rgba(255, 240, 245, 0.6); border-bottom: 1px solid rgba(255,182,193,0.4); color: var(--love-text);}
+        .ls-compose { background: rgba(255,255,255,0.9); border-radius: 16px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(255,182,193,0.2); }
+        .ls-compose textarea { width: 100%; border: none; outline: none; resize: none; font-family: inherit; min-height: 60px; background: transparent; color: #333;}
+        .ls-btn { background: var(--ios-blue); color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600;}
+        .tweet { background: rgba(255,255,255,0.9); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .tweet-header { display: flex; align-items: center; margin-bottom: 10px; }
+        .t-avatar { font-size: 24px; margin-right: 12px; background: #f5f5f5; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .tweet-body { font-size: 15px; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; }
+        .tweet-actions { display: flex; gap: 20px; color: #888; font-size: 14px; border-top: 1px solid rgba(255,182,193,0.3); padding-top: 10px;}
+        .comments-section { margin-top: 10px; background: rgba(253, 245, 247, 0.8); border-radius: 12px; padding: 12px; display: none;}
+        .comments-section.open { display: block; }
+        .comment { display: flex; margin-bottom: 10px; font-size: 14px; align-items: flex-start;} /* 修复头像对齐 */
+        .c-avatar { font-size: 18px; margin-right: 8px; background: white; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0;} /* 恢复头像样式 */
+        .c-content { background: white; padding: 8px 12px; border-radius: 14px; flex: 1; }
+        .c-input-area { display: flex; margin-top: 10px; gap: 10px; }
+        .c-input-area input { flex: 1; border: 1px solid #eee; background: white; color: #333; padding: 10px 14px; border-radius: 20px;}
 
         /* ================= 商店 UI (带毛玻璃的蓝色半透明) ================= */
-        #shop-view { background: rgba(234, 246, 255, 0.85); [cite: 116]
-            color: #0f172a; } [cite: 117]
-        #shop-view .view-header { background: rgba(234, 246, 255, 0.6); [cite: 117]
-            border-bottom: 1px solid rgba(15, 23, 42, 0.1); color: #0f172a;} [cite: 118]
-        .shop-balance-card { background: rgba(255,255,255,0.9); [cite: 118]
-            border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); [cite: 119]
-            margin-bottom: 20px;} [cite: 120]
-        .shop-balance-card .value { font-size: 36px; font-weight: 800; margin-top: 5px; [cite: 120]
-        } [cite: 121]
-        .shop-section { margin-bottom: 25px; [cite: 121]
-        } [cite: 122]
-        .shop-row { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; [cite: 122]
-            scroll-snap-type: x mandatory; } [cite: 123]
-        .shop-row::-webkit-scrollbar { display: none; [cite: 123]
-        } [cite: 124]
-        .shop-card { flex: 0 0 240px; background: rgba(255,255,255,0.9); border-radius: 16px; padding: 16px; [cite: 124]
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); scroll-snap-align: start; display: flex; flex-direction: column; [cite: 125]
-        } [cite: 126]
-        .shop-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; [cite: 126]
-        } [cite: 127]
-        .shop-buy { margin-top: 15px; background: #0b3d91; color: white; border: none; border-radius: 12px; [cite: 127]
-            padding: 12px; font-weight: 700; width: 100%;} [cite: 128]
+        #shop-view { background: rgba(234, 246, 255, 0.85); color: #0f172a; }
+        #shop-view .view-header { background: rgba(234, 246, 255, 0.6); border-bottom: 1px solid rgba(15, 23, 42, 0.1); color: #0f172a;}
+        .shop-balance-card { background: rgba(255,255,255,0.9); border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;}
+        .shop-balance-card .value { font-size: 36px; font-weight: 800; margin-top: 5px; }
+        .shop-section { margin-bottom: 25px; }
+        .shop-row { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; }
+        .shop-row::-webkit-scrollbar { display: none; }
+        .shop-card { flex: 0 0 240px; background: rgba(255,255,255,0.9); border-radius: 16px; padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); scroll-snap-align: start; display: flex; flex-direction: column; }
+        .shop-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .shop-buy { margin-top: 15px; background: #0b3d91; color: white; border: none; border-radius: 12px; padding: 12px; font-weight: 700; width: 100%;}
         
-        .pay-terminal { position: absolute; [cite: 128]
-            inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; [cite: 129]
-            z-index: 200;} [cite: 130]
-        .pay-terminal.active { display: flex; [cite: 130]
-        } [cite: 131]
-        .pay-terminal-box { width: 85%; background: #0b0f0c; [cite: 131]
-            border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 16px; padding: 20px; font-family: monospace; color: #a7f3d0; [cite: 132]
-        } [cite: 133]
+        .pay-terminal { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 200;}
+        .pay-terminal.active { display: flex; }
+        .pay-terminal-box { width: 85%; background: #0b0f0c; border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 16px; padding: 20px; font-family: monospace; color: #a7f3d0; }
 
         /* Transfer Card */
-        .transfer-card { background: linear-gradient(135deg, rgba(30,30,30,0.9), rgba(10,10,10,0.9)); [cite: 133]
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; margin-top: 10px; display: flex; align-items: center; gap: 15px; width: 240px; [cite: 134]
-        } [cite: 135]
-        .t-icon { font-size: 22px; background: rgba(76, 217, 100, 0.15); width: 44px; [cite: 135]
-            height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(76, 217, 100, 0.3); [cite: 136]
-        } [cite: 137]
-        .t-title { font-size: 12px; color: #aaa; text-transform: uppercase; margin-bottom: 4px; [cite: 137]
-        } [cite: 138]
-        .t-amount { font-size: 20px; font-weight: bold; color: #4cd964; [cite: 138]
-        } [cite: 139]
+        .transfer-card { background: linear-gradient(135deg, rgba(30,30,30,0.9), rgba(10,10,10,0.9)); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; margin-top: 10px; display: flex; align-items: center; gap: 15px; width: 240px; }
+        .t-icon { font-size: 22px; background: rgba(76, 217, 100, 0.15); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(76, 217, 100, 0.3); }
+        .t-title { font-size: 12px; color: #aaa; text-transform: uppercase; margin-bottom: 4px; }
+        .t-amount { font-size: 20px; font-weight: bold; color: #4cd964; }
 
     </style>
 </head>
