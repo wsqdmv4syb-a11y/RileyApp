@@ -17,17 +17,17 @@
             --love-pink: #FFF0F5;
             --love-pink-dark: #FFB6C1;
             --love-text: #333;
-            --bg-dark: #0a0a0c;
         }
 
-        /* 锁定 Body 滚动，彻底解决页面穿透问题 */
+        /* 解决 iOS 底部显示不全的核心代码 */
         body, html { 
             background: #000; color: white; 
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
             margin: 0; padding: 0; 
-            height: 100vh; width: 100vw;
+            height: 100%; height: -webkit-fill-available; /* 适配 iOS Safari 高度 */
+            width: 100vw;
             overflow: hidden; 
-            position: fixed; /* iOS 防回弹关键 */
+            position: fixed; 
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -35,9 +35,10 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover; background-position: center; z-index: -2; 
         }
+        /* 聊天区主背景：微微变暗一点点，保证聊天气泡清晰 */
         .bg-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); z-index: -1;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: -1;
         }
 
         /* ================= 基础 UI 组件 ================= */
@@ -56,7 +57,7 @@
             padding: max(15px, env(safe-area-inset-top)) 20px 15px 20px; 
             border-bottom: 1px solid rgba(255,255,255,0.1); 
             display: flex; align-items: center; 
-            background: rgba(10,10,10,0.85); backdrop-filter: blur(20px); 
+            background: rgba(10,10,10,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             z-index: 20; 
         }
         .avatar { width: 42px; height: 42px; background: #1a1a1a; border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid rgba(255,255,255,0.1); }
@@ -80,19 +81,22 @@
         .bot .bubble { background: var(--ios-grey); border-radius: 18px 18px 18px 2px; color: white; }
         .status { font-size: 11px; color: #888; margin-top: 6px; padding: 0 5px; }
 
-        /* 聊天输入框 */
+        /* 聊天输入框：修复遮挡问题 */
         .input-bar { 
-            padding: 10px 5% max(15px, env(safe-area-inset-bottom)) 5%; 
-            background: rgba(10,10,10,0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 10px 5% calc(10px + env(safe-area-inset-bottom)) 5%; 
+            background: rgba(10,10,10,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0; /* 防止被挤压 */
         }
-        .input-box { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; display: flex; padding: 4px 16px; align-items: center; }
+        .input-box { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; display: flex; padding: 4px 16px; align-items: center; }
         #user-input { flex: 1; background: transparent; border: none; color: white; padding: 12px 0; outline: none; }
         .send-btn { color: var(--ios-blue); font-weight: 600; font-size: 20px; padding-left: 10px; cursor: pointer; }
 
-        /* ================= 独立全屏视图 (核心重构) ================= */
+        /* ================= 独立全屏视图 (毛玻璃半透明) ================= */
         .full-view {
             position: fixed; inset: 0;
-            background: var(--bg-dark); /* 不透明背景 */
+            background: rgba(15, 15, 15, 0.65); /* 半透明底色 */
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); /* 强模糊防止文字重叠 */
             z-index: 100;
             display: flex; flex-direction: column;
             transform: translateX(100%);
@@ -103,107 +107,107 @@
         .view-header {
             padding: max(15px, env(safe-area-inset-top)) 20px 15px 20px;
             display: flex; align-items: center; justify-content: space-between;
-            background: rgba(15,15,17,0.95); backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: rgba(15, 15, 17, 0.4); border-bottom: 1px solid rgba(255,255,255,0.08);
             font-weight: 600; font-size: 17px; z-index: 10;
         }
         .view-back { color: var(--ios-blue); cursor: pointer; font-size: 16px; display: flex; align-items: center;}
         .view-body {
             flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-            padding: 20px 5% max(30px, env(safe-area-inset-bottom)) 5%;
+            padding: 20px 5% calc(30px + env(safe-area-inset-bottom)) 5%;
         }
 
         /* ================= 菜单控制面板 ================= */
-        #menu-view { background: rgba(10,10,12,0.98); }
         .menu-container { padding: 30px 5%; }
         .menu-top-row { display: flex; gap: 15px; margin-bottom: 25px; }
-        .menu-top-card { flex: 1; background: rgba(255,255,255,0.05); border-radius: 16px; padding: 25px 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
-        .menu-top-card:active { background: rgba(255,255,255,0.1); }
+        .menu-top-card { flex: 1; background: rgba(255,255,255,0.08); border-radius: 16px; padding: 25px 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
+        .menu-top-card:active { background: rgba(255,255,255,0.15); }
         .menu-top-card .icon { font-size: 32px; margin-bottom: 10px; }
         .menu-top-card .title { font-weight: 600; font-size: 15px; }
 
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
-        .menu-grid-item { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px 15px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .menu-grid-item:active { background: rgba(255,255,255,0.1); }
+        .menu-grid-item { background: rgba(255,255,255,0.08); border-radius: 16px; padding: 20px 15px; display: flex; flex-direction: column; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.02);}
+        .menu-grid-item:active { background: rgba(255,255,255,0.15); }
         .menu-grid-item .icon { font-size: 26px; margin-bottom: 8px; }
         .menu-grid-item .title { font-size: 14px; color: #ddd; }
 
-        .menu-settings-row { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
-        .menu-settings-row:active { background: rgba(255,255,255,0.1); }
+        .menu-settings-row { background: rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; border: 1px solid rgba(255,255,255,0.02);}
+        .menu-settings-row:active { background: rgba(255,255,255,0.15); }
 
         /* ================= 各功能面板样式 ================= */
-        .view-section-title { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 5px; }
+        .view-section-title { font-size: 13px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 5px; }
         
         /* 待办 */
-        .task-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; }
+        .task-item { display: flex; align-items: center; background: rgba(255,255,255,0.08); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; }
         .task-item input[type="checkbox"] { margin-right: 12px; transform: scale(1.3); accent-color: var(--ios-blue); }
         .task-item input[type="text"] { flex: 1; background: transparent; border: none; color: white; outline: none; }
-        .task-item.done span, .task-item.done input[type="text"] { text-decoration: line-through; color: #666; }
+        .task-item.done span, .task-item.done input[type="text"] { text-decoration: line-through; color: #888; }
 
         /* 日历 */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 18px;}
         .calendar-header button { background: none; border: none; color: white; font-size: 24px; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 20px;}
-        .cal-day-name { text-align: center; font-size: 12px; color: #888; margin-bottom: 5px; }
-        .cal-day { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 6px; min-height: 50px; display: flex; flex-direction: column; align-items: center;}
+        .cal-day-name { text-align: center; font-size: 12px; color: #aaa; margin-bottom: 5px; }
+        .cal-day { background: rgba(255,255,255,0.08); border-radius: 8px; padding: 6px; min-height: 50px; display: flex; flex-direction: column; align-items: center;}
         .cal-day.today { border: 1px solid var(--ios-blue); }
         .cal-date { font-size: 14px; font-weight: 600; }
         .cal-mark { width: 6px; height: 6px; border-radius: 50%; background: #007aff; margin-top: 5px; }
         .cal-check { font-size: 12px; color: #34c759; margin-top: auto; }
-        .cal-events-wrap { background: rgba(255,255,255,0.03); border-radius: 16px; padding: 15px; }
+        .cal-events-wrap { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 15px; }
         .cal-events-item { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; margin-bottom: 8px;}
 
         /* 宠物 */
         .pet-container { text-align: center; margin-top: 20px; }
         .dog-emoji { font-size: 90px; margin-bottom: 10px; }
-        .pet-thoughts { background: rgba(255,255,255,0.08); padding: 15px; border-radius: 16px; font-style: italic; font-size: 15px; margin: 20px 0; }
-        .pet-bar { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 15px; text-align: left; margin-bottom: 12px;}
+        .pet-thoughts { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 16px; font-style: italic; font-size: 15px; margin: 20px 0; }
+        .pet-bar { background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 15px; text-align: left; margin-bottom: 12px;}
         .pet-bar-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;}
         .pet-bar-track { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; }
         .pet-bar-fill { height: 100%; width: 0%; background: var(--ios-blue); transition: 0.3s; }
 
         /* 金库 */
-        .balance-card { background: linear-gradient(135deg, #1e1e1e, #2a2a2d); padding: 25px; border-radius: 20px; text-align: center; margin-bottom: 25px; }
+        .balance-card { background: linear-gradient(135deg, rgba(30,30,30,0.8), rgba(42,42,45,0.8)); padding: 25px; border-radius: 20px; text-align: center; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05);}
         .balance-card h3 { margin: 0; color: #aaa; font-size: 14px; font-weight: normal; }
         .balance-card .amount { font-size: 38px; font-weight: bold; margin: 10px 0; }
-        .expense-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
+        .expense-item { background: rgba(255,255,255,0.08); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
         .expense-info b { display: block; font-size: 15px; margin-bottom: 4px; }
         .expense-info span { font-size: 12px; color: #888; }
         .expense-cost { font-weight: bold; font-size: 16px;}
 
         /* 设置 */
         .setting-item { margin-bottom: 20px; }
-        .setting-item input { width: 100%; background: rgba(255,255,255,0.08); border: none; color: white; border-radius: 12px; padding: 14px; box-sizing: border-box; }
+        .setting-item input { width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 12px; padding: 14px; box-sizing: border-box; }
 
-        /* ================= Love Space (彻底独立配色) ================= */
-        #lovespace-view { background: var(--love-pink); color: var(--love-text); }
-        #lovespace-view .view-header { background: rgba(255, 240, 245, 0.95); border-bottom: 1px solid rgba(255,182,193,0.4); color: var(--love-text);}
-        .ls-compose { background: white; border-radius: 16px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(255,182,193,0.2); }
+        /* ================= Love Space (带毛玻璃的粉色半透明) ================= */
+        #lovespace-view { background: rgba(255, 240, 245, 0.85); color: var(--love-text); }
+        #lovespace-view .view-header { background: rgba(255, 240, 245, 0.6); border-bottom: 1px solid rgba(255,182,193,0.4); color: var(--love-text);}
+        .ls-compose { background: rgba(255,255,255,0.9); border-radius: 16px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(255,182,193,0.2); }
         .ls-compose textarea { width: 100%; border: none; outline: none; resize: none; font-family: inherit; min-height: 60px; background: transparent; color: #333;}
         .ls-btn { background: var(--ios-blue); color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600;}
-        .tweet { background: white; border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .tweet { background: rgba(255,255,255,0.9); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .tweet-header { display: flex; align-items: center; margin-bottom: 10px; }
         .t-avatar { font-size: 24px; margin-right: 12px; background: #f5f5f5; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
         .tweet-body { font-size: 15px; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; }
-        .tweet-actions { display: flex; gap: 20px; color: #888; font-size: 14px; border-top: 1px solid #f0f0f0; padding-top: 10px;}
-        .comments-section { margin-top: 10px; background: #fdf5f7; border-radius: 12px; padding: 12px; display: none;}
+        .tweet-actions { display: flex; gap: 20px; color: #888; font-size: 14px; border-top: 1px solid rgba(255,182,193,0.3); padding-top: 10px;}
+        .comments-section { margin-top: 10px; background: rgba(253, 245, 247, 0.8); border-radius: 12px; padding: 12px; display: none;}
         .comments-section.open { display: block; }
-        .comment { display: flex; margin-bottom: 10px; font-size: 14px;}
-        .c-content { background: white; padding: 10px 14px; border-radius: 14px; flex: 1; }
+        .comment { display: flex; margin-bottom: 10px; font-size: 14px; align-items: flex-start;} /* 修复头像对齐 */
+        .c-avatar { font-size: 18px; margin-right: 8px; background: white; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0;} /* 恢复头像样式 */
+        .c-content { background: white; padding: 8px 12px; border-radius: 14px; flex: 1; }
         .c-input-area { display: flex; margin-top: 10px; gap: 10px; }
         .c-input-area input { flex: 1; border: 1px solid #eee; background: white; color: #333; padding: 10px 14px; border-radius: 20px;}
 
-        /* ================= 商店 UI (彻底独立配色) ================= */
-        #shop-view { background: #eaf6ff; color: #0f172a; }
-        #shop-view .view-header { background: rgba(234, 246, 255, 0.95); border-bottom: 1px solid rgba(15, 23, 42, 0.1); color: #0f172a;}
-        .shop-balance-card { background: white; border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;}
+        /* ================= 商店 UI (带毛玻璃的蓝色半透明) ================= */
+        #shop-view { background: rgba(234, 246, 255, 0.85); color: #0f172a; }
+        #shop-view .view-header { background: rgba(234, 246, 255, 0.6); border-bottom: 1px solid rgba(15, 23, 42, 0.1); color: #0f172a;}
+        .shop-balance-card { background: rgba(255,255,255,0.9); border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;}
         .shop-balance-card .value { font-size: 36px; font-weight: 800; margin-top: 5px; }
         .shop-section { margin-bottom: 25px; }
         .shop-row { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; }
         .shop-row::-webkit-scrollbar { display: none; }
-        .shop-card { flex: 0 0 240px; background: white; border-radius: 16px; padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); scroll-snap-align: start; display: flex; flex-direction: column; }
+        .shop-card { flex: 0 0 240px; background: rgba(255,255,255,0.9); border-radius: 16px; padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); scroll-snap-align: start; display: flex; flex-direction: column; }
         .shop-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .shop-buy { margin-top: 15px; background: #0b3d91; color: white; border: none; border-radius: 12px; padding: 12px; font-weight: 700; width: 100%;}
+        
         .pay-terminal { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 200;}
         .pay-terminal.active { display: flex; }
         .pay-terminal-box { width: 85%; background: #0b0f0c; border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 16px; padding: 20px; font-family: monospace; color: #a7f3d0; }
@@ -484,15 +488,12 @@ Rules:
     let customEvents = JSON.parse(localStorage.getItem('ghost_events_v4') || '{}');
     let checkins = JSON.parse(localStorage.getItem('ghost_checkins_v4') || '{}');
 
-    // ============== 视图导航控制 (核心改动) ==============
+    // ============== 视图导航控制 ==============
     function openView(viewId) {
-        // 如果是从 menu-view 打开其他页面，先隐藏 menu-view 保证层级干净
         if(viewId !== 'menu-view') document.getElementById('menu-view').classList.remove('active');
-        
         const view = document.getElementById(viewId);
         if (view) {
             view.classList.add('active');
-            // 每次打开视图触发对应渲染
             if(viewId === 'shop-view') { renderShopCatalog(); renderShopHeader(); }
             if(viewId === 'calendar-view') renderCalendar();
             if(viewId === 'finance-view') renderJointAccountPanel();
@@ -503,7 +504,6 @@ Rules:
 
     function closeView(viewId) {
         document.getElementById(viewId).classList.remove('active');
-        // 处理商店返回后的聊天触发
         if(viewId === 'shop-view' && lastShopPurchase) {
             const purchase = lastShopPurchase; lastShopPurchase = null;
             triggerPurchaseComment(purchase);
@@ -604,7 +604,6 @@ Rules:
         setTimeout(() => win.scrollTop = win.scrollHeight, 50);
     }
 
-    // 转账卡片渲染 (文案改为 Transfer sent)
     function renderTransferMsgUI(msg, timeStr) {
         const win = document.getElementById('chat-window');
         const wrap = document.createElement('div');
@@ -727,19 +726,109 @@ Rules:
     function toggleSimonTask(i){ simonTasks[i].done=!simonTasks[i].done; saveTasks(); renderTasks(); }
     async function fetchSimonTasks(){ try{ const r=await callAI("Tasks", TODO_PROMPT); simonTasks=JSON.parse(r).map(text=>({text,done:false})); saveTasks(); renderTasks(); }catch(e){} }
 
-    // Love Space
+    // Love Space (修复了头像渲染逻辑)
     function saveFeed() { localStorage.setItem('ghost_ls_feed_v4', JSON.stringify(lsFeed)); }
-    function renderFeed() { document.getElementById('ls-feed').innerHTML=[...lsFeed].reverse().map(p=>`<div class="tweet"><div class="tweet-header"><div class="t-avatar">${AVATARS[p.author]||"👤"}</div><div><b>${p.author}</b> <span style="font-size:13px;color:#888">${p.handle}</span></div></div><div class="tweet-body">${p.content}</div><div class="tweet-actions"><div onclick="toggleLike(${p.id})">❤️ ${p.likes}</div><div onclick="document.getElementById('comments-${p.id}').classList.toggle('open')">💬 ${p.comments.length}</div></div><div class="comments-section" id="comments-${p.id}">${p.comments.map(c=>`<div class="comment"><b style="margin-right:8px;">${c.author}</b><div class="c-content">${c.content}</div></div>`).join('')}<div class="c-input-area"><input type="text" id="c-input-${p.id}" placeholder="Reply..."><button class="ls-btn" onclick="postComment(${p.id})">Reply</button></div></div></div>`).join(''); }
+    function renderFeed() { 
+        document.getElementById('ls-feed').innerHTML=[...lsFeed].reverse().map(p=>{
+            const commentsHTML = p.comments.map(c => {
+                const cName = (c.author === "User" || c.author === MY_NAME) ? MY_NAME : c.author;
+                return `<div class="comment"><div class="c-avatar">${AVATARS[cName]||"👤"}</div><div class="c-content"><b>${cName}</b> ${c.content}</div></div>`;
+            }).join('');
+            return `<div class="tweet"><div class="tweet-header"><div class="t-avatar">${AVATARS[p.author]||"👤"}</div><div><b>${p.author}</b> <span style="font-size:13px;color:#888">${p.handle}</span></div></div><div class="tweet-body">${p.content}</div><div class="tweet-actions"><div onclick="toggleLike(${p.id})">❤️ ${p.likes}</div><div onclick="document.getElementById('comments-${p.id}').classList.toggle('open')">💬 ${p.comments.length}</div></div><div class="comments-section" id="comments-${p.id}">${commentsHTML}<div class="c-input-area"><input type="text" id="c-input-${p.id}" placeholder="Reply..."><button class="ls-btn" onclick="postComment(${p.id})">Reply</button></div></div></div>`;
+        }).join(''); 
+    }
     function toggleLike(id){ lsFeed.find(x=>x.id===id).likes++; saveFeed(); renderFeed(); }
     async function postMyTweet() { const text=document.getElementById('ls-textarea').value.trim(); if(!text)return; const p={id:Date.now(),author:MY_NAME,handle:MY_ID,content:text,likes:0,comments:[]}; lsFeed.push(p); document.getElementById('ls-textarea').value=''; saveFeed(); renderFeed(); triggerLSAI(p.id, `Shangy posted: "${text}". Ghost MUST comment, and 1-2 others. Output JSON: {"Ghost":"..."}`); }
     async function postComment(id) { const i=document.getElementById(`c-input-${id}`); const t=i.value.trim(); if(!t)return; const p=lsFeed.find(x=>x.id===id); p.comments.push({author:MY_NAME,content:t}); i.value=''; saveFeed(); renderFeed(); triggerLSAI(id, `Shangy commented: "${t}". Ghost MUST reply. Output JSON: {"Ghost":"..."}`); }
     async function triggerLSAI(id, msg) { try{ const res=JSON.parse(await callAI(msg, LOVESPACE_PROMPT)); const p=lsFeed.find(x=>x.id===id); for(const n of ["Ghost","Soap","Price","Gaz"]) if(res[n]) p.comments.push({author:n,content:n==="Ghost"?postProcessGhostReply(await enforceEnglishOnly(res[n])):res[n]}); saveFeed(); renderFeed(); }catch(e){} }
     async function fetchAIPost() { document.getElementById('ls-refresh-btn').innerText="Loading intel..."; const pool=[{n:"Ghost",h:"@ghost141"},{n:"Price",h:"@bravo_six"},{n:"Gaz",h:"@gaz_141"},{n:"Soap",h:"@soap_mactavish"}]; const s=(Math.random()<0.6)?pool[0]:pool[1+Math.floor(Math.random()*3)]; try{ const res=JSON.parse(await callAI(`Generate 1 post from ${s.n} (${s.h}). Output JSON: {"author":"${s.n}","handle":"${s.h}","content":"..."}`, LOVESPACE_PROMPT)); lsFeed.push({id:Date.now(), author:res.author, handle:res.handle, content:res.author==="Ghost"?postProcessGhostReply(await enforceEnglishOnly(res.content)):res.content, likes:Math.floor(Math.random()*50), comments:[]}); saveFeed(); renderFeed(); }catch(e){} finally{document.getElementById('ls-refresh-btn').innerText="✨ Load New Intel";} }
 
-    // 商店
+    // 商店 (恢复了全部 6 大分类)
     const SHOP_CATALOG = [
-        { id: 'gifts', title: 'Gifts from Him', items: [ { id:'ring', emoji:'💍', name:'Simple Ring', pricePennies:15900 }, { id:'perfume', emoji:'🧴', name:'Perfume', pricePennies:8900 } ] },
-        { id: 'food', title: 'Study Snacks', items: [ { id:'tea_milk', emoji:'🧋', name:'Milk Tea', pricePennies:700 }, { id:'macarons', emoji:'🍪', name:'Macarons', pricePennies:1600 } ] }
+        {
+            id: 'fashion',
+            title: 'Fashion',
+            items: [
+                { id: 'dress_babyblue', emoji: '👗', name: 'Baby-Blue Dress', pricePennies: 8900, desc: 'soft baby blue, clean lines. made for your calm study days.' },
+                { id: 'heels_black', emoji: '👠', name: 'Black Heels', pricePennies: 9900, desc: 'for the days you want to look lethal without trying.' },
+                { id: 'sneakers_white', emoji: '👟', name: 'White Sneakers', pricePennies: 7200, desc: 'quiet steps. flea market mornings, camera on your shoulder.' },
+                { id: 'ghost_hoodie', emoji: '🧥', name: "Ghost's Hoodie", pricePennies: 6500, desc: 'oversized, warm. smells like him, even when he is away.' },
+                { id: 'scarf_wool', emoji: '🧣', name: 'Wool Scarf', pricePennies: 4200, desc: 'wrap it tight. keep your throat warm while you read.' },
+                { id: 'cap_simple', emoji: '🧢', name: 'Simple Cap', pricePennies: 2800, desc: 'for bad hair days and low-profile errands.' },
+                { id: 'hair_ribbon', emoji: '🎀', name: 'Hair Ribbon', pricePennies: 900, desc: 'soft, neat. the kind of detail he notices.' },
+                { id: 'socks_cozy', emoji: '🧦', name: 'Cozy Socks', pricePennies: 1200, desc: 'warm feet, steady focus. no excuses.' }
+            ]
+        },
+        {
+            id: 'food',
+            title: 'Food',
+            items: [
+                { id: 'cake_strawberry', emoji: '🍰', name: 'Strawberry Shortcake', pricePennies: 1800, desc: 'sweet, soft, zero guilt. exam fuel.' },
+                { id: 'croissant', emoji: '🥐', name: 'Butter Croissant', pricePennies: 900, desc: 'crispy outside, calm inside. like you when you focus.' },
+                { id: 'coffee_oat', emoji: '☕', name: 'Oat Latte', pricePennies: 650, desc: 'warm hands, steady mind.' },
+                { id: 'tea_milk', emoji: '🧋', name: 'Milk Tea', pricePennies: 700, desc: 'a small reward. do not negotiate.' },
+                { id: 'snacks_nuts', emoji: '🥜', name: 'Roasted Nuts', pricePennies: 550, desc: 'something to chew while you highlight cases.' },
+                { id: 'chocolate_dark', emoji: '🍫', name: 'Dark Chocolate', pricePennies: 800, desc: 'bitter-sweet. like the truth.' },
+                { id: 'macarons', emoji: '🍪', name: 'Macarons', pricePennies: 1600, desc: 'small, pretty, dangerous. like your taste.' },
+                { id: 'earl_grey', emoji: '🫖', name: 'Earl Grey', pricePennies: 900, desc: 'proper cup. no sugar if you can help it.' }
+            ]
+        },
+        {
+            id: 'digital',
+            title: 'Digital',
+            items: [
+                { id: 'laptop', emoji: '💻', name: 'Lightweight Laptop', pricePennies: 129900, desc: 'quiet keyboard. fast enough for your notes and a hundred tabs.' },
+                { id: 'iphone_latest', emoji: '📱', name: 'Newest iPhone', pricePennies: 99900, desc: 'clean camera. your life, sharp and bright.' },
+                { id: 'camera_compact', emoji: '📷', name: 'Compact Digital Camera', pricePennies: 58900, desc: 'for flea markets, street corners, and the way you see the world.' },
+                { id: 'ipad', emoji: '📟', name: 'iPad', pricePennies: 49900, desc: 'read, annotate, plan. law student kit.' },
+                { id: 'watch', emoji: '⌚', name: 'Apple Watch', pricePennies: 32900, desc: 'heart rate, reminders, and a little control.' },
+                { id: 'airpods', emoji: '🎧', name: 'AirPods', pricePennies: 19900, desc: 'noise down. focus up.' },
+                { id: 'ssd', emoji: '💾', name: 'Portable SSD', pricePennies: 7900, desc: 'backup your photos. do it properly.' },
+                { id: 'tripod', emoji: '📐', name: 'Camera Tripod', pricePennies: 4900, desc: 'steady shots. steady hands.' }
+            ]
+        },
+        {
+            id: 'tactical',
+            title: 'Tactical (Ghost)',
+            items: [
+                { id: 'gloves', emoji: '🧤', name: 'Tactical Gloves', pricePennies: 3900, desc: 'grip, control, no fingerprints. his style.' },
+                { id: 'comms', emoji: '📡', name: 'Comms Earpiece', pricePennies: 5200, desc: 'clean audio. no wasted words.' },
+                { id: 'medpouch', emoji: '🩹', name: 'IFAK Med Pouch', pricePennies: 4800, desc: 'bandages, tape, calm. for when he is too stubborn.' },
+                { id: 'platecarrier', emoji: '🛡️', name: 'Plate Carrier (Training)', pricePennies: 14900, desc: 'training kit only. heavy, serious, dependable.' },
+                { id: 'nv_patch', emoji: '🟩', name: 'Night Ops Patch', pricePennies: 900, desc: 'a small square of authority.' },
+                { id: 'field_pack', emoji: '🎒', name: 'Field Pack', pricePennies: 8700, desc: 'room for gear, snacks, and a photo of you.' },
+                { id: 'balaclava', emoji: '🥷', name: 'Balaclava', pricePennies: 2400, desc: 'cold weather. no chatter.' },
+                { id: 'paracord', emoji: '🧵', name: 'Paracord Roll', pricePennies: 1200, desc: 'useful. always.' }
+            ]
+        },
+        {
+            id: 'gifts',
+            title: 'Gifts',
+            items: [
+                { id: 'ring', emoji: '💍', name: 'Simple Ring', pricePennies: 15900, desc: 'clean, quiet promise. nothing loud.' },
+                { id: 'necklace', emoji: '📿', name: 'Silver Necklace', pricePennies: 12900, desc: 'cold metal, warm meaning.' },
+                { id: 'candle', emoji: '🕯️', name: 'Scented Candle', pricePennies: 2600, desc: 'soft light for late-night reading.' },
+                { id: 'jellycat', emoji: '🧸', name: 'Jellycat Plush', pricePennies: 3200, desc: 'small, absurdly cute. it will sit on your bed and judge you.' },
+                { id: 'ysl_lip', emoji: '💄', name: 'YSL Lipstick', pricePennies: 4100, desc: 'one shade that makes him go quiet.' },
+                { id: 'perfume', emoji: '🧴', name: 'Perfume', pricePennies: 8900, desc: 'a signature. something he remembers.' },
+                { id: 'photo_frame', emoji: '🖼️', name: 'Photo Frame', pricePennies: 1500, desc: 'one picture. the one he keeps.' },
+                { id: 'bookmark', emoji: '🔖', name: 'Leather Bookmark', pricePennies: 900, desc: 'for law books and the pages you swear you will finish.' }
+            ]
+        },
+        {
+            id: 'local',
+            title: 'China × UK',
+            items: [
+                { id: 'longjing', emoji: '🍵', name: 'Longjing Tea', pricePennies: 2100, desc: 'clean, grassy, bright. study companion.' },
+                { id: 'osmanthus', emoji: '🍯', name: 'Osmanthus Candy', pricePennies: 1200, desc: 'sweet scent. small comfort.' },
+                { id: 'white_rabbit', emoji: '🍬', name: 'White Rabbit', pricePennies: 800, desc: 'classic. you know the one.' },
+                { id: 'yorkshire', emoji: '🫖', name: 'Yorkshire Tea', pricePennies: 950, desc: 'proper brew. he will approve.' },
+                { id: 'shortbread', emoji: '🍪', name: 'Scottish Shortbread', pricePennies: 1100, desc: 'crumbly, buttery, dangerously easy.' },
+                { id: 'fishchips', emoji: '🍟', name: 'Fish & Chips Voucher', pricePennies: 1600, desc: 'an excuse: you owe him a date when he is back.' },
+                { id: 'oolong', emoji: '🍃', name: 'Oolong Tea', pricePennies: 1700, desc: 'warm, roasted notes. calm without sleepiness.' },
+                { id: 'cadbury', emoji: '🍫', name: 'Cadbury Bar', pricePennies: 700, desc: 'sweet, simple, dangerously easy.' }
+            ]
+        }
     ];
     let lastShopPurchase = null;
     function renderShopHeader() { document.getElementById('shop-balance').innerText=formatGBP(jointAccount.balancePennies); }
