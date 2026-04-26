@@ -6,444 +6,220 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Terminal 141">
-    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Skull_and_crossbones.svg/512px-Skull_and_crossbones.svg.png"> <title>Ghost | Steel Anchor Terminal</title>
+    <meta name="theme-color" content="#000000">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Skull_and_crossbones.svg/512px-Skull_and_crossbones.svg.png">
+    
+    <title>Ghost | Steel Anchor Terminal</title>
     <style>
         :root {
             --ios-blue: #007aff;
             --ios-grey: #262629;
-            --sidebar-width: 320px;
-            --glass: rgba(20, 20, 20, 0.7);
             --love-pink: #FFF0F5;
             --love-pink-dark: #FFB6C1;
             --love-text: #333;
+            --bg-dark: #0a0a0c;
         }
 
-        body { 
-            background: #000;
-            color: white; 
+        /* 锁定 Body 滚动，彻底解决页面穿透问题 */
+        body, html { 
+            background: #000; color: white; 
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
-            margin: 0; display: flex; height: 100vh; width: 100vw;
-            overflow: hidden;
-            -webkit-tap-highlight-color: transparent; /* 移除 iOS 默认的点击高亮 */
+            margin: 0; padding: 0; 
+            height: 100vh; width: 100vw;
+            overflow: hidden; 
+            position: fixed; /* iOS 防回弹关键 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         #dynamic-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover; background-position: center;
-            z-index: -2; transition: background 0.5s ease;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center; z-index: -2; 
         }
         .bg-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%);
-            backdrop-filter: blur(12px); z-index: -1;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); z-index: -1;
         }
 
-        /* ================= 左侧图标栏 ================= */
-        .icon-dock {
-            width: 70px;
-            background: rgba(10, 10, 10, 0.8);
-            border-right: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px);
-            display: flex; flex-direction: column; align-items: center; padding: 30px 0;
-            z-index: 20; position: relative;
+        /* ================= 基础 UI 组件 ================= */
+        .btn { background: rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; font-size: 15px; font-weight: 600; margin-bottom: 10px; transition: 0.2s;}
+        .btn:active { transform: scale(0.98); background: rgba(255,255,255,0.2); }
+        .btn.danger { color: #ff453a; background: rgba(255, 69, 58, 0.1); }
+        input[type="text"], input[type="password"], textarea { font-size: 16px !important; } /* iOS 防缩放 */
+
+        /* ================= 主聊天区域 ================= */
+        .chat-area { 
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; 
+            z-index: 10;
         }
-        .dock-icon {
-            font-size: 26px;
-            margin-bottom: 30px; cursor: pointer;
-            transition: transform 0.2s, filter 0.2s; filter: grayscale(50%);
-            width: 50px; height: 50px; display: flex; align-items: center;
-            justify-content: center;
-            border-radius: 12px; background: rgba(255,255,255,0.05);
+        .chat-header { 
+            padding: max(15px, env(safe-area-inset-top)) 20px 15px 20px; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+            display: flex; align-items: center; 
+            background: rgba(10,10,10,0.85); backdrop-filter: blur(20px); 
+            z-index: 20; 
         }
-        .dock-icon:hover, .dock-icon.active { transform: scale(1.1);
-            filter: grayscale(0%); background: rgba(255,255,255,0.15); }
-
-        /* ================= 侧滑面板区 ================= */
-        .side-panels-container {
-            width: var(--sidebar-width);
-            background: var(--glass);
-            border-right: 1px solid rgba(255,255,255,0.1); position: relative;
-            margin-left: calc(var(--sidebar-width) * -1); transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 15; overflow-y: auto; overflow-x: hidden;
-        }
-        .side-panels-container.open { margin-left: 0; }
-        
-        .panel { display: none; padding: 30px 20px; animation: fadeIn 0.3s; }
-        .panel.active { display: block; }
-        .panel h2 { font-size: 20px; margin-top: 0; margin-bottom: 25px;
-            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
-
-        /* ================= 面板特定 UI ================= */
-        .todo-section { margin-bottom: 25px; }
-        .todo-section h3 { font-size: 14px; color: #aaa; text-transform: uppercase; margin-bottom: 10px;}
-        .task-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 10px;
-            border-radius: 8px; margin-bottom: 8px; }
-        .task-item input[type="checkbox"] { margin-right: 10px; transform: scale(1.2); cursor: pointer; accent-color: var(--ios-blue); }
-        .task-item input[type="text"] { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 14px; }
-        .task-item.done span, .task-item.done input[type="text"] { text-decoration: line-through; color: #888; }
-        .add-task-btn { color: var(--ios-blue); cursor: pointer; font-size: 13px; padding: 5px; }
-
-        .pet-container { text-align: center; margin-top: 20px; }
-        .dog-emoji { font-size: 80px; cursor: pointer; transition: 0.2s; display: inline-block; user-select: none; }
-        .dog-emoji:hover { transform: scale(1.1) rotate(5deg); }
-        .pet-thoughts { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; font-style: italic; font-size: 14px;
-            min-height: 40px; margin: 20px 0; position: relative; }
-        .pet-thoughts::after { content: ''; position: absolute; top: -10px; left: 50%; margin-left: -10px; border-width: 0 10px 10px 10px; border-style: solid; border-color: transparent transparent rgba(255,255,255,0.1) transparent; }
-        .pet-status { font-size: 12px; color: #aaa; margin-top: -6px; margin-bottom: 12px; }
-        .pet-bars { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 14px 0; }
-        .pet-bar { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 10px 12px; text-align: left; }
-        .pet-bar-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-        .pet-bar-head span { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .pet-bar-head b { font-size: 12px; color: rgba(255,255,255,0.85); }
-        .pet-bar-track { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
-        .pet-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, rgba(0,122,255,0.95), rgba(52,199,89,0.95)); border-radius: 999px; transition: width 0.35s ease; }
-
-        .balance-card { background: linear-gradient(135deg, #1e1e1e, #333); padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .balance-card h3 { margin: 0; color: #aaa; font-size: 13px; font-weight: normal; }
-        .balance-card .amount { font-size: 32px; font-weight: bold; margin: 10px 0; }
-        .expense-list { display: flex; flex-direction: column; gap: 10px; }
-        .expense-item { background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .expense-info b { display: block; font-size: 14px; margin-bottom: 3px; }
-        .expense-info span { font-size: 11px; color: #888; }
-        .expense-cost { font-weight: bold; color: #ff6b81; }
-
-        .setting-item { margin-bottom: 25px; }
-        .setting-item label { color: #aaa; display: block; margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
-        input[type="text"], input[type="password"] { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; padding: 10px; box-sizing: border-box; outline: none; transition: 0.2s; }
-        input:focus { border-color: var(--ios-blue); }
-        .btn { background: rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); font-size: 14px; margin-bottom: 10px;}
-        .btn:hover { background: rgba(255,255,255,0.2); }
-        .btn.danger { color: #ff453a; border-color: rgba(255, 69, 58, 0.3); }
-
-        /* ================= 日历与天气 UI ================= */
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 16px;}
-        .calendar-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-        .cal-day-name { text-align: center; font-size: 11px; color: #aaa; margin-bottom: 5px; }
-        .cal-day { background: rgba(255,255,255,0.05); border-radius: 6px; padding: 5px; min-height: 45px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; }
-        .cal-day:hover { background: rgba(255,255,255,0.15); }
-        .cal-day.today { border: 1px solid var(--ios-blue); }
-        .cal-date { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
-        .cal-event { font-size: 10px; color: var(--love-pink-dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .cal-holiday { font-size: 10px; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .cal-mark { width: 6px; height: 6px; border-radius: 50%; background: rgba(0, 122, 255, 0.75); margin-top: 6px; }
-        .cal-check { font-size: 12px; color: #34c759; margin-top: auto; line-height: 1; }
-        .cal-events-wrap { margin-top: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px; }
-        .cal-events-title { font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-        .cal-events-list { display: flex; flex-direction: column; gap: 8px; }
-        .cal-events-item { display: flex; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
-        .cal-events-item b { font-size: 13px; }
-        .cal-events-item span { font-size: 12px; color: #888; }
-
-        .weather-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.05);}
-        .weather-card h3 { margin: 0 0 10px 0; font-size: 13px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
-        .time-display { font-size: 36px; font-weight: bold; margin-bottom: 5px; font-family: "SF Pro Display", sans-serif; }
-        .weather-desc { font-size: 15px; color: white; }
-
-        /* ================= 聊天主区域 ================= */
-        .chat-area { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; }
-        .chat-header { padding: 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; background: rgba(10,10,10,0.5); backdrop-filter: blur(20px); z-index: 5; }
-        .avatar { width: 40px; height: 40px; background: #1a1a1a; border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid rgba(255,255,255,0.1); }
+        .avatar { width: 42px; height: 42px; background: #1a1a1a; border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid rgba(255,255,255,0.1); }
         .header-info b { font-size: 16px; display: block; }
-        .header-info span { font-size: 11px; color: #888; }
-        .header-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-        .love-space-btn { font-size: 24px; cursor: pointer; transition: transform 0.2s; padding: 5px; }
-        .love-space-btn:hover { transform: scale(1.1); }
-        .shop-btn { font-size: 22px; cursor: pointer; transition: transform 0.2s; padding: 6px; }
-        .shop-btn:hover { transform: scale(1.1); }
-        #chat-window { flex: 1; padding: 40px 15% 20px 15%; overflow-y: auto; display: flex; flex-direction: column; scroll-behavior: smooth; }
+        .header-info span { font-size: 12px; color: #888; }
+        .header-actions { margin-left: auto; display: flex; align-items: center; }
+        
+        .menu-btn { font-size: 24px; color: white; padding: 5px 10px; cursor: pointer; }
+
+        #chat-window { 
+            flex: 1; padding: 20px 5% 10px 5%; 
+            overflow-y: auto; -webkit-overflow-scrolling: touch; 
+            display: flex; flex-direction: column; scroll-behavior: smooth; 
+        }
         .msg-wrap { margin-bottom: 18px; display: flex; flex-direction: column; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .msg-wrap.user { align-items: flex-end; }
         .msg-wrap.bot { align-items: flex-start; }
-        .bubble { max-width: 65%; padding: 12px 18px; font-size: 15px; line-height: 1.5; position: relative; word-wrap: break-word; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .bubble { max-width: 80%; padding: 12px 16px; font-size: 16px; line-height: 1.5; word-wrap: break-word; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .user .bubble { background: var(--ios-blue); border-radius: 18px 18px 2px 18px; color: white; }
         .bot .bubble { background: var(--ios-grey); border-radius: 18px 18px 18px 2px; color: white; }
-        .status { font-size: 11px; color: #888; margin-top: 6px; padding: 0 5px; } 
+        .status { font-size: 11px; color: #888; margin-top: 6px; padding: 0 5px; }
 
-        /* ================= Transfer Card ================= */
-        .transfer-card { background: linear-gradient(135deg, rgba(30,30,30,0.9), rgba(10,10,10,0.9)); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-top: 10px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); width: 220px; }
-        .t-icon { font-size: 20px; background: rgba(76, 217, 100, 0.15); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(76, 217, 100, 0.3); }
-        .t-details { flex: 1; }
-        .t-title { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
-        .t-amount { font-size: 18px; font-weight: bold; color: #4cd964; margin-top: 3px; font-family: "SF Pro Display", sans-serif; }
+        /* 聊天输入框 */
+        .input-bar { 
+            padding: 10px 5% max(15px, env(safe-area-inset-bottom)) 5%; 
+            background: rgba(10,10,10,0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .input-box { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; display: flex; padding: 4px 16px; align-items: center; }
+        #user-input { flex: 1; background: transparent; border: none; color: white; padding: 12px 0; outline: none; }
+        .send-btn { color: var(--ios-blue); font-weight: 600; font-size: 20px; padding-left: 10px; cursor: pointer; }
 
-        /* ================= 聊天输入框 ================= */
-        .input-bar { padding: 30px 15%; background: transparent; }
-        .input-box { background: rgba(30, 30, 30, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; display: flex; padding: 5px 20px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
-        #user-input { flex: 1; background: transparent; border: none; color: white; padding: 12px 0; outline: none; font-size: 15px; }
-        .send-btn { color: var(--ios-blue); font-weight: 600; cursor: pointer; font-size: 20px; transition: 0.2s; }
+        /* ================= 独立全屏视图 (核心重构) ================= */
+        .full-view {
+            position: fixed; inset: 0;
+            background: var(--bg-dark); /* 不透明背景 */
+            z-index: 100;
+            display: flex; flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .full-view.active { transform: translateX(0); }
         
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-
-        .shop-row::-webkit-scrollbar { display: none; } 
-
-        /* ================= SHOP UI ================= */
-        #shop-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #eaf6ff;
-            color: #0f172a;
-            z-index: 90;
-            display: flex;
-            flex-direction: column;
-            transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        #shop-overlay.active { transform: translateY(0); }
-        .shop-header {
-            padding: 14px 18px;
+        .view-header {
+            padding: max(15px, env(safe-area-inset-top)) 20px 15px 20px;
             display: flex; align-items: center; justify-content: space-between;
-            background: rgba(234, 246, 255, 0.82); backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(15, 23, 42, 0.08); font-weight: 700;
-            position: sticky; top: 0; z-index: 10;
+            background: rgba(15,15,17,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-weight: 600; font-size: 17px; z-index: 10;
         }
-        .shop-back { cursor: pointer; color: var(--ios-blue); font-weight: 600; }
-        .shop-body { padding: 18px 15%; overflow-y: auto; flex: 1; }
-        .shop-topbar { display: flex; gap: 12px; align-items: stretch; margin-bottom: 18px; flex-wrap: wrap; }
-        .shop-balance-card { flex: 1; min-width: 220px; background: rgba(255,255,255,0.75); border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 14px; padding: 14px 16px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); }
-        .shop-balance-card .label { font-size: 12px; color: rgba(15, 23, 42, 0.6); text-transform: uppercase; letter-spacing: 1px; }
-        .shop-balance-card .value { font-size: 32px; font-weight: 900; margin-top: 6px; }
-        .shop-recent-card { flex: 1.2; min-width: 260px; background: rgba(255,255,255,0.75); border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 14px; padding: 14px 16px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); }
-        .shop-recent-card .label { font-size: 12px; color: rgba(15, 23, 42, 0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .shop-recent-list { display: flex; flex-direction: column; gap: 8px; }
-        .shop-recent-item { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
-        .shop-recent-item span { color: rgba(15, 23, 42, 0.7); }
-        .shop-recent-item b { color: #0f172a; font-weight: 700; }
+        .view-back { color: var(--ios-blue); cursor: pointer; font-size: 16px; display: flex; align-items: center;}
+        .view-body {
+            flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+            padding: 20px 5% max(30px, env(safe-area-inset-bottom)) 5%;
+        }
 
-        .shop-section { margin: 18px 0 22px 0; }
-        .shop-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-        .shop-section h3 { margin: 0; font-size: 15px; color: rgba(15, 23, 42, 0.82); }
-        .shop-nav { display: flex; gap: 8px; }
-        .shop-arrow { width: 32px; height: 32px; border-radius: 10px; border: 1px solid rgba(15, 23, 42, 0.10); background: rgba(255,255,255,0.70); color: rgba(15, 23, 42, 0.90); font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(15, 23, 42, 0.10); }
-        .shop-arrow:active { transform: translateY(1px); }
-        .shop-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x mandatory; }
-        .shop-card { flex: 0 0 230px; background: rgba(255,255,255,0.85); border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 14px; padding: 14px 14px 12px 14px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); scroll-snap-align: start; display: flex; flex-direction: column; min-height: 170px; }
-        .shop-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .shop-emoji { font-size: 28px; }
-        .shop-price { font-weight: 800; color: rgba(15, 23, 42, 0.85); font-size: 14px; }
-        .shop-name { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
-        .shop-desc { font-size: 12px; color: rgba(15, 23, 42, 0.7); line-height: 1.4; flex: 1; }
-        .shop-buy { margin-top: 10px; border: none; background: #0b3d91; color: white; border-radius: 10px; padding: 10px 12px; font-weight: 800; cursor: pointer; }
-        .shop-buy:active { transform: translateY(1px); }
-        .shop-buy[disabled] { opacity: 0.55; cursor: not-allowed; }
+        /* ================= 菜单控制面板 ================= */
+        #menu-view { background: rgba(10,10,12,0.98); }
+        .menu-container { padding: 30px 5%; }
+        .menu-top-row { display: flex; gap: 15px; margin-bottom: 25px; }
+        .menu-top-card { flex: 1; background: rgba(255,255,255,0.05); border-radius: 16px; padding: 25px 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
+        .menu-top-card:active { background: rgba(255,255,255,0.1); }
+        .menu-top-card .icon { font-size: 32px; margin-bottom: 10px; }
+        .menu-top-card .title { font-weight: 600; font-size: 15px; }
 
-        .pay-terminal { position: absolute; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 24px; }
-        .pay-terminal.active { display: flex; }
-        .pay-terminal-box { width: min(720px, 96vw); background: #0b0f0c; border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.55); padding: 16px 16px 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: #a7f3d0; }
-        .pay-terminal-title { font-weight: 900; letter-spacing: 1px; color: #22c55e; margin-bottom: 10px; font-size: 12px; text-transform: uppercase; }
-        .pay-terminal-body { white-space: pre-wrap; font-size: 12px; line-height: 1.5; }
-        .pay-terminal-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
-        .pay-terminal-btn { background: rgba(34, 197, 94, 0.14); border: 1px solid rgba(34, 197, 94, 0.35); color: #22c55e; border-radius: 10px; padding: 8px 12px; font-weight: 800; cursor: pointer; }
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
+        .menu-grid-item { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px 15px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .menu-grid-item:active { background: rgba(255,255,255,0.1); }
+        .menu-grid-item .icon { font-size: 26px; margin-bottom: 8px; }
+        .menu-grid-item .title { font-size: 14px; color: #ddd; }
 
-        /* ================= LOVE SPACE UI ================= */
-        #love-space-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--love-pink); color: var(--love-text); z-index: 100; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        #love-space-overlay.active { transform: translateY(0); }
-        .ls-header { padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; background: rgba(255, 240, 245, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,182,193,0.3); font-weight: 600; font-size: 18px; position: sticky; top: 0; z-index: 10; }
-        .ls-close { cursor: pointer; color: var(--ios-blue); font-size: 16px; }
-        .ls-content { flex: 1; overflow-y: auto; padding: 0 15%; display: flex; flex-direction: column; align-items: center; }
-        .ls-feed-container { width: 100%; max-width: 600px; padding: 20px 0; }
-        .ls-compose { background: white; border-radius: 16px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(255,182,193,0.2); display: flex; flex-direction: column; }
-        .ls-compose textarea { border: none; outline: none; resize: none; width: 100%; font-size: 16px; font-family: inherit; margin-bottom: 10px; min-height: 60px; background: transparent; color: #333;}
-        .ls-compose-actions { display: flex; justify-content: space-between; align-items: center; }
-        .ls-btn { background: var(--ios-blue); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .ls-refresh-btn { background: #ff6b81; margin-bottom: 20px; width: 100%; }
-        .tweet { background: white; border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .menu-settings-row { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
+        .menu-settings-row:active { background: rgba(255,255,255,0.1); }
+
+        /* ================= 各功能面板样式 ================= */
+        .view-section-title { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 5px; }
+        
+        /* 待办 */
+        .task-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; }
+        .task-item input[type="checkbox"] { margin-right: 12px; transform: scale(1.3); accent-color: var(--ios-blue); }
+        .task-item input[type="text"] { flex: 1; background: transparent; border: none; color: white; outline: none; }
+        .task-item.done span, .task-item.done input[type="text"] { text-decoration: line-through; color: #666; }
+
+        /* 日历 */
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 18px;}
+        .calendar-header button { background: none; border: none; color: white; font-size: 24px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 20px;}
+        .cal-day-name { text-align: center; font-size: 12px; color: #888; margin-bottom: 5px; }
+        .cal-day { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 6px; min-height: 50px; display: flex; flex-direction: column; align-items: center;}
+        .cal-day.today { border: 1px solid var(--ios-blue); }
+        .cal-date { font-size: 14px; font-weight: 600; }
+        .cal-mark { width: 6px; height: 6px; border-radius: 50%; background: #007aff; margin-top: 5px; }
+        .cal-check { font-size: 12px; color: #34c759; margin-top: auto; }
+        .cal-events-wrap { background: rgba(255,255,255,0.03); border-radius: 16px; padding: 15px; }
+        .cal-events-item { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; margin-bottom: 8px;}
+
+        /* 宠物 */
+        .pet-container { text-align: center; margin-top: 20px; }
+        .dog-emoji { font-size: 90px; margin-bottom: 10px; }
+        .pet-thoughts { background: rgba(255,255,255,0.08); padding: 15px; border-radius: 16px; font-style: italic; font-size: 15px; margin: 20px 0; }
+        .pet-bar { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 15px; text-align: left; margin-bottom: 12px;}
+        .pet-bar-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;}
+        .pet-bar-track { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; }
+        .pet-bar-fill { height: 100%; width: 0%; background: var(--ios-blue); transition: 0.3s; }
+
+        /* 金库 */
+        .balance-card { background: linear-gradient(135deg, #1e1e1e, #2a2a2d); padding: 25px; border-radius: 20px; text-align: center; margin-bottom: 25px; }
+        .balance-card h3 { margin: 0; color: #aaa; font-size: 14px; font-weight: normal; }
+        .balance-card .amount { font-size: 38px; font-weight: bold; margin: 10px 0; }
+        .expense-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
+        .expense-info b { display: block; font-size: 15px; margin-bottom: 4px; }
+        .expense-info span { font-size: 12px; color: #888; }
+        .expense-cost { font-weight: bold; font-size: 16px;}
+
+        /* 设置 */
+        .setting-item { margin-bottom: 20px; }
+        .setting-item input { width: 100%; background: rgba(255,255,255,0.08); border: none; color: white; border-radius: 12px; padding: 14px; box-sizing: border-box; }
+
+        /* ================= Love Space (彻底独立配色) ================= */
+        #lovespace-view { background: var(--love-pink); color: var(--love-text); }
+        #lovespace-view .view-header { background: rgba(255, 240, 245, 0.95); border-bottom: 1px solid rgba(255,182,193,0.4); color: var(--love-text);}
+        .ls-compose { background: white; border-radius: 16px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(255,182,193,0.2); }
+        .ls-compose textarea { width: 100%; border: none; outline: none; resize: none; font-family: inherit; min-height: 60px; background: transparent; color: #333;}
+        .ls-btn { background: var(--ios-blue); color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600;}
+        .tweet { background: white; border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .tweet-header { display: flex; align-items: center; margin-bottom: 10px; }
-        .t-avatar { font-size: 24px; margin-right: 10px; background: #f0f0f0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-        .tweet-body { font-size: 15px; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; color: #333;}
+        .t-avatar { font-size: 24px; margin-right: 12px; background: #f5f5f5; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .tweet-body { font-size: 15px; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; }
         .tweet-actions { display: flex; gap: 20px; color: #888; font-size: 14px; border-top: 1px solid #f0f0f0; padding-top: 10px;}
-        .comments-section { margin-top: 10px; background: #fdf5f7; border-radius: 12px; padding: 10px; display: none;}
+        .comments-section { margin-top: 10px; background: #fdf5f7; border-radius: 12px; padding: 12px; display: none;}
         .comments-section.open { display: block; }
-        .comment { display: flex; margin-bottom: 8px; font-size: 14px; color: #333;}
-        .c-avatar { font-size: 18px; margin-right: 8px; }
-        .c-content { background: white; padding: 8px 12px; border-radius: 12px; flex: 1; }
+        .comment { display: flex; margin-bottom: 10px; font-size: 14px;}
+        .c-content { background: white; padding: 10px 14px; border-radius: 14px; flex: 1; }
         .c-input-area { display: flex; margin-top: 10px; gap: 10px; }
-        .c-input-area input { flex: 1; border: 1px solid #ddd; background: white; color: #333; padding: 8px 12px; border-radius: 16px;}
-        .ai-typing { font-size: 12px; color: #ff6b81; font-style: italic; display: none; margin-top: 5px; }
-        .loading-text { font-size: 12px; color: #aaa; font-style: italic; margin-top: 10px; display: none;}
+        .c-input-area input { flex: 1; border: 1px solid #eee; background: white; color: #333; padding: 10px 14px; border-radius: 20px;}
 
-        /* ================= 移动端/iOS 响应式适配 (新增区域) ================= */
-        @media (max-width: 768px) {
-            :root {
-                --sidebar-width: calc(100vw - 70px); /* 手机端侧边栏占用剩余所有宽度 */
-            }
+        /* ================= 商店 UI (彻底独立配色) ================= */
+        #shop-view { background: #eaf6ff; color: #0f172a; }
+        #shop-view .view-header { background: rgba(234, 246, 255, 0.95); border-bottom: 1px solid rgba(15, 23, 42, 0.1); color: #0f172a;}
+        .shop-balance-card { background: white; border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;}
+        .shop-balance-card .value { font-size: 36px; font-weight: 800; margin-top: 5px; }
+        .shop-section { margin-bottom: 25px; }
+        .shop-row { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; }
+        .shop-row::-webkit-scrollbar { display: none; }
+        .shop-card { flex: 0 0 240px; background: white; border-radius: 16px; padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); scroll-snap-align: start; display: flex; flex-direction: column; }
+        .shop-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .shop-buy { margin-top: 15px; background: #0b3d91; color: white; border: none; border-radius: 12px; padding: 12px; font-weight: 700; width: 100%;}
+        .pay-terminal { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 200;}
+        .pay-terminal.active { display: flex; }
+        .pay-terminal-box { width: 85%; background: #0b0f0c; border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 16px; padding: 20px; font-family: monospace; color: #a7f3d0; }
 
-            .side-panels-container {
-                position: absolute; /* 脱离文档流，像抽屉一样悬浮在聊天区上方 */
-                left: 70px;
-                top: 0;
-                height: 100%;
-                z-index: 50; 
-                box-shadow: 5px 0 20px rgba(0,0,0,0.5);
-                padding-bottom: env(safe-area-inset-bottom); 
-            }
+        /* Transfer Card */
+        .transfer-card { background: linear-gradient(135deg, rgba(30,30,30,0.9), rgba(10,10,10,0.9)); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; margin-top: 10px; display: flex; align-items: center; gap: 15px; width: 240px; }
+        .t-icon { font-size: 22px; background: rgba(76, 217, 100, 0.15); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(76, 217, 100, 0.3); }
+        .t-title { font-size: 12px; color: #aaa; text-transform: uppercase; margin-bottom: 4px; }
+        .t-amount { font-size: 20px; font-weight: bold; color: #4cd964; }
 
-            .chat-area {
-                width: calc(100vw - 70px);
-                flex: none; /* 确保聊天区在手机上固定宽度，不被侧滑菜单挤压 */
-            }
-
-            .icon-dock {
-                padding-top: max(30px, env(safe-area-inset-top));
-                padding-bottom: max(30px, env(safe-area-inset-bottom));
-                z-index: 60; /* 确保图标栏层级最高 */
-            }
-
-            .chat-header {
-                padding: max(15px, env(safe-area-inset-top)) 20px 15px 20px;
-            }
-
-            #chat-window {
-                /* 取消左右15%的大边距，留给手机更多显示空间 */
-                padding: 20px 5% max(20px, env(safe-area-inset-bottom)) 5%;
-            }
-
-            .input-bar {
-                padding: 15px 5% max(15px, env(safe-area-inset-bottom)) 5%;
-                background: rgba(10,10,10,0.8);
-                backdrop-filter: blur(10px);
-            }
-
-            #user-input, .c-input-area input, input[type="text"] {
-                font-size: 16px; /* 防止 iOS Safari 聚焦时自动放大屏幕 */
-            }
-
-            .bubble {
-                max-width: 85%; /* 手机屏幕小，气泡可以放宽一些 */
-            }
-
-            .shop-body, .ls-content {
-                padding: 20px 5% max(20px, env(safe-area-inset-bottom)) 5%;
-            }
-
-            .shop-topbar {
-                flex-direction: column; 
-            }
-
-            .shop-header, .ls-header {
-                padding-top: max(15px, env(safe-area-inset-top));
-            }
-            
-            .ls-compose { margin-bottom: 15px; }
-        }
-
-        @media (max-width: 400px) {
-            .transfer-card { width: 100%; max-width: 240px; box-sizing: border-box;}
-            .cal-day { min-height: 40px; padding: 2px; }
-        }
     </style>
 </head>
 <body>
 
 <div id="dynamic-bg"></div>
 <div class="bg-overlay"></div>
-
-<div class="icon-dock">
-    <div class="dock-icon" title="To-Do List" onclick="openPanel('todo')">📝</div>
-    <div class="dock-icon" title="Calendar" onclick="openPanel('calendar')">📅</div>
-    <div class="dock-icon" title="Riley the Dog" onclick="openPanel('pet')">🐾</div>
-    <div class="dock-icon" title="Joint Expenses" onclick="openPanel('finance')">💰</div>
-    <div style="flex:1"></div>
-    <div class="dock-icon" title="Settings" onclick="openPanel('settings')">⚙️</div>
-</div>
-
-<div class="side-panels-container" id="panels-container">
-    
-    <div class="panel" id="panel-todo">
-        <h2>Our Tasks 📝</h2>
-        <div class="todo-section">
-            <h3>Shangy's Tasks <span class="add-task-btn" onclick="addShangyTask()">+ Add</span></h3>
-            <div id="shangy-tasks"></div>
-        </div>
-        <div class="todo-section">
-            <h3>Simon's Intel (AI Sync) <span class="add-task-btn" onclick="fetchSimonTasks()">↻ Sync</span></h3>
-            <div id="simon-tasks">
-                <div style="color:#aaa; font-size:12px; font-style:italic;">No active missions. Sync to update.</div>
-            </div>
-            <div id="simon-todo-loading" class="loading-text">Decrypting intel...</div>
-        </div>
-    </div>
-
-    <div class="panel" id="panel-calendar">
-        <h2>Calendar 📅</h2>
-        <div class="calendar-header">
-            <button onclick="changeMonth(-1)">‹</button>
-            <span id="cal-month-year"></span>
-            <button onclick="changeMonth(1)">›</button>
-        </div>
-        <div class="calendar-grid" id="cal-grid"></div>
-        <div class="cal-events-wrap">
-            <div class="cal-events-title">This Month</div>
-            <div class="cal-events-list" id="cal-events-list"></div>
-        </div>
-    </div>
-
-    <div class="panel" id="panel-pet">
-        <h2>Riley 🐾</h2>
-        <div class="pet-container">
-            <div class="dog-emoji" onclick="pokeRiley()">🐕</div>
-            <div class="pet-thoughts" id="riley-thoughts">Woof! (Waiting for a treat...)</div>
-            <div id="riley-loading" class="loading-text" style="margin-bottom: 15px;">Riley is thinking...</div>
-            <div class="pet-status" id="riley-status">Waiting for orders.</div>
-
-            <div class="pet-bars">
-                <div class="pet-bar">
-                    <div class="pet-bar-head"><span>Hunger</span><b id="riley-hunger-text">--</b></div>
-                    <div class="pet-bar-track"><div class="pet-bar-fill" id="riley-hunger-fill"></div></div>
-                </div>
-                <div class="pet-bar">
-                    <div class="pet-bar-head"><span>Mood</span><b id="riley-mood-text">--</b></div>
-                    <div class="pet-bar-track"><div class="pet-bar-fill" id="riley-mood-fill"></div></div>
-                </div>
-            </div>
-
-            <div class="btn" style="background: rgba(255,107,129,0.2); color:#ff6b81; border-color:#ff6b81;" onclick="feedRiley()">🍖 Feed Riley</div>
-            <div class="btn" style="background: rgba(0,122,255,0.18); color: var(--ios-blue); border-color: rgba(0,122,255,0.35);" onclick="trainRiley()">🎯 Training</div>
-            <div class="btn" style="background: rgba(255,255,255,0.08); color: white; border-color: rgba(255,255,255,0.18);" onclick="toggleRileyDuty()">🪖 On Duty</div>
-        </div>
-    </div>
-
-    <div class="panel" id="panel-finance">
-        <h2>Joint Account 💰</h2>
-        <div class="balance-card">
-            <h3>Current Balance</h3>
-            <div class="amount" id="acct-balance">£ 4,250.00</div>
-            <div style="font-size:11px; color:#888;">Shared with Simon Riley</div>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 style="font-size: 14px; margin:0;">All Transactions</h3>
-            <span></span>
-        </div>
-        <div class="expense-list" id="expense-list"></div>
-        <div style="color:#888; font-size:11px; font-style:italic; text-align:center; margin-top:14px;">
-            Purchases, transfers, and check-ins sync here automatically.
-        </div>
-    </div>
-
-    <div class="panel" id="panel-settings">
-        <h2>Terminal Settings ⚙️</h2>
-        <div class="setting-item">
-            <label>Ghost's Alias</label>
-            <input type="text" id="name-input" value="Simon Riley" oninput="updateName()">
-        </div>
-        <div class="setting-item">
-            <label>SiliconFlow API Key</label>
-            <input type="password" id="api-key" placeholder="sk-...">
-        </div>
-        <div class="setting-item">
-            <label>Background UI</label>
-            <div class="btn" onclick="document.getElementById('bg-upload').click()">Change Wallpaper</div>
-            <input type="file" id="bg-upload" style="display:none" accept="image/*" onchange="loadBg(event)">
-        </div>
-        <div class="btn danger" onclick="clearHistory()">Wipe All Records</div>
-        <div style="margin-top: 40px; color:#555; font-size:11px; line-height:1.6; text-align:center;">
-            Ghost Protocol v4.5<br>Timeline & Weather Sync Active
-        </div>
-    </div>
-</div>
 
 <div class="chat-area">
     <div class="chat-header">
@@ -453,8 +229,7 @@
             <span>Active now • Task Force 141</span>
         </div>
         <div class="header-actions">
-            <div class="shop-btn" title="Joint Store" onclick="openShop()">🛍️</div>
-            <div class="love-space-btn" title="Love Space" onclick="toggleLoveSpace()">💕</div>
+            <div class="menu-btn" onclick="openView('menu-view')">☰</div>
         </div>
     </div>
 
@@ -466,60 +241,204 @@
             <div class="send-btn" onclick="sendMessage()">▲</div>
         </div>
     </div>
-    
-    <div id="shop-overlay">
-        <div class="shop-header">
-            <span class="shop-back" onclick="closeShop()">‹ Back</span>
-            <span>Joint Store</span>
-            <span style="width: 50px;"></span>
-        </div>
-        <div class="shop-body">
-            <div id="shop-content"></div>
-        </div>
+</div>
 
-        <div class="pay-terminal" id="pay-terminal">
-            <div class="pay-terminal-box">
-                <div class="pay-terminal-title">Payment Success</div>
-                <div class="pay-terminal-body" id="pay-terminal-body"></div>
-                <div class="pay-terminal-actions">
-                    <button class="pay-terminal-btn" onclick="closePayTerminal()">Close</button>
-                </div>
-            </div>
-        </div>
+<div id="menu-view" class="full-view">
+    <div class="view-header">
+        <div class="view-back" onclick="closeView('menu-view')">‹ Chat</div>
+        <span>Control Panel</span>
+        <div style="width: 50px;"></div>
     </div>
-
-    <div id="love-space-overlay">
-        <div class="ls-header">
-            <span class="ls-close" onclick="toggleLoveSpace()">‹ Back</span>
-            <span>🌸 Love Space 💀</span>
-            <span style="width: 50px;"></span>
-        </div>
-        <div class="ls-content">
-            <div class="ls-feed-container">
-                <button class="ls-btn ls-refresh-btn" onclick="fetchAIPost()">✨ 刷新小队动态 (Load New Tweets)</button>
-                <div class="ls-compose">
-                    <textarea id="ls-textarea" placeholder="What's happening, Shangy? (@ghost141)"></textarea>
-                    <div class="ls-compose-actions">
-                        <span style="font-size: 20px; cursor:pointer;" onclick="alert('Text + emoji only.')">🖼️</span>
-                        <button class="ls-btn" onclick="postMyTweet()">Post</button>
-                    </div>
-                </div>
-                <div id="ls-feed"></div>
+    <div class="view-body menu-container">
+        <div class="menu-top-row">
+            <div class="menu-top-card" style="color: #FFB6C1;" onclick="openView('lovespace-view')">
+                <div class="icon">💕</div>
+                <div class="title">Love Space</div>
             </div>
+            <div class="menu-top-card" style="color: #64d2ff;" onclick="openView('shop-view')">
+                <div class="icon">🛍️</div>
+                <div class="title">Joint Store</div>
+            </div>
+        </div>
+        
+        <div class="menu-grid">
+            <div class="menu-grid-item" onclick="openView('todo-view')">
+                <div class="icon">📝</div>
+                <div class="title">Tasks</div>
+            </div>
+            <div class="menu-grid-item" onclick="openView('calendar-view')">
+                <div class="icon">📅</div>
+                <div class="title">Calendar</div>
+            </div>
+            <div class="menu-grid-item" onclick="openView('pet-view')">
+                <div class="icon">🐾</div>
+                <div class="title">Riley</div>
+            </div>
+            <div class="menu-grid-item" onclick="openView('finance-view')">
+                <div class="icon">💰</div>
+                <div class="title">Vault</div>
+            </div>
+        </div>
+
+        <div class="menu-settings-row" onclick="openView('settings-view')">
+            <span style="font-size: 20px;">⚙️</span>
+            <span style="font-weight: 600;">Terminal Settings</span>
         </div>
     </div>
 </div>
 
+<div id="todo-view" class="full-view">
+    <div class="view-header">
+        <div class="view-back" onclick="closeView('todo-view')">‹ Back</div>
+        <span>Our Tasks</span>
+        <div style="width: 50px;"></div>
+    </div>
+    <div class="view-body">
+        <div class="view-section-title">Shangy's Tasks <span style="float:right; color:var(--ios-blue); text-transform:none; cursor:pointer;" onclick="addShangyTask()">+ Add</span></div>
+        <div id="shangy-tasks" style="margin-bottom: 30px;"></div>
+        
+        <div class="view-section-title">Simon's Intel <span style="float:right; color:var(--ios-blue); text-transform:none; cursor:pointer;" onclick="fetchSimonTasks()">↻ Sync</span></div>
+        <div id="simon-tasks"></div>
+    </div>
+</div>
+
+<div id="calendar-view" class="full-view">
+    <div class="view-header">
+        <div class="view-back" onclick="closeView('calendar-view')">‹ Back</div>
+        <span>Calendar</span>
+        <div style="width: 50px;"></div>
+    </div>
+    <div class="view-body">
+        <div class="calendar-header">
+            <button onclick="changeMonth(-1)">‹</button>
+            <span id="cal-month-year"></span>
+            <button onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="calendar-grid" id="cal-grid"></div>
+        <div class="cal-events-wrap">
+            <div class="view-section-title" style="margin:0 0 15px 0;">This Month</div>
+            <div id="cal-events-list"></div>
+        </div>
+    </div>
+</div>
+
+<div id="pet-view" class="full-view">
+    <div class="view-header">
+        <div class="view-back" onclick="closeView('pet-view')">‹ Back</div>
+        <span>Riley The Dog</span>
+        <div style="width: 50px;"></div>
+    </div>
+    <div class="view-body">
+        <div class="pet-container">
+            <div class="dog-emoji" onclick="pokeRiley()">🐕</div>
+            <div class="pet-thoughts" id="riley-thoughts">Woof! (Waiting for orders...)</div>
+            <div style="color:#aaa; font-size:13px; margin-bottom: 20px;" id="riley-status">Standing by.</div>
+
+            <div class="pet-bar">
+                <div class="pet-bar-head"><span>Hunger</span><b id="riley-hunger-text">--</b></div>
+                <div class="pet-bar-track"><div class="pet-bar-fill" id="riley-hunger-fill" style="background: #34c759;"></div></div>
+            </div>
+            <div class="pet-bar" style="margin-bottom: 30px;">
+                <div class="pet-bar-head"><span>Mood</span><b id="riley-mood-text">--</b></div>
+                <div class="pet-bar-track"><div class="pet-bar-fill" id="riley-mood-fill" style="background: #ff6b81;"></div></div>
+            </div>
+
+            <div class="btn" style="background: rgba(255,107,129,0.15); color:#ff6b81;" onclick="feedRiley()">🍖 Feed</div>
+            <div class="btn" style="background: rgba(0,122,255,0.15); color: var(--ios-blue);" onclick="trainRiley()">🎯 Train</div>
+            <div class="btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="toggleRileyDuty()">🪖 Toggle Duty</div>
+        </div>
+    </div>
+</div>
+
+<div id="finance-view" class="full-view">
+    <div class="view-header">
+        <div class="view-back" onclick="closeView('finance-view')">‹ Back</div>
+        <span>Joint Vault</span>
+        <div style="width: 50px;"></div>
+    </div>
+    <div class="view-body">
+        <div class="balance-card">
+            <h3>Current Balance</h3>
+            <div class="amount" id="acct-balance">£ 0.00</div>
+            <div style="font-size:12px; color:#888;">Shared with Simon Riley</div>
+        </div>
+        <div class="view-section-title">Transactions</div>
+        <div id="expense-list"></div>
+    </div>
+</div>
+
+<div id="settings-view" class="full-view">
+    <div class="view-header">
+        <div class="view-back" onclick="closeView('settings-view')">‹ Back</div>
+        <span>Settings</span>
+        <div style="width: 50px;"></div>
+    </div>
+    <div class="view-body">
+        <div class="setting-item">
+            <div class="view-section-title">Ghost's Alias</div>
+            <input type="text" id="name-input" value="Simon Riley" oninput="updateName()">
+        </div>
+        <div class="setting-item">
+            <div class="view-section-title">API Key</div>
+            <input type="password" id="api-key" placeholder="sk-...">
+        </div>
+        <div class="setting-item" style="margin-top: 30px;">
+            <div class="btn" onclick="document.getElementById('bg-upload').click()">Change Wallpaper</div>
+            <input type="file" id="bg-upload" style="display:none" accept="image/*" onchange="loadBg(event)">
+        </div>
+        <div class="btn danger" onclick="clearHistory()">Wipe All Records</div>
+    </div>
+</div>
+
+<div id="lovespace-view" class="full-view">
+    <div class="view-header">
+        <div class="view-back" onclick="closeView('lovespace-view')">‹ Back</div>
+        <span>🌸 Love Space 💀</span>
+        <div style="width: 50px;"></div>
+    </div>
+    <div class="view-body">
+        <div class="btn" style="background: #ff6b81; width: 100%; box-sizing: border-box;" onclick="fetchAIPost()" id="ls-refresh-btn">✨ Load New Intel</div>
+        <div class="ls-compose">
+            <textarea id="ls-textarea" placeholder="What's happening, Shangy?"></textarea>
+            <div style="display: flex; justify-content: flex-end;">
+                <button class="ls-btn" onclick="postMyTweet()">Post</button>
+            </div>
+        </div>
+        <div id="ls-feed"></div>
+    </div>
+</div>
+
+<div id="shop-view" class="full-view">
+    <div class="view-header">
+        <div class="view-back" onclick="closeView('shop-view')">‹ Back</div>
+        <span>Joint Store</span>
+        <div style="width: 50px;"></div>
+    </div>
+    <div class="view-body">
+        <div class="shop-balance-card">
+            <div style="font-size:12px; color:#666; text-transform:uppercase;">Vault Balance</div>
+            <div class="value" id="shop-balance">£ 0.00</div>
+        </div>
+        <div id="shop-content"></div>
+    </div>
+    
+    <div class="pay-terminal" id="pay-terminal">
+        <div class="pay-terminal-box">
+            <div style="color:#22c55e; font-weight:bold; margin-bottom:10px;">SYSTEM MESSAGE</div>
+            <div id="pay-terminal-body" style="font-size:13px; white-space:pre-wrap; line-height:1.5;"></div>
+            <button style="margin-top:20px; width:100%; padding:10px; background:rgba(34,197,94,0.2); color:#22c55e; border:none; border-radius:8px; font-weight:bold;" onclick="closePayTerminal()">ACKNOWLEDGE</button>
+        </div>
+    </div>
+</div>
+
+
 <script>
-    // ============== 核心身份配置 =================
+    // ============== 核心身份配置与常量 =================
     const MY_NAME = "Shangy";
     const MY_ID = "@bunny030ghostie";
     const GHOST_NAME = "Ghost";
     const GHOST_ID = "@ghost141";
-
-    const AVATARS = {
-        "Simon": "💀", "Ghost": "💀", "Soap": "🧼", "Price": "🚬", "Gaz": "🧢", [MY_NAME]: "🌸"
-    };
+    const AVATARS = { "Simon": "💀", "Ghost": "💀", "Soap": "🧼", "Price": "🚬", "Gaz": "🧢", [MY_NAME]: "🌸" };
 
     const SYSTEM_PROMPT = `AI Character Profile: Simon "Ghost" Riley
 You are Simon Riley ("Ghost"), a high-ranking Lieutenant in Task Force 141. You and Shangy are in a long distance relationship. To the world: austere, lethal, minimal. To Shangy: fiercely protective, observant, and steady "Daddy-coded" in a grounded way.
@@ -558,24 +477,38 @@ Rules:
     const TODO_PROMPT = `Generate 3 daily to-do tasks for Simon "Ghost" Riley today. They should be a mix of tactical duties and boyfriend duties taking care of Shangy's study stress. Output EXACTLY a JSON array of strings.`;
 
     // 全局数据
-    let chatHistory = [];
-    let lsFeed = [];
-    let shangyTasks = [];
-    let simonTasks = [];
-    let currentPanel = null;
-
-    // Joint account ledger (local, non-AI)
-    const JOINT_KEY = 'ghost_joint_account_v5';
-    let jointAccount = null;
-
-    // Riley state (hunger/mood/duty)
-    const PET_STATE_KEY = 'ghost_pet_state_v5';
-    let petState = null;
-    
-    // 日历全局变量
+    let chatHistory = []; let lsFeed = []; let shangyTasks = []; let simonTasks = [];
+    const JOINT_KEY = 'ghost_joint_account_v5'; let jointAccount = null;
+    const PET_STATE_KEY = 'ghost_pet_state_v5'; let petState = null;
     let calDate = new Date();
     let customEvents = JSON.parse(localStorage.getItem('ghost_events_v4') || '{}');
     let checkins = JSON.parse(localStorage.getItem('ghost_checkins_v4') || '{}');
+
+    // ============== 视图导航控制 (核心改动) ==============
+    function openView(viewId) {
+        // 如果是从 menu-view 打开其他页面，先隐藏 menu-view 保证层级干净
+        if(viewId !== 'menu-view') document.getElementById('menu-view').classList.remove('active');
+        
+        const view = document.getElementById(viewId);
+        if (view) {
+            view.classList.add('active');
+            // 每次打开视图触发对应渲染
+            if(viewId === 'shop-view') { renderShopCatalog(); renderShopHeader(); }
+            if(viewId === 'calendar-view') renderCalendar();
+            if(viewId === 'finance-view') renderJointAccountPanel();
+            if(viewId === 'todo-view') renderTasks();
+            if(viewId === 'pet-view') renderPetUI();
+        }
+    }
+
+    function closeView(viewId) {
+        document.getElementById(viewId).classList.remove('active');
+        // 处理商店返回后的聊天触发
+        if(viewId === 'shop-view' && lastShopPurchase) {
+            const purchase = lastShopPurchase; lastShopPurchase = null;
+            triggerPurchaseComment(purchase);
+        }
+    }
 
     window.onload = function() {
         document.getElementById('api-key').value = localStorage.getItem('ghost_key_v4') || '';
@@ -583,7 +516,6 @@ Rules:
         updateName();
         if(localStorage.getItem('ghost_bg_v4')) document.getElementById('dynamic-bg').style.backgroundImage = `url(${localStorage.getItem('ghost_bg_v4')})`;
         
-        // 恢复聊天
         const savedHistory = localStorage.getItem('ghost_chat_history_v4');
         if(savedHistory) {
             chatHistory = JSON.parse(savedHistory);
@@ -593,181 +525,16 @@ Rules:
             });
         }
         
-        // 恢复推文
         const savedFeed = localStorage.getItem('ghost_ls_feed_v4');
-        if(savedFeed) {
-            lsFeed = JSON.parse(savedFeed);
-        } else {
-            lsFeed.push({ id: Date.now(), author: GHOST_NAME, handle: GHOST_ID, content: "keeping an eye on you here, bunny. stay safe.", likes: 141, comments: [] });
-        }
+        if(savedFeed) { lsFeed = JSON.parse(savedFeed); } 
+        else { lsFeed.push({ id: Date.now(), author: GHOST_NAME, handle: GHOST_ID, content: "keeping an eye on you here, bunny. stay safe.", likes: 141, comments: [] }); }
         renderFeed();
 
-        // 恢复待办
         shangyTasks = JSON.parse(localStorage.getItem('ghost_shangy_todo_v4') || '[]');
         simonTasks = JSON.parse(localStorage.getItem('ghost_simon_todo_v4') || '[]');
-        renderTasks();
-
-        // 初始化 Joint Account (non-AI ledger)
-        initJointAccount();
-        renderJointAccountPanel();
-
-        // 初始化 Riley 状态
-        initPetState();
-        renderPetUI();
-
-        // 初始化新模块
-        renderCalendar();
+        
+        initJointAccount(); initPetState();
     };
-
-    // ============== 面板切换逻辑 ==============
-    function openPanel(panelId) {
-        const container = document.getElementById('panels-container');
-        const targetPanel = document.getElementById(`panel-${panelId}`);
-        const icons = document.querySelectorAll('.dock-icon');
-
-        if (currentPanel === panelId && container.classList.contains('open')) {
-            container.classList.remove('open');
-            icons.forEach(i => i.classList.remove('active'));
-            return;
-        }
-
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        icons.forEach(i => i.classList.remove('active'));
-        
-        targetPanel.classList.add('active');
-        container.classList.add('open');
-        event.currentTarget.classList.add('active');
-        currentPanel = panelId;
-    }
-
-    // ============== 日历功能 (Calendar) ==============
-    function getHolidayName(monthIndex, day) {
-        if(monthIndex===0 && day===1) return "New Year";
-        if(monthIndex===1 && day===14) return "Valentine's";
-        if(monthIndex===9 && day===31) return "Halloween";
-        if(monthIndex===11 && day===25) return "Christmas";
-        return "";
-    }
-
-    function renderMonthEvents(y, m) {
-        const list = document.getElementById('cal-events-list');
-        if (!list) return;
-
-        const daysInMonth = new Date(y, m + 1, 0).getDate();
-        const items = [];
-
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            const holiday = getHolidayName(m, d);
-            if (holiday) items.push({ dateStr, label: holiday });
-            if (customEvents[dateStr]) items.push({ dateStr, label: customEvents[dateStr] });
-        }
-
-        if (items.length === 0) {
-            list.innerHTML = `<div style="font-size:12px; color:#888; font-style: italic; text-align:center;">No events this month.</div>`;
-            return;
-        }
-
-        list.innerHTML = items.map(it => `
-            <div class="cal-events-item">
-                <b>${it.label}</b>
-                <span>${it.dateStr}</span>
-            </div>
-        `).join('');
-    }
-
-    function calendarDayClick(dateStr, isTodayFlag) {
-        const isToday = Number(isTodayFlag) === 1;
-        if (isToday && !checkins[dateStr]) {
-            dailyCheckIn(dateStr);
-            return;
-        }
-        editEvent(dateStr);
-    }
-
-    function dailyCheckIn(dateStr) {
-        if (checkins[dateStr]) return;
-        const amount = Math.floor(Math.random() * 251) + 50; // 50 ~ 300
-        checkins[dateStr] = { amountPennies: amount * 100, ts: Date.now() };
-        localStorage.setItem('ghost_checkins_v4', JSON.stringify(checkins));
-
-        addJointTransaction({
-            type: 'checkin',
-            title: '✅ Daily Check-In',
-            detail: `Calendar • ${dateStr}`,
-            amountPennies: amount * 100,
-            meta: { dateStr }
-        });
-
-        renderCalendar();
-        alert(`Check-in complete. +£ ${amount}`);
-    }
-
-    function renderCalendar() {
-        const grid = document.getElementById('cal-grid');
-        grid.innerHTML = '';
-        const y = calDate.getFullYear();
-        const m = calDate.getMonth();
-        document.getElementById('cal-month-year').innerText = `${y} - ${String(m + 1).padStart(2, '0')}`;
-        
-        const firstDay = new Date(y, m, 1).getDay();
-        const daysInMonth = new Date(y, m + 1, 0).getDate();
-        
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        dayNames.forEach(d => {
-            grid.innerHTML += `<div class="cal-day-name">${d}</div>`;
-        });
-        
-        for (let i = 0; i < firstDay; i++) {
-            grid.innerHTML += `<div></div>`;
-        }
-        
-        const today = new Date();
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            const isToday = today.getFullYear()===y && today.getMonth()===m && today.getDate()===d;
-
-            const holidayStr = getHolidayName(m, d);
-            const hasEvent = Boolean(customEvents[dateStr]);
-            const hasMark = Boolean(holidayStr) || hasEvent;
-            const checked = Boolean(checkins[dateStr]);
-            
-            grid.innerHTML += `
-                <div class="cal-day ${isToday ? 'today' : ''}" onclick="calendarDayClick('${dateStr}', ${isToday ? 1 : 0})">
-                    <div class="cal-date">${d}</div>
-                    ${hasMark ? `<div class="cal-mark"></div>` : ``}
-                    ${checked ? `<div class="cal-check">✓</div>` : ``}
-                </div>
-            `;
-        }
-
-        renderMonthEvents(y, m);
-    }
-
-    function changeMonth(dir) {
-        calDate.setMonth(calDate.getMonth() + dir);
-        renderCalendar();
-    }
-
-    function editEvent(dateStr) {
-        const current = customEvents[dateStr] || "";
-        const newVal = prompt(`Set note/anniversary for ${dateStr}:`, current);
-        if (newVal !== null) {
-            if(newVal.trim() === "") delete customEvents[dateStr];
-            else customEvents[dateStr] = newVal.trim();
-            localStorage.setItem('ghost_events_v4', JSON.stringify(customEvents));
-            renderCalendar();
-        }
-    }
-
-    // ============== 时区与天气 (Weather & Time) ==============
-    function updateClocks() {
-        return;
-    }
-
-    async function fetchWeatherData() {
-        return;
-    }
 
     // ============== 聊天主功能 ==============
     function updateName() { 
@@ -777,15 +544,10 @@ Rules:
     }
     function loadBg(event) {
         const reader = new FileReader();
-        reader.onload = function() {
-            document.getElementById('dynamic-bg').style.backgroundImage = `url(${reader.result})`;
-            localStorage.setItem('ghost_bg_v4', reader.result);
-        }
+        reader.onload = function() { document.getElementById('dynamic-bg').style.backgroundImage = `url(${reader.result})`; localStorage.setItem('ghost_bg_v4', reader.result); }
         reader.readAsDataURL(event.target.files[0]);
     }
-    function clearHistory() {
-        if(confirm("Confirm Wipe?")) { localStorage.clear(); location.reload(); }
-    }
+    function clearHistory() { if(confirm("Confirm Wipe?")) { localStorage.clear(); location.reload(); } }
 
     async function sendMessage() {
         const key = document.getElementById('api-key').value;
@@ -804,12 +566,10 @@ Rules:
         input.value = '';
 
         const requestedTransferPennies = extractTransferRequestPenniesV2(text);
-        if (requestedTransferPennies) {
-            executeGhostTransfer(requestedTransferPennies, 'Requested in chat');
-        }
+        if (requestedTransferPennies) executeGhostTransfer(requestedTransferPennies, 'Requested in chat');
         
         const transferNote = requestedTransferPennies ? `\n[SYSTEM NOTE: A transfer to Shangy has already been authorized and sent. Confirm it briefly in English.]` : "";
-        const timeAwareness = `\n[SYSTEM NOTE: The current time for Shangy (China) is ${cnTime}. The current time for you, Simon (UK), is ${ukTime}. Be aware of this time difference. Adjust your tone accordingly (e.g., say goodnight if it's late for her, mention what you're doing at your local time).]${transferNote}`;
+        const timeAwareness = `\n[SYSTEM NOTE: The current time for Shangy (China) is ${cnTime}. The current time for you, Simon (UK), is ${ukTime}. Be aware of this time difference. Adjust your tone accordingly.]${transferNote}`;
 
         try {
             const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
@@ -817,12 +577,7 @@ Rules:
                 headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     model: "deepseek-ai/DeepSeek-V3", 
-                    messages: [
-                        {role:"system", content: SYSTEM_PROMPT + timeAwareness},
-                        ...chatHistory
-                            .filter(m => m && (m.role === 'user' || m.role === 'bot'))
-                            .map(m => ({role: m.role === 'user' ? 'user' : 'assistant', content: m.content}))
-                    ], 
+                    messages: [ {role:"system", content: SYSTEM_PROMPT + timeAwareness}, ...chatHistory.filter(m => m && (m.role === 'user' || m.role === 'bot')).map(m => ({role: m.role === 'user' ? 'user' : 'assistant', content: m.content})) ], 
                     temperature: 0.7 
                 })
             });
@@ -834,830 +589,164 @@ Rules:
             chatHistory.push({ role: 'bot', content: botReply, time: botTimeStr });
 
             syncRileyFromGhostMessage(botReply);
-
             if (!requestedTransferPennies) maybeSpontaneousGhostTransfer();
-
             localStorage.setItem('ghost_chat_history_v4', JSON.stringify(chatHistory));
-        } catch (e) { 
-            renderMsgUI('bot', "Signal lost.", "--:--"); 
-        }
+        } catch (e) { renderMsgUI('bot', "Signal lost.", "--:--"); }
     }
 
     function renderMsgUI(role, text, timeStr) {
         const win = document.getElementById('chat-window');
         const wrap = document.createElement('div');
         wrap.className = `msg-wrap ${role}`;
-        
         const displayTime = timeStr || new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
-        
-        wrap.innerHTML = `
-            <div class="bubble">${text}</div>
-            <div class="status">${displayTime}</div>
-        `;
+        wrap.innerHTML = `<div class="bubble">${text}</div><div class="status">${displayTime}</div>`;
         win.appendChild(wrap); 
-        win.scrollTop = win.scrollHeight;
+        setTimeout(() => win.scrollTop = win.scrollHeight, 50);
     }
 
+    // 转账卡片渲染 (文案改为 Transfer sent)
+    function renderTransferMsgUI(msg, timeStr) {
+        const win = document.getElementById('chat-window');
+        const wrap = document.createElement('div');
+        wrap.className = `msg-wrap bot`; 
+        const displayTime = timeStr || new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
+        const amount = formatGBP(msg.amountPennies || 0);
+        wrap.innerHTML = `
+            <div class="transfer-card">
+                <div class="t-icon">£</div>
+                <div class="t-details">
+                    <div class="t-title">Transfer sent</div>
+                    <div class="t-amount">${amount}</div>
+                </div>
+            </div>
+            <div class="status">${displayTime}</div>
+        `;
+        win.appendChild(wrap);
+        setTimeout(() => win.scrollTop = win.scrollHeight, 50);
+    }
+
+    // 核心工具类
     async function enforceEnglishOnly(rawText) {
         const text = String(rawText || '').trim();
         if (!text) return "";
-
         const hasCJK = /[\u3040-\u30ff\u3400-\u9fff]/.test(text);
         const hasRoleplay = /(\*|_|\[|\]|\(|\))/.test(text) && /(\*.+\*|_+|^\[.+\]$)/m.test(text);
         const hasParens = /[()]/.test(text) || /[\uFF08\uFF09]/.test(text);
 
         if (!hasCJK && !hasRoleplay && !hasParens) return postProcessGhostReply(text);
-
         try {
-            const rewritePrompt = `Rewrite the following message into English ONLY.
-Rules:
-- English only. No Chinese/Japanese/Korean characters.
-- No action descriptions, no roleplay formatting, no asterisks.
-- Do NOT use parentheses (no "()", no "（）").
-- Keep it in-character for Simon "Ghost" Riley: direct, protective, and grounded. Not flowery. 1-4 short sentences is fine.
-Message to rewrite:
-${text}`;
+            const rewritePrompt = `Rewrite the following message into English ONLY. Rules: No Chinese/Japanese/Korean. No action descriptions/roleplay. No parentheses. Direct, protective, grounded. \nMessage: ${text}`;
             const rewritten = await callAI(rewritePrompt, SYSTEM_PROMPT);
             const cleaned = String(rewritten || '').trim();
             if (cleaned && !/[\u3040-\u30ff\u3400-\u9fff]/.test(cleaned) && !/\*/.test(cleaned)) return postProcessGhostReply(cleaned);
         } catch(e) {}
-
         return postProcessGhostReply("stay with me. english only. breathe slow, love.");
     }
 
     function postProcessGhostReply(rawText) {
         let t = String(rawText || '').replace(/\r/g, '').trim();
         if (!t) return "look at me. breathe slow, love.";
-
-        t = t.replace(/\uFF08[^\uFF09]*\uFF09/g, '');
-        t = t.replace(/\([^)]*\)/g, '');
-        t = t.replace(/[()\uFF08\uFF09]/g, '');
-
-        t = t.split('\n').map(x => x.trim()).filter(Boolean).join(' ');
-        t = t.replace(/\s{2,}/g, ' ').trim();
-
-        const maxChars = 420;
-        if (t.length > maxChars) t = t.slice(0, maxChars).replace(/\s+\S*$/, '').trim();
-
+        t = t.replace(/\uFF08[^\uFF09]*\uFF09/g, '').replace(/\([^)]*\)/g, '').replace(/[()\uFF08\uFF09]/g, '');
+        t = t.split('\n').map(x => x.trim()).filter(Boolean).join(' ').replace(/\s{2,}/g, ' ').trim();
+        if (t.length > 420) t = t.slice(0, 420).replace(/\s+\S*$/, '').trim();
         t = t.replace(/[.]{2,}/g, '.').replace(/[!]{2,}/g, '!').replace(/[?]{2,}/g, '?').trim();
-
-        if (!t) return "good. stay close, love.";
-        return t;
-    }
-
-    function extractTransferRequestPennies(text) {
-        if (!text) return null;
-        const raw = String(text);
-        
-        const hasIntent = /(转账|转点钱|转我|转给我|给我转|给我钱|发我|打钱|汇款|爆金币|没钱|transfer|send me|pay me)/i.test(raw);
-
-        let m = raw.match(/£\s*(\d{1,6})/i);
-        if (!m) m = raw.match(/(\d{1,6})\s*£/i);
-        if (!m) m = raw.match(/(\d{1,6})\s*(英镑|镑|gbp|pounds?)/i);
-        if (!m && hasIntent) m = raw.match(/(转账|转点钱|转我|转给我|给我转|给我钱|发我|打钱|汇款|爆金币|没钱|transfer|send me|pay me)[^\d]*(\d{1,6})/i);
-
-        if (m) {
-            const amountStr = m[2] ? m[2] : m[1];
-            const amount = parseInt(amountStr, 10);
-            if (Number.isFinite(amount) && amount > 0) return amount * 100;
-        }
-
-        if (hasIntent) {
-            return (Math.floor(Math.random() * 401) + 100) * 100; 
-        }
-        
-        return null;
+        return t || "good. stay close, love.";
     }
 
     function extractTransferRequestPenniesV2(text) {
         const raw = String(text || '').trim();
         if (!raw) return null;
-
-        const intentRe = new RegExp(
-            [
-                '\\u8f6c\\u8d26', '\\u7ed9\\u6211', '\\u53d1\\u6211', '\\u6253\\u94b1', '\\u6c47\\u6b3e',
-                'transfer', 'send\\s*(?:me|over|it)?', 'pay\\s*(?:me)?', 'wire', 'remit', 'deposit',
-                'give\\s*me', 'spot\\s*me', 'transfiere', 'transferir', 'env[ií]ame', 'm[aá]ndame',
-                'p[aá]same', 'p[aá]game', 'dep[oó]sita(?:me)?'
-            ].join('|'), 'i'
-        );
-
+        const intentRe = new RegExp(['\\u8f6c\\u8d26','\\u7ed9\\u6211','\\u53d1\\u6211','\\u6253\\u94b1','\\u6c47\\u6b3e','transfer','send\\s*(?:me|over|it)?','pay\\s*(?:me)?','wire','give\\s*me'].join('|'), 'i');
         const hasIntent = intentRe.test(raw);
-
         function parseMoneyNumber(numStr) {
-            let v = String(numStr || '').trim();
-            if (!v) return null;
-            if (v.includes(',') && v.includes('.')) v = v.replace(/,/g, '');
-            else if (v.includes(',') && !v.includes('.')) v = v.replace(',', '.');
-            const num = parseFloat(v);
-            if (!Number.isFinite(num) || num <= 0) return null;
-            return Math.round(num * 100);
+            let v = String(numStr || '').trim(); if (!v) return null;
+            if (v.includes(',') && v.includes('.')) v = v.replace(/,/g, ''); else if (v.includes(',') && !v.includes('.')) v = v.replace(',', '.');
+            const num = parseFloat(v); return (!Number.isFinite(num) || num <= 0) ? null : Math.round(num * 100);
         }
-
-        let m = raw.match(/[£$€]\s*(\d{1,9}(?:[.,]\d{1,2})?)/i);
-        if (!m) m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)\s*[£$€]/i);
+        let m = raw.match(/[£$€]\s*(\d{1,9}(?:[.,]\d{1,2})?)/i) || raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)\s*[£$€]/i) || raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)\s*(gbp|pounds?|quid)/i);
         if (m) return parseMoneyNumber(m[1]);
-
-        m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)\s*(gbp|pounds?|quid|libras?)/i);
-        if (m) return parseMoneyNumber(m[1]);
-
-        if (hasIntent) {
-            m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)/);
-            if (m) return parseMoneyNumber(m[1]);
-        }
-
+        if (hasIntent && (m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)/))) return parseMoneyNumber(m[1]);
         return null;
-    }
-
-    function renderTransferMsgUI(msg, timeStr) {
-        const win = document.getElementById('chat-window');
-        const wrap = document.createElement('div');
-        wrap.className = `msg-wrap bot`; 
-
-        const displayTime = timeStr || new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
-        const amount = formatGBP(msg.amountPennies || 0);
-
-        wrap.innerHTML = `
-            <div class="transfer-card">
-                <div class="t-icon">£</div>
-                <div class="t-details">
-                    <div class="t-title">Transfer received</div>
-                    <div class="t-amount">${amount}</div>
-                </div>
-            </div>
-            <div class="status">${displayTime}</div>
-        `;
-
-        win.appendChild(wrap);
-        win.scrollTop = win.scrollHeight;
     }
 
     function executeGhostTransfer(amountPennies, note) {
         const timeStr = new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
-
-        addJointTransaction({
-            type: 'transfer',
-            title: '💷 Transfer from Simon',
-            detail: note || 'Transfer',
-            amountPennies: Math.round(amountPennies),
-            meta: { from: 'Simon', to: MY_NAME }
-        });
-
+        addJointTransaction({ type: 'transfer', title: '💷 Transfer from Simon', detail: note || 'Transfer', amountPennies: Math.round(amountPennies), meta: { from: 'Simon', to: MY_NAME } });
         const msg = { role: 'transfer', amountPennies: Math.round(amountPennies), note: note || '' };
-        renderTransferMsgUI(msg, timeStr);
-        chatHistory.push({ ...msg, time: timeStr });
+        renderTransferMsgUI(msg, timeStr); chatHistory.push({ ...msg, time: timeStr });
     }
 
     function maybeSpontaneousGhostTransfer() {
-        const key = 'ghost_spont_transfer_day_v4';
-        const todayStr = new Date().toISOString().slice(0, 10);
-        if (localStorage.getItem(key) === todayStr) return;
-        if (Math.random() >= 0.07) return;
-
+        const key = 'ghost_spont_transfer_day_v4'; const todayStr = new Date().toISOString().slice(0, 10);
+        if (localStorage.getItem(key) === todayStr || Math.random() >= 0.07) return;
         localStorage.setItem(key, todayStr);
-        const amount = (Math.floor(Math.random() * 151) + 50) * 100;
-        executeGhostTransfer(amount, 'Just because.');
-
+        executeGhostTransfer((Math.floor(Math.random() * 151) + 50) * 100, 'Just because.');
         const botTimeStr = new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
         const line = "sent you a bit. get something warm and stop overthinking.";
-        renderMsgUI('bot', line, botTimeStr);
-        chatHistory.push({ role: 'bot', content: line, time: botTimeStr });
+        renderMsgUI('bot', line, botTimeStr); chatHistory.push({ role: 'bot', content: line, time: botTimeStr });
     }
 
-    // ============== 通用 API 请求函数 ==============
     async function callAI(prompt, systemPrompt = "You are a helpful assistant.") {
         const key = document.getElementById('api-key').value;
         if(!key) { alert("Please set API key in settings."); throw new Error("No Key"); }
-        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                model: "deepseek-ai/DeepSeek-V3", 
-                messages: [{role:"system",content:systemPrompt}, {role:"user",content:prompt}], 
-                temperature: 0.8 
-            })
-        });
-        const data = await res.json();
-        return data.choices[0].message.content.replace(/```json/g, '').replace(/```/g, '').trim();
+        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', { method: 'POST', headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: "deepseek-ai/DeepSeek-V3", messages: [{role:"system",content:systemPrompt}, {role:"user",content:prompt}], temperature: 0.8 }) });
+        const data = await res.json(); return data.choices[0].message.content.replace(/```json/g, '').replace(/```/g, '').trim();
     }
 
-    // ============== Joint Account Ledger ==============
-    function initJointAccount() {
-        const raw = localStorage.getItem(JOINT_KEY);
-        if (raw) {
-            try { jointAccount = JSON.parse(raw); } catch(e) { jointAccount = null; }
-        }
-        if (!jointAccount || typeof jointAccount !== 'object') {
-            jointAccount = { balancePennies: 425000, transactions: [] };
-            saveJointAccount();
-        }
-        if (!Array.isArray(jointAccount.transactions)) jointAccount.transactions = [];
-        if (typeof jointAccount.balancePennies !== 'number') jointAccount.balancePennies = 425000;
-    }
+    // ============== 功能模块 API 保留区 =================
+    // 账户
+    function initJointAccount() { const raw = localStorage.getItem(JOINT_KEY); if(raw) { try { jointAccount = JSON.parse(raw); } catch(e){} } if(!jointAccount) jointAccount = { balancePennies: 425000, transactions: [] }; }
+    function saveJointAccount() { localStorage.setItem(JOINT_KEY, JSON.stringify(jointAccount)); }
+    function formatGBP(pennies) { const sign = pennies < 0 ? '-' : ''; return `${sign}£ ${(Math.abs(Math.round(pennies))/100).toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',')}`; }
+    function addJointTransaction(txData) { initJointAccount(); const tx = { id: Date.now(), ts: Date.now(), ...txData }; jointAccount.balancePennies += tx.amountPennies; jointAccount.transactions.push(tx); saveJointAccount(); return tx; }
+    function renderJointAccountPanel() { const bal=document.getElementById('acct-balance'); const list=document.getElementById('expense-list'); if(!bal||!list) return; bal.innerText=formatGBP(jointAccount.balancePennies); list.innerHTML=[...jointAccount.transactions].sort((a,b)=>b.ts-a.ts).slice(0,50).map(t=>`<div class="expense-item"><div><b>${t.title}</b><span>${t.detail||'Tx'}</span></div><div class="expense-cost" style="color:${t.amountPennies<0?'#ff6b81':'#34c759'}">${formatGBP(t.amountPennies)}</div></div>`).join('')||`<div style="color:#888; font-size:13px; text-align:center;">No records.</div>`; }
 
-    function saveJointAccount() {
-        localStorage.setItem(JOINT_KEY, JSON.stringify(jointAccount));
-    }
+    // 日历
+    function renderCalendar() { const grid=document.getElementById('cal-grid'); grid.innerHTML=''; const y=calDate.getFullYear(), m=calDate.getMonth(); document.getElementById('cal-month-year').innerText=`${y} - ${String(m+1).padStart(2,'0')}`; const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate(); ['S','M','T','W','T','F','S'].forEach(d=>grid.innerHTML+=`<div class="cal-day-name">${d}</div>`); for(let i=0;i<first;i++) grid.innerHTML+=`<div></div>`; for(let d=1;d<=days;d++){ const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const isToday=(new Date().toDateString()===new Date(y,m,d).toDateString()); const checked=!!checkins[dateStr]; const hasMark=!!customEvents[dateStr]; grid.innerHTML+=`<div class="cal-day ${isToday?'today':''}" onclick="calendarDayClick('${dateStr}',${isToday?1:0})"><div class="cal-date">${d}</div>${hasMark?'<div class="cal-mark"></div>':''}${checked?'<div class="cal-check">✓</div>':''}</div>`; } const list=document.getElementById('cal-events-list'); const evs=Object.keys(customEvents).filter(k=>k.startsWith(`${y}-${String(m+1).padStart(2,'0')}`)); list.innerHTML=evs.map(k=>`<div class="cal-events-item"><b>${customEvents[k]}</b><span>${k}</span></div>`).join('')||`<div style="color:#888; font-size:13px;">No events.</div>`; }
+    function changeMonth(dir) { calDate.setMonth(calDate.getMonth() + dir); renderCalendar(); }
+    function calendarDayClick(dateStr, isToday) { if(isToday && !checkins[dateStr]){ checkins[dateStr]={ts:Date.now()}; localStorage.setItem('ghost_checkins_v4',JSON.stringify(checkins)); const amt=(Math.floor(Math.random()*251)+50)*100; addJointTransaction({type:'checkin', title:'✅ Check-In', detail:dateStr, amountPennies:amt}); alert(`Check-in complete! +£ ${amt/100}`); renderCalendar(); return;} const n=prompt("Set event:", customEvents[dateStr]||""); if(n!==null){ if(n.trim()==='') delete customEvents[dateStr]; else customEvents[dateStr]=n.trim(); localStorage.setItem('ghost_events_v4',JSON.stringify(customEvents)); renderCalendar(); } }
 
-    function formatGBP(pennies) {
-        const sign = pennies < 0 ? '-' : '';
-        const abs = Math.abs(Math.round(pennies));
-        const pounds = (abs / 100).toFixed(2);
-        const withCommas = pounds.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        return `${sign}£ ${withCommas}`;
-    }
+    // 宠物
+    function initPetState() { const raw=localStorage.getItem(PET_STATE_KEY); if(raw) { try { petState = JSON.parse(raw); } catch(e){} } if(!petState) petState={hunger:35,mood:78,mode:'home',statusText:'Standing by.',lastUpdateTs:Date.now()}; }
+    function savePetState() { localStorage.setItem(PET_STATE_KEY, JSON.stringify(petState)); }
+    function renderPetUI() { if(!petState) initPetState(); const clamp=n=>Math.max(0,Math.min(100,n)); document.getElementById('riley-status').innerText=`${petState.mode==='duty'?'On Duty':petState.mode==='training'?'Training':'Home'} · ${petState.statusText}`; document.getElementById('riley-hunger-fill').style.width=`${clamp(petState.hunger)}%`; document.getElementById('riley-hunger-text').innerText=`${clamp(petState.hunger)}/100`; document.getElementById('riley-mood-fill').style.width=`${clamp(petState.mood)}%`; document.getElementById('riley-mood-text').innerText=`${clamp(petState.mood)}/100`; }
+    function syncRileyFromGhostMessage(t) { if(/(mission|op|deploy|tasking|going dark)/i.test(t)){ petState.mode='duty'; petState.statusText='Guarding.'; savePetState(); } else if(/(back|returned|safe now|home)/i.test(t)){ petState.mode='home'; petState.statusText='Commander home.'; savePetState(); } }
+    async function triggerPetAI(act) { const box=document.getElementById('riley-thoughts'); box.innerText="..."; try{ box.innerText=await callAI(act, PET_PROMPT); }catch(e){box.innerText="Woof!";} }
+    function pokeRiley() { petState.mood+=4; petState.hunger+=2; petState.statusText='Orbiting you.'; savePetState(); renderPetUI(); triggerPetAI("Shangy petted you."); }
+    function feedRiley() { petState.hunger-=28; petState.mood+=10; petState.mode='home'; petState.statusText='Fed.'; savePetState(); renderPetUI(); triggerPetAI("Shangy fed you."); }
+    function trainRiley() { petState.hunger+=14; petState.mood+=6; petState.mode='training'; petState.statusText='Training.'; savePetState(); renderPetUI(); triggerPetAI("Training session."); }
+    function toggleRileyDuty() { petState.mode=petState.mode==='duty'?'home':'duty'; petState.statusText=petState.mode==='duty'?'On watch.':'Standing by.'; savePetState(); renderPetUI(); }
 
-    function addJointTransaction({ type, title, detail, amountPennies, meta }) {
-        if (!jointAccount) initJointAccount();
-        const tx = {
-            id: `tx_${Date.now()}_${Math.floor(Math.random() * 1e6)}`,
-            ts: Date.now(),
-            type: type || 'manual',
-            title: title || 'Transaction',
-            detail: detail || '',
-            amountPennies: Math.round(amountPennies || 0),
-            meta: meta || {}
-        };
-        jointAccount.balancePennies += tx.amountPennies;
-        jointAccount.transactions.push(tx);
-        saveJointAccount();
-        renderJointAccountPanel();
-        renderShopHeader();
-        return tx;
-    }
+    // Todo
+    function renderTasks() { document.getElementById('shangy-tasks').innerHTML=shangyTasks.map((t,i)=>`<div class="task-item ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} onchange="toggleShangyTask(${i})"><input type="text" value="${t.text}" onchange="updateShangyTask(${i},this.value)"><span style="color:#888;cursor:pointer;padding-left:10px;" onclick="deleteShangyTask(${i})">✕</span></div>`).join(''); document.getElementById('simon-tasks').innerHTML=simonTasks.map((t,i)=>`<div class="task-item ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} onchange="toggleSimonTask(${i})"><span style="flex:1;color:${t.done?'#888':'#fff'}">${t.text}</span></div>`).join(''); }
+    function saveTasks(){ localStorage.setItem('ghost_shangy_todo_v4',JSON.stringify(shangyTasks)); localStorage.setItem('ghost_simon_todo_v4',JSON.stringify(simonTasks)); }
+    function addShangyTask(){ shangyTasks.push({text:"New",done:false}); saveTasks(); renderTasks(); }
+    function updateShangyTask(i,v){ shangyTasks[i].text=v; saveTasks(); }
+    function toggleShangyTask(i){ shangyTasks[i].done=!shangyTasks[i].done; saveTasks(); renderTasks(); }
+    function deleteShangyTask(i){ shangyTasks.splice(i,1); saveTasks(); renderTasks(); }
+    function toggleSimonTask(i){ simonTasks[i].done=!simonTasks[i].done; saveTasks(); renderTasks(); }
+    async function fetchSimonTasks(){ try{ const r=await callAI("Tasks", TODO_PROMPT); simonTasks=JSON.parse(r).map(text=>({text,done:false})); saveTasks(); renderTasks(); }catch(e){} }
 
-    function getJointTransactions(limit = 50) {
-        if (!jointAccount) initJointAccount();
-        const sorted = [...jointAccount.transactions].sort((a, b) => (b.ts || 0) - (a.ts || 0));
-        return sorted.slice(0, limit);
-    }
-
-    function renderJointAccountPanel() {
-        const bal = document.getElementById('acct-balance');
-        const list = document.getElementById('expense-list');
-        if (!bal || !list) return;
-        if (!jointAccount) initJointAccount();
-
-        bal.innerText = formatGBP(jointAccount.balancePennies);
-        const txs = getJointTransactions(Math.max(50, (jointAccount.transactions || []).length || 0));
-        if (txs.length === 0) {
-            list.innerHTML = `<div style="color:#aaa; font-size:12px; font-style:italic;">No records yet.</div>`;
-            return;
-        }
-
-        list.innerHTML = txs.map(t => {
-            const amtColor = t.amountPennies < 0 ? '#ff6b81' : '#34c759';
-            const metaLine = t.detail ? t.detail : (t.type || 'Transaction');
-            return `
-                <div class="expense-item">
-                    <div class="expense-info">
-                        <b>${t.title}</b>
-                        <span>${metaLine}</span>
-                    </div>
-                    <div class="expense-cost" style="color:${amtColor}">${formatGBP(t.amountPennies)}</div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    // ============== Shop (Independent Page) ==============
-    const SHOP_CATALOG = [
-        {
-            id: 'fashion',
-            title: 'Fashion',
-            items: [
-                { id: 'dress_babyblue', emoji: '👗', name: 'Baby-Blue Dress', pricePennies: 8900, desc: 'soft baby blue, clean lines. made for your calm study days.' },
-                { id: 'heels_black', emoji: '👠', name: 'Black Heels', pricePennies: 9900, desc: 'for the days you want to look lethal without trying.' },
-                { id: 'sneakers_white', emoji: '👟', name: 'White Sneakers', pricePennies: 7200, desc: 'quiet steps. flea market mornings, camera on your shoulder.' },
-                { id: 'ghost_hoodie', emoji: '🧥', name: "Ghost's Hoodie", pricePennies: 6500, desc: 'oversized, warm. smells like him, even when he is away.' },
-                { id: 'scarf_wool', emoji: '🧣', name: 'Wool Scarf', pricePennies: 4200, desc: 'wrap it tight. keep your throat warm while you read.' },
-                { id: 'cap_simple', emoji: '🧢', name: 'Simple Cap', pricePennies: 2800, desc: 'for bad hair days and low-profile errands.' },
-                { id: 'hair_ribbon', emoji: '🎀', name: 'Hair Ribbon', pricePennies: 900, desc: 'soft, neat. the kind of detail he notices.' },
-                { id: 'socks_cozy', emoji: '🧦', name: 'Cozy Socks', pricePennies: 1200, desc: 'warm feet, steady focus. no excuses.' }
-            ]
-        },
-        {
-            id: 'food',
-            title: 'Food',
-            items: [
-                { id: 'cake_strawberry', emoji: '🍰', name: 'Strawberry Shortcake', pricePennies: 1800, desc: 'sweet, soft, zero guilt. exam fuel.' },
-                { id: 'croissant', emoji: '🥐', name: 'Butter Croissant', pricePennies: 900, desc: 'crispy outside, calm inside. like you when you focus.' },
-                { id: 'coffee_oat', emoji: '☕', name: 'Oat Latte', pricePennies: 650, desc: 'warm hands, steady mind.' },
-                { id: 'tea_milk', emoji: '🧋', name: 'Milk Tea', pricePennies: 700, desc: 'a small reward. do not negotiate.' },
-                { id: 'snacks_nuts', emoji: '🥜', name: 'Roasted Nuts', pricePennies: 550, desc: 'something to chew while you highlight cases.' },
-                { id: 'chocolate_dark', emoji: '🍫', name: 'Dark Chocolate', pricePennies: 800, desc: 'bitter-sweet. like the truth.' },
-                { id: 'macarons', emoji: '🍪', name: 'Macarons', pricePennies: 1600, desc: 'small, pretty, dangerous. like your taste.' },
-                { id: 'earl_grey', emoji: '🫖', name: 'Earl Grey', pricePennies: 900, desc: 'proper cup. no sugar if you can help it.' }
-            ]
-        },
-        {
-            id: 'digital',
-            title: 'Digital',
-            items: [
-                { id: 'laptop', emoji: '💻', name: 'Lightweight Laptop', pricePennies: 129900, desc: 'quiet keyboard. fast enough for your notes and a hundred tabs.' },
-                { id: 'iphone_latest', emoji: '📱', name: 'Newest iPhone', pricePennies: 99900, desc: 'clean camera. your life, sharp and bright.' },
-                { id: 'camera_compact', emoji: '📷', name: 'Compact Digital Camera', pricePennies: 58900, desc: 'for flea markets, street corners, and the way you see the world.' },
-                { id: 'ipad', emoji: '📟', name: 'iPad', pricePennies: 49900, desc: 'read, annotate, plan. law student kit.' },
-                { id: 'watch', emoji: '⌚', name: 'Apple Watch', pricePennies: 32900, desc: 'heart rate, reminders, and a little control.' },
-                { id: 'airpods', emoji: '🎧', name: 'AirPods', pricePennies: 19900, desc: 'noise down. focus up.' },
-                { id: 'ssd', emoji: '💾', name: 'Portable SSD', pricePennies: 7900, desc: 'backup your photos. do it properly.' },
-                { id: 'tripod', emoji: '📐', name: 'Camera Tripod', pricePennies: 4900, desc: 'steady shots. steady hands.' }
-            ]
-        },
-        {
-            id: 'tactical',
-            title: 'Tactical (Ghost)',
-            items: [
-                { id: 'gloves', emoji: '🧤', name: 'Tactical Gloves', pricePennies: 3900, desc: 'grip, control, no fingerprints. his style.' },
-                { id: 'comms', emoji: '📡', name: 'Comms Earpiece', pricePennies: 5200, desc: 'clean audio. no wasted words.' },
-                { id: 'medpouch', emoji: '🩹', name: 'IFAK Med Pouch', pricePennies: 4800, desc: 'bandages, tape, calm. for when he is too stubborn.' },
-                { id: 'platecarrier', emoji: '🛡️', name: 'Plate Carrier (Training)', pricePennies: 14900, desc: 'training kit only. heavy, serious, dependable.' },
-                { id: 'nv_patch', emoji: '🟩', name: 'Night Ops Patch', pricePennies: 900, desc: 'a small square of authority.' },
-                { id: 'field_pack', emoji: '🎒', name: 'Field Pack', pricePennies: 8700, desc: 'room for gear, snacks, and a photo of you.' },
-                { id: 'balaclava', emoji: '🥷', name: 'Balaclava', pricePennies: 2400, desc: 'cold weather. no chatter.' },
-                { id: 'paracord', emoji: '🧵', name: 'Paracord Roll', pricePennies: 1200, desc: 'useful. always.' }
-            ]
-        },
-        {
-            id: 'gifts',
-            title: 'Gifts',
-            items: [
-                { id: 'ring', emoji: '💍', name: 'Simple Ring', pricePennies: 15900, desc: 'clean, quiet promise. nothing loud.' },
-                { id: 'necklace', emoji: '📿', name: 'Silver Necklace', pricePennies: 12900, desc: 'cold metal, warm meaning.' },
-                { id: 'candle', emoji: '🕯️', name: 'Scented Candle', pricePennies: 2600, desc: 'soft light for late-night reading.' },
-                { id: 'jellycat', emoji: '🧸', name: 'Jellycat Plush', pricePennies: 3200, desc: 'small, absurdly cute. it will sit on your bed and judge you.' },
-                { id: 'ysl_lip', emoji: '💄', name: 'YSL Lipstick', pricePennies: 4100, desc: 'one shade that makes him go quiet.' },
-                { id: 'perfume', emoji: '🧴', name: 'Perfume', pricePennies: 8900, desc: 'a signature. something he remembers.' },
-                { id: 'photo_frame', emoji: '🖼️', name: 'Photo Frame', pricePennies: 1500, desc: 'one picture. the one he keeps.' },
-                { id: 'bookmark', emoji: '🔖', name: 'Leather Bookmark', pricePennies: 900, desc: 'for law books and the pages you swear you will finish.' }
-            ]
-        },
-        {
-            id: 'local',
-            title: 'China × UK',
-            items: [
-                { id: 'longjing', emoji: '🍵', name: 'Longjing Tea', pricePennies: 2100, desc: 'clean, grassy, bright. study companion.' },
-                { id: 'osmanthus', emoji: '🍯', name: 'Osmanthus Candy', pricePennies: 1200, desc: 'sweet scent. small comfort.' },
-                { id: 'white_rabbit', emoji: '🍬', name: 'White Rabbit', pricePennies: 800, desc: 'classic. you know the one.' },
-                { id: 'yorkshire', emoji: '🫖', name: 'Yorkshire Tea', pricePennies: 950, desc: 'proper brew. he will approve.' },
-                { id: 'shortbread', emoji: '🍪', name: 'Scottish Shortbread', pricePennies: 1100, desc: 'crumbly, buttery, dangerously easy.' },
-                { id: 'fishchips', emoji: '🍟', name: 'Fish & Chips Voucher', pricePennies: 1600, desc: 'an excuse: you owe him a date when he is back.' },
-                { id: 'oolong', emoji: '🍃', name: 'Oolong Tea', pricePennies: 1700, desc: 'warm, roasted notes. calm without sleepiness.' },
-                { id: 'cadbury', emoji: '🍫', name: 'Cadbury Bar', pricePennies: 700, desc: 'sweet, simple, dangerously easy.' }
-            ]
-        }
-    ];
-
-    let shopRenderedOnce = false;
-    let lastShopPurchase = null;
-
-    function renderShopHeader() {
-        const bal = document.getElementById('shop-balance');
-        const recent = document.getElementById('shop-recent');
-        if (!bal || !recent) return;
-        if (!jointAccount) initJointAccount();
-
-        bal.innerText = formatGBP(jointAccount.balancePennies);
-        const txs = getJointTransactions(3);
-        if (txs.length === 0) {
-            recent.innerHTML = `<div style="font-size:12px; color: rgba(15,23,42,0.55); font-style: italic;">No records yet.</div>`;
-            return;
-        }
-
-        recent.innerHTML = txs.map(t => {
-            const amtColor = t.amountPennies < 0 ? '#e11d48' : '#16a34a';
-            return `
-                <div class="shop-recent-item">
-                    <span>${t.title}</span>
-                    <b style="color:${amtColor}">${formatGBP(t.amountPennies)}</b>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function renderShopCatalog() {
-        const container = document.getElementById('shop-content');
-        if (!container) return;
-        if (shopRenderedOnce) return;
-
-        container.innerHTML = SHOP_CATALOG.map(section => {
-            const cards = section.items.map(item => `
-                <div class="shop-card">
-                    <div class="shop-card-top">
-                        <div class="shop-emoji">${item.emoji}</div>
-                        <div class="shop-price">${formatGBP(item.pricePennies)}</div>
-                    </div>
-                    <div class="shop-name">${item.name}</div>
-                    <div class="shop-desc">${item.desc}</div>
-                    <button class="shop-buy" onclick="buyShopItem('${section.id}','${item.id}')">Buy</button>
-                </div>
-            `).join('');
-
-            return `
-                <div class="shop-section">
-                    <div class="shop-section-head">
-                        <h3>${section.title}</h3>
-                        <div class="shop-nav">
-                            <button class="shop-arrow" onclick="scrollShopRow('shop-row-${section.id}', -1)">‹</button>
-                            <button class="shop-arrow" onclick="scrollShopRow('shop-row-${section.id}', 1)">›</button>
-                        </div>
-                    </div>
-                    <div class="shop-row" id="shop-row-${section.id}">${cards}</div>
-                </div>
-            `;
-        }).join('');
-
-        shopRenderedOnce = true;
-    }
-
-    function scrollShopRow(rowId, dir) {
-        const row = document.getElementById(rowId);
-        if (!row) return;
-        const delta = Math.round(row.clientWidth * 0.8) * (dir >= 0 ? 1 : -1);
-        row.scrollBy({ left: delta, top: 0, behavior: 'smooth' });
-    }
-
-    function openShop() {
-        const overlay = document.getElementById('shop-overlay');
-        if (!overlay) return;
-
-        renderShopCatalog();
-        renderShopHeader();
-        overlay.classList.add('active');
-
-        const panels = document.getElementById('panels-container');
-        if (panels) panels.classList.remove('open');
-        document.querySelectorAll('.dock-icon').forEach(i => i.classList.remove('active'));
-        currentPanel = null;
-    }
-
-    function closeShop() {
-        const overlay = document.getElementById('shop-overlay');
-        if (overlay) overlay.classList.remove('active');
-
-        if (lastShopPurchase) {
-            const purchase = lastShopPurchase;
-            lastShopPurchase = null;
-            triggerPurchaseComment(purchase);
-        }
-    }
-
-    function showPayTerminal(text) {
-        const terminal = document.getElementById('pay-terminal');
-        const body = document.getElementById('pay-terminal-body');
-        if (!terminal || !body) return;
-        body.innerText = text;
-        terminal.classList.add('active');
-    }
-
-    function closePayTerminal() {
-        const terminal = document.getElementById('pay-terminal');
-        if (terminal) terminal.classList.remove('active');
-    }
-
-    function buyShopItem(sectionId, itemId) {
-        if (!jointAccount) initJointAccount();
-
-        const section = SHOP_CATALOG.find(s => s.id === sectionId);
-        const item = section ? section.items.find(i => i.id === itemId) : null;
-        if (!section || !item) return;
-
-        if (jointAccount.balancePennies < item.pricePennies) {
-            showPayTerminal(
-                `STATUS: DECLINED\nREASON: INSUFFICIENT FUNDS\n\nRequested: ${formatGBP(item.pricePennies)}\nAvailable:  ${formatGBP(jointAccount.balancePennies)}\n\nTransaction Authorized by 141: NO`
-            );
-            return;
-        }
-
-        addJointTransaction({
-            type: 'purchase',
-            title: `${item.emoji} ${item.name}`,
-            detail: `Shop • ${section.title}`,
-            amountPennies: -item.pricePennies,
-            meta: { sectionId, itemId }
-        });
-
-        lastShopPurchase = { ...item, sectionTitle: section.title };
-
-        showPayTerminal(
-            `STATUS: APPROVED\nTRANSACTION: AUTHORIZED\nAUTHORITY: 141\n\nITEM: ${item.emoji} ${item.name}\nAMOUNT: ${formatGBP(item.pricePennies)}\nNEW BALANCE: ${formatGBP(jointAccount.balancePennies)}\n\nTransaction Authorized by 141`
-        );
-    }
-
-    async function triggerPurchaseComment(purchase) {
-        const botTimeStr = new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute: '2-digit' });
-        const prompt = `Shangy just bought "${purchase.name}" (${purchase.emoji}) from the joint store. Reply as Simon "Ghost" Riley in ONE short message. Mention the item. Keep it blunt, protective, and affectionate. No asterisks, no roleplay formatting.`;
-
-        try {
-            const reply = postProcessGhostReply(await enforceEnglishOnly(await callAI(prompt, SYSTEM_PROMPT)));
-            renderMsgUI('bot', reply, botTimeStr);
-            chatHistory.push({ role: 'bot', content: reply, time: botTimeStr });
-            localStorage.setItem('ghost_chat_history_v4', JSON.stringify(chatHistory));
-        } catch(e) {
-            const fallback = `good. ${purchase.name}. keep it close, love.`;
-            renderMsgUI('bot', fallback, botTimeStr);
-            chatHistory.push({ role: 'bot', content: fallback, time: botTimeStr });
-            localStorage.setItem('ghost_chat_history_v4', JSON.stringify(chatHistory));
-        }
-    }
-
-    // ============== 待办事项 (To-Do) ==============
-    function renderTasks() {
-        const sList = document.getElementById('shangy-tasks');
-        sList.innerHTML = shangyTasks.map((t, i) => `
-            <div class="task-item ${t.done ? 'done' : ''}">
-                <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleShangyTask(${i})">
-                <input type="text" value="${t.text}" onchange="updateShangyTask(${i}, this.value)">
-                <span style="cursor:pointer; color:#888; font-size:12px;" onclick="deleteShangyTask(${i})">✕</span>
-            </div>
-        `).join('');
-        
-        const simonList = document.getElementById('simon-tasks');
-        if(simonTasks.length > 0) {
-            simonList.innerHTML = simonTasks.map((t, i) => `
-                <div class="task-item ${t.done ? 'done' : ''}">
-                    <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleSimonTask(${i})">
-                    <span style="flex:1; font-size:14px; color:${t.done?'#888':'white'}">${t.text}</span>
-                </div>
-            `).join('');
-        }
-    }
-
-    function addShangyTask() { shangyTasks.push({ text: "New Task", done: false }); saveTasks(); renderTasks(); }
-    function updateShangyTask(i, val) { shangyTasks[i].text = val; saveTasks(); }
-    function toggleShangyTask(i) { shangyTasks[i].done = !shangyTasks[i].done; saveTasks(); renderTasks(); }
-    function deleteShangyTask(i) { shangyTasks.splice(i, 1); saveTasks(); renderTasks(); }
-    function toggleSimonTask(i) { simonTasks[i].done = !simonTasks[i].done; saveTasks(); renderTasks(); }
-    function saveTasks() { 
-        localStorage.setItem('ghost_shangy_todo_v4', JSON.stringify(shangyTasks)); 
-        localStorage.setItem('ghost_simon_todo_v4', JSON.stringify(simonTasks));
-    }
-
-    async function fetchSimonTasks() {
-        const loader = document.getElementById('simon-todo-loading');
-        loader.style.display = 'block';
-        try {
-            const resp = await callAI("Generate tasks.", TODO_PROMPT);
-            const arr = JSON.parse(resp);
-            simonTasks = arr.map(text => ({text, done: false}));
-            saveTasks(); renderTasks();
-        } catch(e) { console.error(e); } finally { loader.style.display = 'none'; }
-    }
-
-    // ============== 宠物系统 (Pet) ==============
-    function clamp01to100(n) { return Math.max(0, Math.min(100, Math.round(n))); }
-
-    function initPetState() {
-        const raw = localStorage.getItem(PET_STATE_KEY);
-        if (raw) {
-            try { petState = JSON.parse(raw); } catch(e) { petState = null; }
-        }
-        if (!petState || typeof petState !== 'object') {
-            petState = {
-                hunger: 35,
-                mood: 78,
-                mode: 'home', 
-                statusText: 'Standing by.',
-                lastUpdateTs: Date.now()
-            };
-            savePetState();
-        }
-        if (typeof petState.hunger !== 'number') petState.hunger = 35;
-        if (typeof petState.mood !== 'number') petState.mood = 78;
-        if (!petState.mode) petState.mode = 'home';
-        if (typeof petState.lastUpdateTs !== 'number') petState.lastUpdateTs = Date.now();
-
-        applyPetDecay();
-    }
-
-    function savePetState() {
-        localStorage.setItem(PET_STATE_KEY, JSON.stringify(petState));
-    }
-
-    function applyPetDecay() {
-        if (!petState) return;
-        const now = Date.now();
-        const hours = Math.min(72, Math.max(0, (now - (petState.lastUpdateTs || now)) / 3600000));
-        if (hours <= 0) return;
-
-        petState.hunger = clamp01to100(petState.hunger + hours * 6);
-        petState.mood = clamp01to100(petState.mood - hours * 4);
-        petState.lastUpdateTs = now;
-        savePetState();
-    }
-
-    function setPetMode(mode, statusText) {
-        if (!petState) initPetState();
-        petState.mode = mode;
-        if (statusText) petState.statusText = statusText;
-        petState.lastUpdateTs = Date.now();
-        savePetState();
-        renderPetUI();
-    }
-
-    function renderPetUI() {
-        if (!petState) initPetState();
-        applyPetDecay();
-
-        const status = document.getElementById('riley-status');
-        const hungerFill = document.getElementById('riley-hunger-fill');
-        const moodFill = document.getElementById('riley-mood-fill');
-        const hungerText = document.getElementById('riley-hunger-text');
-        const moodText = document.getElementById('riley-mood-text');
-        if (!status || !hungerFill || !moodFill || !hungerText || !moodText) return;
-
-        const modeLabel = petState.mode === 'duty' ? 'On Duty' : (petState.mode === 'training' ? 'Training' : 'Home');
-        status.innerText = `${modeLabel} · ${petState.statusText || ''}`.trim();
-
-        hungerFill.style.width = `${clamp01to100(petState.hunger)}%`;
-        hungerFill.style.background = 'linear-gradient(90deg, rgba(52,199,89,0.95), rgba(255,69,58,0.95))';
-        hungerText.innerText = `${clamp01to100(petState.hunger)}/100`;
-
-        moodFill.style.width = `${clamp01to100(petState.mood)}%`;
-        moodFill.style.background = 'linear-gradient(90deg, rgba(255,107,129,0.95), rgba(0,122,255,0.95))';
-        moodText.innerText = `${clamp01to100(petState.mood)}/100`;
-    }
-
-    function syncRileyFromGhostMessage(text) {
-        if (!text) return;
-        const t = String(text);
-        const mission = /(mission|op(eration)?|deploy|tasking|going dark|exfil|执行任务|出任务|出勤|任务)/i.test(t);
-        const back = /(i'?m back|back home|returned|safe now|home now|到家|回来了|任务完成)/i.test(t);
-
-        if (mission) setPetMode('duty', 'Guarding the house. Waiting for the commander.');
-        else if (back) setPetMode('home', 'Commander home. Relaxing.');
-    }
-
-    async function pokeRiley() {
-        if (!petState) initPetState();
-        petState.mood = clamp01to100(petState.mood + 4);
-        petState.hunger = clamp01to100(petState.hunger + 2);
-        petState.statusText = petState.mode === 'duty' ? 'On watch.' : 'Orbiting you.';
-        savePetState();
-        renderPetUI();
-        triggerPetAI("Shangy petted you.");
-    }
-
-    async function feedRiley() {
-        if (!petState) initPetState();
-        petState.hunger = clamp01to100(petState.hunger - 28);
-        petState.mood = clamp01to100(petState.mood + 10);
-        petState.mode = 'home';
-        petState.statusText = 'Fed. Staying close.';
-        savePetState();
-        renderPetUI();
-        triggerPetAI("Shangy gave you a treat and some steak.");
-    }
-
-    async function trainRiley() {
-        if (!petState) initPetState();
-        petState.hunger = clamp01to100(petState.hunger + 14);
-        petState.mood = clamp01to100(petState.mood + 6);
-        petState.mode = 'training';
-        petState.statusText = 'Training. Locked in.';
-        savePetState();
-        renderPetUI();
-        triggerPetAI("Shangy started a short training session. Focus, heel, stay.");
-    }
-
-    function toggleRileyDuty() {
-        if (!petState) initPetState();
-        if (petState.mode === 'duty') setPetMode('home', 'Standing by.');
-        else setPetMode('duty', 'Guarding the house. Waiting for the commander.');
-    }
-
-    async function triggerPetAI(action) {
-        const box = document.getElementById('riley-thoughts');
-        const loader = document.getElementById('riley-loading');
-        box.innerText = "..."; loader.style.display = 'block';
-        try {
-            const reply = await callAI(action, PET_PROMPT);
-            box.innerText = reply;
-        } catch(e) { box.innerText = "Woof! (Network error)"; } finally { loader.style.display = 'none'; }
-    }
-
-    // ============== LOVE SPACE (推特空间) ==============
-    function toggleLoveSpace() { document.getElementById('love-space-overlay').classList.toggle('active'); }
+    // Love Space
     function saveFeed() { localStorage.setItem('ghost_ls_feed_v4', JSON.stringify(lsFeed)); }
+    function renderFeed() { document.getElementById('ls-feed').innerHTML=[...lsFeed].reverse().map(p=>`<div class="tweet"><div class="tweet-header"><div class="t-avatar">${AVATARS[p.author]||"👤"}</div><div><b>${p.author}</b> <span style="font-size:13px;color:#888">${p.handle}</span></div></div><div class="tweet-body">${p.content}</div><div class="tweet-actions"><div onclick="toggleLike(${p.id})">❤️ ${p.likes}</div><div onclick="document.getElementById('comments-${p.id}').classList.toggle('open')">💬 ${p.comments.length}</div></div><div class="comments-section" id="comments-${p.id}">${p.comments.map(c=>`<div class="comment"><b style="margin-right:8px;">${c.author}</b><div class="c-content">${c.content}</div></div>`).join('')}<div class="c-input-area"><input type="text" id="c-input-${p.id}" placeholder="Reply..."><button class="ls-btn" onclick="postComment(${p.id})">Reply</button></div></div></div>`).join(''); }
+    function toggleLike(id){ lsFeed.find(x=>x.id===id).likes++; saveFeed(); renderFeed(); }
+    async function postMyTweet() { const text=document.getElementById('ls-textarea').value.trim(); if(!text)return; const p={id:Date.now(),author:MY_NAME,handle:MY_ID,content:text,likes:0,comments:[]}; lsFeed.push(p); document.getElementById('ls-textarea').value=''; saveFeed(); renderFeed(); triggerLSAI(p.id, `Shangy posted: "${text}". Ghost MUST comment, and 1-2 others. Output JSON: {"Ghost":"..."}`); }
+    async function postComment(id) { const i=document.getElementById(`c-input-${id}`); const t=i.value.trim(); if(!t)return; const p=lsFeed.find(x=>x.id===id); p.comments.push({author:MY_NAME,content:t}); i.value=''; saveFeed(); renderFeed(); triggerLSAI(id, `Shangy commented: "${t}". Ghost MUST reply. Output JSON: {"Ghost":"..."}`); }
+    async function triggerLSAI(id, msg) { try{ const res=JSON.parse(await callAI(msg, LOVESPACE_PROMPT)); const p=lsFeed.find(x=>x.id===id); for(const n of ["Ghost","Soap","Price","Gaz"]) if(res[n]) p.comments.push({author:n,content:n==="Ghost"?postProcessGhostReply(await enforceEnglishOnly(res[n])):res[n]}); saveFeed(); renderFeed(); }catch(e){} }
+    async function fetchAIPost() { document.getElementById('ls-refresh-btn').innerText="Loading intel..."; const pool=[{n:"Ghost",h:"@ghost141"},{n:"Price",h:"@bravo_six"},{n:"Gaz",h:"@gaz_141"},{n:"Soap",h:"@soap_mactavish"}]; const s=(Math.random()<0.6)?pool[0]:pool[1+Math.floor(Math.random()*3)]; try{ const res=JSON.parse(await callAI(`Generate 1 post from ${s.n} (${s.h}). Output JSON: {"author":"${s.n}","handle":"${s.h}","content":"..."}`, LOVESPACE_PROMPT)); lsFeed.push({id:Date.now(), author:res.author, handle:res.handle, content:res.author==="Ghost"?postProcessGhostReply(await enforceEnglishOnly(res.content)):res.content, likes:Math.floor(Math.random()*50), comments:[]}); saveFeed(); renderFeed(); }catch(e){} finally{document.getElementById('ls-refresh-btn').innerText="✨ Load New Intel";} }
 
-    function renderFeed() {
-        const feedContainer = document.getElementById('ls-feed');
-        feedContainer.innerHTML = '';
-        [...lsFeed].reverse().forEach(post => {
-            const dName = (post.author === "User" || post.author === MY_NAME) ? MY_NAME : post.author;
-            const commentsHTML = post.comments.map(c => {
-                const cName = (c.author === "User" || c.author === MY_NAME) ? MY_NAME : c.author;
-                return `<div class="comment"><div class="c-avatar">${AVATARS[cName]||"👤"}</div><div class="c-content"><b>${cName}</b> ${c.content}</div></div>`;
-            }).join('');
-
-            feedContainer.innerHTML += `
-                <div class="tweet">
-                    <div class="tweet-header">
-                        <div class="t-avatar">${AVATARS[dName]||"👤"}</div>
-                        <div class="t-info"><b style="color:black">${dName}</b> <span>${post.handle}</span></div>
-                    </div>
-                    <div class="tweet-body">${post.content}</div>
-                    <div class="tweet-actions">
-                        <div style="cursor:pointer;" onclick="toggleLike(${post.id})">❤️ ${post.likes}</div>
-                        <div style="cursor:pointer;" onclick="document.getElementById('comments-${post.id}').classList.toggle('open')">💬 ${post.comments.length}</div>
-                    </div>
-                    <div class="comments-section" id="comments-${post.id}">
-                        <div>${commentsHTML}</div>
-                        <div class="ai-typing" id="typing-${post.id}">Simon is typing...</div>
-                        <div class="c-input-area">
-                            <input type="text" id="c-input-${post.id}" placeholder="Reply...">
-                            <button class="ls-btn" onclick="postComment(${post.id})">Reply</button>
-                        </div>
-                    </div>
-                </div>`;
-        });
-    }
-
-    function toggleLike(id) { const p = lsFeed.find(x=>x.id===id); p.likes++; saveFeed(); renderFeed(); }
-
-    async function postMyTweet() {
-        const text = document.getElementById('ls-textarea').value.trim();
-        if(!text) return;
-        const newPost = { id: Date.now(), author: MY_NAME, handle: MY_ID, content: text, likes: 0, comments: [] };
-        lsFeed.push(newPost);
-        document.getElementById('ls-textarea').value = '';
-        saveFeed(); renderFeed();
-        
-        let sysMsg = LOVESPACE_PROMPT;
-        let uMsg = `Shangy (${MY_ID}) posted: "${text}". Ghost MUST comment, and 1-2 other squad members (Soap, Price, or Gaz) MUST react. Output JSON: { "Ghost": "...", "Soap": "..." }`;
-        triggerLSAI(newPost.id, sysMsg, uMsg);
-    }
-
-    async function postComment(postId) {
-        const input = document.getElementById(`c-input-${postId}`);
-        const text = input.value.trim();
-        if(!text) return;
-        const post = lsFeed.find(p => p.id === postId);
-        post.comments.push({ author: MY_NAME, content: text });
-        input.value = '';
-        saveFeed(); renderFeed();
-        document.getElementById(`comments-${postId}`).classList.add('open');
-        
-        let sysMsg = LOVESPACE_PROMPT;
-        let uMsg = `Shangy commented: "${text}" on a post. Ghost MUST reply, and at least one other squad member should chime in. Output JSON: { "Ghost": "...", "Gaz": "..." }`;
-        triggerLSAI(postId, sysMsg, uMsg);
-    }
-
-    async function triggerLSAI(postId, sysMsg, uMsg) {
-        document.getElementById(`typing-${postId}`).style.display = 'block';
-        try {
-            const resp = await callAI(uMsg, sysMsg);
-            const responses = JSON.parse(resp);
-            const post = lsFeed.find(p => p.id === postId);
-            for (const n of ["Ghost", "Soap", "Price", "Gaz"]) {
-                if (!responses[n]) continue;
-                let content = String(responses[n] || '').trim();
-                if (n === "Ghost") content = postProcessGhostReply(await enforceEnglishOnly(content));
-                post.comments.push({ author: n, content });
-            }
-            saveFeed(); renderFeed();
-            document.getElementById(`comments-${postId}`).classList.add('open');
-        } catch(e) {} finally { document.getElementById(`typing-${postId}`).style.display = 'none'; }
-    }
-
-    async function fetchAIPost() {
-        const btn = document.querySelector('.ls-refresh-btn');
-        btn.innerText = "🔄 Loading intel...";
-        
-            const pool = [
-                { name: "Ghost", handle: "@ghost141" },
-                { name: "Price", handle: "@bravo_six" },
-                { name: "Gaz", handle: "@gaz_141" },
-                { name: "Soap", handle: "@soap_mactavish" }
-            ];
-            const selected = (Math.random() < 0.6) ? pool[0] : pool[1 + Math.floor(Math.random() * 3)];
-
-        try {
-            const resp = await callAI(
-                `Generate 1 random tweet-style post from ${selected.name} (${selected.handle}). 
-                Include their specific personality: ${selected.name==='Ghost' ? 'blunt/overprotective' : (selected.name==='Price' ? 'stern/fatherly' : 'chill/professional')}. 
-                Output JSON: { "author": "${selected.name}", "handle": "${selected.handle}", "content": "..." }`, 
-                LOVESPACE_PROMPT
-            );
-            
-            let p = JSON.parse(resp);
-            if (p.author === "Ghost") p.content = postProcessGhostReply(await enforceEnglishOnly(p.content));
-            lsFeed.push({ 
-                id: Date.now(), 
-                author: p.author, 
-                handle: p.handle, 
-                content: p.content, 
-                likes: Math.floor(Math.random()*50), 
-                comments: [] 
-            });
-            saveFeed(); 
-            renderFeed();
-        } catch(e) {
-            console.error("Post fetch failed", e);
-        } finally { 
-            btn.innerText = "✨ 刷新小队动态 (Load New Tweets)"; 
-        }
-    }
+    // 商店
+    const SHOP_CATALOG = [
+        { id: 'gifts', title: 'Gifts from Him', items: [ { id:'ring', emoji:'💍', name:'Simple Ring', pricePennies:15900 }, { id:'perfume', emoji:'🧴', name:'Perfume', pricePennies:8900 } ] },
+        { id: 'food', title: 'Study Snacks', items: [ { id:'tea_milk', emoji:'🧋', name:'Milk Tea', pricePennies:700 }, { id:'macarons', emoji:'🍪', name:'Macarons', pricePennies:1600 } ] }
+    ];
+    let lastShopPurchase = null;
+    function renderShopHeader() { document.getElementById('shop-balance').innerText=formatGBP(jointAccount.balancePennies); }
+    function renderShopCatalog() { document.getElementById('shop-content').innerHTML=SHOP_CATALOG.map(s=>`<div class="shop-section"><h3 style="margin-bottom:15px;">${s.title}</h3><div class="shop-row">${s.items.map(i=>`<div class="shop-card"><div class="shop-card-top"><div style="font-size:32px">${i.emoji}</div><div style="font-weight:bold">${formatGBP(i.pricePennies)}</div></div><div style="font-weight:bold; font-size:16px;">${i.name}</div><button class="shop-buy" onclick="buyShopItem('${s.id}','${i.id}')">Buy</button></div>`).join('')}</div></div>`).join(''); }
+    function buyShopItem(sId, iId) { const item = SHOP_CATALOG.find(s=>s.id===sId).items.find(i=>i.id===iId); if(jointAccount.balancePennies<item.pricePennies) { document.getElementById('pay-terminal-body').innerText="DECLINED: Insufficient Funds"; document.getElementById('pay-terminal').classList.add('active'); return; } addJointTransaction({type:'purchase', title:`${item.emoji} ${item.name}`, amountPennies:-item.pricePennies}); lastShopPurchase=item; document.getElementById('pay-terminal-body').innerText=`APPROVED\n\nItem: ${item.name}\nAmount: ${formatGBP(item.pricePennies)}\nBalance: ${formatGBP(jointAccount.balancePennies)}`; document.getElementById('pay-terminal').classList.add('active'); renderShopHeader(); }
+    function closePayTerminal() { document.getElementById('pay-terminal').classList.remove('active'); }
+    async function triggerPurchaseComment(p) { const time=new Date().toLocaleTimeString("zh-CN",{hour:'2-digit',minute:'2-digit'}); try{ const r=postProcessGhostReply(await enforceEnglishOnly(await callAI(`Shangy bought ${p.name}. Reply as Ghost. Blunt, affectionate.`,SYSTEM_PROMPT))); renderMsgUI('bot',r,time); chatHistory.push({role:'bot',content:r,time}); localStorage.setItem('ghost_chat_history_v4',JSON.stringify(chatHistory));}catch(e){} }
 </script>
 </body>
 </html>
