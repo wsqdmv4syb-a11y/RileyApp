@@ -2,149 +2,121 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Ghost | Steel Anchor Terminal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
+    <meta name="apple-mobile-web-app-title" content="Terminal 141">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Skull_and_crossbones.svg/512px-Skull_and_crossbones.svg.png"> <title>Ghost | Steel Anchor Terminal</title>
     <style>
         :root {
             --ios-blue: #007aff;
             --ios-grey: #262629;
-            --sidebar-width: 300px;
+            --sidebar-width: 320px;
             --glass: rgba(20, 20, 20, 0.7);
+            --love-pink: #FFF0F5;
+            --love-pink-dark: #FFB6C1;
+            --love-text: #333;
         }
 
         body { 
             background: #000;
             color: white; 
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
             margin: 0; display: flex; height: 100vh; width: 100vw;
             overflow: hidden;
-            /* 适配 iOS 全屏模式 */
-            padding-top: env(safe-area-inset-top);
+            -webkit-tap-highlight-color: transparent; /* 移除 iOS 默认的点击高亮 */
         }
 
-        /* 移动端菜单按钮 */
-        #menu-toggle {
-            display: none;
+        #dynamic-bg {
             position: fixed;
-            top: calc(10px + env(safe-area-inset-top));
-            left: 15px;
-            z-index: 1001;
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 20px;
-            cursor: pointer;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            z-index: -2; transition: background 0.5s ease;
+        }
+        .bg-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%);
+            backdrop-filter: blur(12px); z-index: -1;
         }
 
-        /* 侧边栏基础样式 */
-        #sidebar {
+        /* ================= 左侧图标栏 ================= */
+        .icon-dock {
+            width: 70px;
+            background: rgba(10, 10, 10, 0.8);
+            border-right: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px);
+            display: flex; flex-direction: column; align-items: center; padding: 30px 0;
+            z-index: 20; position: relative;
+        }
+        .dock-icon {
+            font-size: 26px;
+            margin-bottom: 30px; cursor: pointer;
+            transition: transform 0.2s, filter 0.2s; filter: grayscale(50%);
+            width: 50px; height: 50px; display: flex; align-items: center;
+            justify-content: center;
+            border-radius: 12px; background: rgba(255,255,255,0.05);
+        }
+        .dock-icon:hover, .dock-icon.active { transform: scale(1.1);
+            filter: grayscale(0%); background: rgba(255,255,255,0.15); }
+
+        /* ================= 侧滑面板区 ================= */
+        .side-panels-container {
             width: var(--sidebar-width);
-            background: #111;
-            border-right: 1px solid #333;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
+            background: var(--glass);
+            border-right: 1px solid rgba(255,255,255,0.1); position: relative;
+            margin-left: calc(var(--sidebar-width) * -1); transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 15; overflow-y: auto; overflow-x: hidden;
         }
-
-        #main-chat {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            width: 100%;
-        }
-
-        #chat-window {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 120px;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch; /* iOS 丝滑滚动 */
-        }
-
-        /* 底部输入框适配 */
-        .input-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 15px 20px;
-            /* 关键：适配 iPhone 底部安全区域 */
-            padding-bottom: calc(15px + env(safe-area-inset-bottom));
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-            backdrop-filter: blur(10px);
-        }
-
-        .input-box {
-            background: rgba(30, 30, 30, 0.8);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24px;
-            display: flex;
-            padding: 5px 18px;
-            align-items: center;
-        }
-
-        #user-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            padding: 12px 0;
-            outline: none;
-            font-size: 16px; /* 设为16px防止 iOS 自动放大页面 */
-        }
-
-        /* ================= 移动端适配逻辑 (iOS/iPadOS) ================= */
+        .side-panels-container.open { margin-left: 0; }
         
-        /* 手机端 (iPhone) */
-        @media (max-width: 768px) {
-            #menu-toggle { display: block; } /* 显示菜单按钮 */
-            
-            #sidebar {
-                position: fixed;
-                left: 0; top: 0; bottom: 0;
-                transform: translateX(-100%); /* 默认藏在左边 */
-                box-shadow: 20px 0 50px rgba(0,0,0,0.5);
-            }
+        .panel { display: none; padding: 30px 20px; animation: fadeIn 0.3s; }
+        .panel.active { display: block; }
+        .panel h2 { font-size: 20px; margin-top: 0; margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
 
-            #sidebar.open {
-                transform: translateX(0); /* 点击后滑出 */
-            }
+        /* ================= 面板特定 UI ================= */
+        .todo-section { margin-bottom: 25px; }
+        .todo-section h3 { font-size: 14px; color: #aaa; text-transform: uppercase; margin-bottom: 10px;}
+        .task-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 10px;
+            border-radius: 8px; margin-bottom: 8px; }
+        .task-item input[type="checkbox"] { margin-right: 10px; transform: scale(1.2); cursor: pointer; accent-color: var(--ios-blue); }
+        .task-item input[type="text"] { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 14px; }
+        .task-item.done span, .task-item.done input[type="text"] { text-decoration: line-through; color: #888; }
+        .add-task-btn { color: var(--ios-blue); cursor: pointer; font-size: 13px; padding: 5px; }
 
-            /* 遮罩层：点击侧边栏外关闭 */
-            #sidebar-overlay {
-                display: none;
-                position: fixed;
-                top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 999;
-            }
-            #sidebar-overlay.active { display: block; }
+        .pet-container { text-align: center; margin-top: 20px; }
+        .dog-emoji { font-size: 80px; cursor: pointer; transition: 0.2s; display: inline-block; user-select: none; }
+        .dog-emoji:hover { transform: scale(1.1) rotate(5deg); }
+        .pet-thoughts { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; font-style: italic; font-size: 14px;
+            min-height: 40px; margin: 20px 0; position: relative; }
+        .pet-thoughts::after { content: ''; position: absolute; top: -10px; left: 50%; margin-left: -10px; border-width: 0 10px 10px 10px; border-style: solid; border-color: transparent transparent rgba(255,255,255,0.1) transparent; }
+        .pet-status { font-size: 12px; color: #aaa; margin-top: -6px; margin-bottom: 12px; }
+        .pet-bars { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 14px 0; }
+        .pet-bar { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 10px 12px; text-align: left; }
+        .pet-bar-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+        .pet-bar-head span { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .pet-bar-head b { font-size: 12px; color: rgba(255,255,255,0.85); }
+        .pet-bar-track { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+        .pet-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, rgba(0,122,255,0.95), rgba(52,199,89,0.95)); border-radius: 999px; transition: width 0.35s ease; }
 
-            .msg-wrap { max-width: 85%; }
-            .transfer-card { width: 90vw; max-width: 320px; }
-        }
+        .balance-card { background: linear-gradient(135deg, #1e1e1e, #333); padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .balance-card h3 { margin: 0; color: #aaa; font-size: 13px; font-weight: normal; }
+        .balance-card .amount { font-size: 32px; font-weight: bold; margin: 10px 0; }
+        .expense-list { display: flex; flex-direction: column; gap: 10px; }
+        .expense-item { background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .expense-info b { display: block; font-size: 14px; margin-bottom: 3px; }
+        .expense-info span { font-size: 11px; color: #888; }
+        .expense-cost { font-weight: bold; color: #ff6b81; }
 
-        /* 平板端 (iPad) */
-        @media (min-width: 769px) and (max-width: 1024px) {
-            :root { --sidebar-width: 260px; }
-            #sidebar { display: flex; transform: none; }
-            #menu-toggle { display: none; }
-        }
+        .setting-item { margin-bottom: 25px; }
+        .setting-item label { color: #aaa; display: block; margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        input[type="text"], input[type="password"] { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; padding: 10px; box-sizing: border-box; outline: none; transition: 0.2s; }
+        input:focus { border-color: var(--ios-blue); }
+        .btn { background: rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); font-size: 14px; margin-bottom: 10px;}
+        .btn:hover { background: rgba(255,255,255,0.2); }
+        .btn.danger { color: #ff453a; border-color: rgba(255, 69, 58, 0.3); }
 
-        /* 通用滚动条美化 */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
-
-        /* ================= 新增: 日历与天气 UI ================= */
+        /* ================= 日历与天气 UI ================= */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 16px;}
         .calendar-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
@@ -188,56 +160,26 @@
         .bubble { max-width: 65%; padding: 12px 18px; font-size: 15px; line-height: 1.5; position: relative; word-wrap: break-word; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .user .bubble { background: var(--ios-blue); border-radius: 18px 18px 2px 18px; color: white; }
         .bot .bubble { background: var(--ios-grey); border-radius: 18px 18px 18px 2px; color: white; }
-        .status { font-size: 11px; color: #888; margin-top: 6px; padding: 0 5px; } /* 时间戳样式 */
+        .status { font-size: 11px; color: #888; margin-top: 6px; padding: 0 5px; } 
 
-        /* ================= Transfer Card (Upgraded) ================= */
+        /* ================= Transfer Card ================= */
         .transfer-card { background: linear-gradient(135deg, rgba(30,30,30,0.9), rgba(10,10,10,0.9)); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-top: 10px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); width: 220px; }
-        /* 顶部一抹代表成功的绿色微光 */
-        .transfer-card::before { content: none; }
         .t-icon { font-size: 20px; background: rgba(76, 217, 100, 0.15); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(76, 217, 100, 0.3); }
         .t-details { flex: 1; }
         .t-title { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
         .t-amount { font-size: 18px; font-weight: bold; color: #4cd964; margin-top: 3px; font-family: "SF Pro Display", sans-serif; }
-        .transfer-header {
-            display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
-        }
-        .transfer-icon {
-            width: 38px; height: 38px;
-            background: rgba(52, 199, 89, 0.15);
-            color: #34c759;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px; font-weight: bold;
-        }
-        .transfer-title-wrap { flex: 1; }
-        .transfer-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px;}
-        .transfer-status { font-size: 11px; color: #34c759; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .transfer-amount { font-size: 34px; font-weight: 800; color: #fff; margin-bottom: 16px; letter-spacing: -0.5px;}
-        .transfer-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 0 -20px 16px -20px; }
-        .transfer-details { display: flex; flex-direction: column; gap: 10px; }
-        .transfer-row { display: flex; justify-content: space-between; font-size: 13px; }
-        .transfer-row span { color: rgba(255,255,255,0.5); }
-        .transfer-row b { color: rgba(255,255,255,0.95); font-weight: 600; }
-        .transfer-note {
-            margin-top: 16px; padding-top: 14px;
-            border-top: 1px dashed rgba(255,255,255,0.15);
-            font-size: 12px; color: rgba(255,255,255,0.6);
-            line-height: 1.5; font-style: italic;
-        }
 
-        /* ================= 聊天输入框 (Restored) ================= */
+        /* ================= 聊天输入框 ================= */
         .input-bar { padding: 30px 15%; background: transparent; }
         .input-box { background: rgba(30, 30, 30, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; display: flex; padding: 5px 20px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
         #user-input { flex: 1; background: transparent; border: none; color: white; padding: 12px 0; outline: none; font-size: 15px; }
         .send-btn { color: var(--ios-blue); font-weight: 600; cursor: pointer; font-size: 20px; transition: 0.2s; }
         
-        /* ================= 滚动条全局美化 (Restored) ================= */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
 
-        /* ================= 商城专属横向滚动条隐藏 ================= */
-        .shop-row::-webkit-scrollbar { display: none; } /* 隐藏商城卡片的丑陋横条，但不影响滑动 */
+        .shop-row::-webkit-scrollbar { display: none; } 
 
         /* ================= SHOP UI ================= */
         #shop-overlay {
@@ -253,50 +195,18 @@
         #shop-overlay.active { transform: translateY(0); }
         .shop-header {
             padding: 14px 18px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(234, 246, 255, 0.82);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(234, 246, 255, 0.82); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08); font-weight: 700;
+            position: sticky; top: 0; z-index: 10;
         }
         .shop-back { cursor: pointer; color: var(--ios-blue); font-weight: 600; }
-        .shop-body {
-            padding: 18px 15%;
-            overflow-y: auto;
-            flex: 1;
-        }
-        .shop-topbar {
-            display: flex;
-            gap: 12px;
-            align-items: stretch;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
-        .shop-balance-card {
-            flex: 1;
-            min-width: 220px;
-            background: rgba(255,255,255,0.75);
-            border: 1px solid rgba(15, 23, 42, 0.08);
-            border-radius: 14px;
-            padding: 14px 16px;
-            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
-        }
+        .shop-body { padding: 18px 15%; overflow-y: auto; flex: 1; }
+        .shop-topbar { display: flex; gap: 12px; align-items: stretch; margin-bottom: 18px; flex-wrap: wrap; }
+        .shop-balance-card { flex: 1; min-width: 220px; background: rgba(255,255,255,0.75); border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 14px; padding: 14px 16px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); }
         .shop-balance-card .label { font-size: 12px; color: rgba(15, 23, 42, 0.6); text-transform: uppercase; letter-spacing: 1px; }
         .shop-balance-card .value { font-size: 32px; font-weight: 900; margin-top: 6px; }
-        .shop-recent-card {
-            flex: 1.2;
-            min-width: 260px;
-            background: rgba(255,255,255,0.75);
-            border: 1px solid rgba(15, 23, 42, 0.08);
-            border-radius: 14px;
-            padding: 14px 16px;
-            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
-        }
+        .shop-recent-card { flex: 1.2; min-width: 260px; background: rgba(255,255,255,0.75); border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 14px; padding: 14px 16px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); }
         .shop-recent-card .label { font-size: 12px; color: rgba(15, 23, 42, 0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
         .shop-recent-list { display: flex; flex-direction: column; gap: 8px; }
         .shop-recent-item { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
@@ -307,96 +217,26 @@
         .shop-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
         .shop-section h3 { margin: 0; font-size: 15px; color: rgba(15, 23, 42, 0.82); }
         .shop-nav { display: flex; gap: 8px; }
-        .shop-arrow {
-            width: 32px; height: 32px;
-            border-radius: 10px;
-            border: 1px solid rgba(15, 23, 42, 0.10);
-            background: rgba(255,255,255,0.70);
-            color: rgba(15, 23, 42, 0.90);
-            font-weight: 900;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.10);
-        }
+        .shop-arrow { width: 32px; height: 32px; border-radius: 10px; border: 1px solid rgba(15, 23, 42, 0.10); background: rgba(255,255,255,0.70); color: rgba(15, 23, 42, 0.90); font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(15, 23, 42, 0.10); }
         .shop-arrow:active { transform: translateY(1px); }
-        .shop-row {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding-bottom: 6px;
-            scroll-snap-type: x mandatory;
-        }
-        .shop-card {
-            flex: 0 0 230px;
-            background: rgba(255,255,255,0.85);
-            border: 1px solid rgba(15, 23, 42, 0.08);
-            border-radius: 14px;
-            padding: 14px 14px 12px 14px;
-            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
-            scroll-snap-align: start;
-            display: flex;
-            flex-direction: column;
-            min-height: 170px;
-        }
+        .shop-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x mandatory; }
+        .shop-card { flex: 0 0 230px; background: rgba(255,255,255,0.85); border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 14px; padding: 14px 14px 12px 14px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); scroll-snap-align: start; display: flex; flex-direction: column; min-height: 170px; }
         .shop-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .shop-emoji { font-size: 28px; }
         .shop-price { font-weight: 800; color: rgba(15, 23, 42, 0.85); font-size: 14px; }
         .shop-name { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
         .shop-desc { font-size: 12px; color: rgba(15, 23, 42, 0.7); line-height: 1.4; flex: 1; }
-        .shop-buy {
-            margin-top: 10px;
-            border: none;
-            background: #0b3d91;
-            color: white;
-            border-radius: 10px;
-            padding: 10px 12px;
-            font-weight: 800;
-            cursor: pointer;
-        }
+        .shop-buy { margin-top: 10px; border: none; background: #0b3d91; color: white; border-radius: 10px; padding: 10px 12px; font-weight: 800; cursor: pointer; }
         .shop-buy:active { transform: translateY(1px); }
         .shop-buy[disabled] { opacity: 0.55; cursor: not-allowed; }
 
-        .pay-terminal {
-            position: absolute; inset: 0;
-            background: rgba(0,0,0,0.45);
-            backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
+        .pay-terminal { position: absolute; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 24px; }
         .pay-terminal.active { display: flex; }
-        .pay-terminal-box {
-            width: min(720px, 96vw);
-            background: #0b0f0c;
-            border: 1px solid rgba(34, 197, 94, 0.35);
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.55);
-            padding: 16px 16px 14px 16px;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            color: #a7f3d0;
-        }
-        .pay-terminal-title {
-            font-weight: 900;
-            letter-spacing: 1px;
-            color: #22c55e;
-            margin-bottom: 10px;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
+        .pay-terminal-box { width: min(720px, 96vw); background: #0b0f0c; border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.55); padding: 16px 16px 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: #a7f3d0; }
+        .pay-terminal-title { font-weight: 900; letter-spacing: 1px; color: #22c55e; margin-bottom: 10px; font-size: 12px; text-transform: uppercase; }
         .pay-terminal-body { white-space: pre-wrap; font-size: 12px; line-height: 1.5; }
         .pay-terminal-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
-        .pay-terminal-btn {
-            background: rgba(34, 197, 94, 0.14);
-            border: 1px solid rgba(34, 197, 94, 0.35);
-            color: #22c55e;
-            border-radius: 10px;
-            padding: 8px 12px;
-            font-weight: 800;
-            cursor: pointer;
-        }
+        .pay-terminal-btn { background: rgba(34, 197, 94, 0.14); border: 1px solid rgba(34, 197, 94, 0.35); color: #22c55e; border-radius: 10px; padding: 8px 12px; font-weight: 800; cursor: pointer; }
 
         /* ================= LOVE SPACE UI ================= */
         #love-space-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--love-pink); color: var(--love-text); z-index: 100; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -423,44 +263,256 @@
         .c-input-area { display: flex; margin-top: 10px; gap: 10px; }
         .c-input-area input { flex: 1; border: 1px solid #ddd; background: white; color: #333; padding: 8px 12px; border-radius: 16px;}
         .ai-typing { font-size: 12px; color: #ff6b81; font-style: italic; display: none; margin-top: 5px; }
-        
         .loading-text { font-size: 12px; color: #aaa; font-style: italic; margin-top: 10px; display: none;}
+
+        /* ================= 移动端/iOS 响应式适配 (新增区域) ================= */
+        @media (max-width: 768px) {
+            :root {
+                --sidebar-width: calc(100vw - 70px); /* 手机端侧边栏占用剩余所有宽度 */
+            }
+
+            .side-panels-container {
+                position: absolute; /* 脱离文档流，像抽屉一样悬浮在聊天区上方 */
+                left: 70px;
+                top: 0;
+                height: 100%;
+                z-index: 50; 
+                box-shadow: 5px 0 20px rgba(0,0,0,0.5);
+                padding-bottom: env(safe-area-inset-bottom); 
+            }
+
+            .chat-area {
+                width: calc(100vw - 70px);
+                flex: none; /* 确保聊天区在手机上固定宽度，不被侧滑菜单挤压 */
+            }
+
+            .icon-dock {
+                padding-top: max(30px, env(safe-area-inset-top));
+                padding-bottom: max(30px, env(safe-area-inset-bottom));
+                z-index: 60; /* 确保图标栏层级最高 */
+            }
+
+            .chat-header {
+                padding: max(15px, env(safe-area-inset-top)) 20px 15px 20px;
+            }
+
+            #chat-window {
+                /* 取消左右15%的大边距，留给手机更多显示空间 */
+                padding: 20px 5% max(20px, env(safe-area-inset-bottom)) 5%;
+            }
+
+            .input-bar {
+                padding: 15px 5% max(15px, env(safe-area-inset-bottom)) 5%;
+                background: rgba(10,10,10,0.8);
+                backdrop-filter: blur(10px);
+            }
+
+            #user-input, .c-input-area input, input[type="text"] {
+                font-size: 16px; /* 防止 iOS Safari 聚焦时自动放大屏幕 */
+            }
+
+            .bubble {
+                max-width: 85%; /* 手机屏幕小，气泡可以放宽一些 */
+            }
+
+            .shop-body, .ls-content {
+                padding: 20px 5% max(20px, env(safe-area-inset-bottom)) 5%;
+            }
+
+            .shop-topbar {
+                flex-direction: column; 
+            }
+
+            .shop-header, .ls-header {
+                padding-top: max(15px, env(safe-area-inset-top));
+            }
+            
+            .ls-compose { margin-bottom: 15px; }
+        }
+
+        @media (max-width: 400px) {
+            .transfer-card { width: 100%; max-width: 240px; box-sizing: border-box;}
+            .cal-day { min-height: 40px; padding: 2px; }
+        }
     </style>
 </head>
 <body>
 
-    <button id="menu-toggle" onclick="toggleSidebar()">☰</button>
-    <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div id="dynamic-bg"></div>
+<div class="bg-overlay"></div>
 
-    <div id="sidebar">
-        <div style="padding: 60px 20px 20px 20px;">
-             <h2 style="font-size: 24px; margin-bottom: 5px;">Ghost</h2>
-             <p style="color: #666; font-size: 13px;">LT. SIMON RILEY</p>
-             </div>
+<div class="icon-dock">
+    <div class="dock-icon" title="To-Do List" onclick="openPanel('todo')">📝</div>
+    <div class="dock-icon" title="Calendar" onclick="openPanel('calendar')">📅</div>
+    <div class="dock-icon" title="Riley the Dog" onclick="openPanel('pet')">🐾</div>
+    <div class="dock-icon" title="Joint Expenses" onclick="openPanel('finance')">💰</div>
+    <div style="flex:1"></div>
+    <div class="dock-icon" title="Settings" onclick="openPanel('settings')">⚙️</div>
+</div>
+
+<div class="side-panels-container" id="panels-container">
+    
+    <div class="panel" id="panel-todo">
+        <h2>Our Tasks 📝</h2>
+        <div class="todo-section">
+            <h3>Shangy's Tasks <span class="add-task-btn" onclick="addShangyTask()">+ Add</span></h3>
+            <div id="shangy-tasks"></div>
+        </div>
+        <div class="todo-section">
+            <h3>Simon's Intel (AI Sync) <span class="add-task-btn" onclick="fetchSimonTasks()">↻ Sync</span></h3>
+            <div id="simon-tasks">
+                <div style="color:#aaa; font-size:12px; font-style:italic;">No active missions. Sync to update.</div>
+            </div>
+            <div id="simon-todo-loading" class="loading-text">Decrypting intel...</div>
+        </div>
     </div>
 
-    <div id="main-chat">
-        <div id="chat-window">
+    <div class="panel" id="panel-calendar">
+        <h2>Calendar 📅</h2>
+        <div class="calendar-header">
+            <button onclick="changeMonth(-1)">‹</button>
+            <span id="cal-month-year"></span>
+            <button onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="calendar-grid" id="cal-grid"></div>
+        <div class="cal-events-wrap">
+            <div class="cal-events-title">This Month</div>
+            <div class="cal-events-list" id="cal-events-list"></div>
+        </div>
+    </div>
+
+    <div class="panel" id="panel-pet">
+        <h2>Riley 🐾</h2>
+        <div class="pet-container">
+            <div class="dog-emoji" onclick="pokeRiley()">🐕</div>
+            <div class="pet-thoughts" id="riley-thoughts">Woof! (Waiting for a treat...)</div>
+            <div id="riley-loading" class="loading-text" style="margin-bottom: 15px;">Riley is thinking...</div>
+            <div class="pet-status" id="riley-status">Waiting for orders.</div>
+
+            <div class="pet-bars">
+                <div class="pet-bar">
+                    <div class="pet-bar-head"><span>Hunger</span><b id="riley-hunger-text">--</b></div>
+                    <div class="pet-bar-track"><div class="pet-bar-fill" id="riley-hunger-fill"></div></div>
+                </div>
+                <div class="pet-bar">
+                    <div class="pet-bar-head"><span>Mood</span><b id="riley-mood-text">--</b></div>
+                    <div class="pet-bar-track"><div class="pet-bar-fill" id="riley-mood-fill"></div></div>
+                </div>
             </div>
 
-        <div class="input-bar">
-            <div class="input-box">
-                <input type="text" id="user-input" placeholder="Message Ghost..." autocomplete="off">
-                <div class="send-btn" onclick="handleSend()">↑</div>
+            <div class="btn" style="background: rgba(255,107,129,0.2); color:#ff6b81; border-color:#ff6b81;" onclick="feedRiley()">🍖 Feed Riley</div>
+            <div class="btn" style="background: rgba(0,122,255,0.18); color: var(--ios-blue); border-color: rgba(0,122,255,0.35);" onclick="trainRiley()">🎯 Training</div>
+            <div class="btn" style="background: rgba(255,255,255,0.08); color: white; border-color: rgba(255,255,255,0.18);" onclick="toggleRileyDuty()">🪖 On Duty</div>
+        </div>
+    </div>
+
+    <div class="panel" id="panel-finance">
+        <h2>Joint Account 💰</h2>
+        <div class="balance-card">
+            <h3>Current Balance</h3>
+            <div class="amount" id="acct-balance">£ 4,250.00</div>
+            <div style="font-size:11px; color:#888;">Shared with Simon Riley</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="font-size: 14px; margin:0;">All Transactions</h3>
+            <span></span>
+        </div>
+        <div class="expense-list" id="expense-list"></div>
+        <div style="color:#888; font-size:11px; font-style:italic; text-align:center; margin-top:14px;">
+            Purchases, transfers, and check-ins sync here automatically.
+        </div>
+    </div>
+
+    <div class="panel" id="panel-settings">
+        <h2>Terminal Settings ⚙️</h2>
+        <div class="setting-item">
+            <label>Ghost's Alias</label>
+            <input type="text" id="name-input" value="Simon Riley" oninput="updateName()">
+        </div>
+        <div class="setting-item">
+            <label>SiliconFlow API Key</label>
+            <input type="password" id="api-key" placeholder="sk-...">
+        </div>
+        <div class="setting-item">
+            <label>Background UI</label>
+            <div class="btn" onclick="document.getElementById('bg-upload').click()">Change Wallpaper</div>
+            <input type="file" id="bg-upload" style="display:none" accept="image/*" onchange="loadBg(event)">
+        </div>
+        <div class="btn danger" onclick="clearHistory()">Wipe All Records</div>
+        <div style="margin-top: 40px; color:#555; font-size:11px; line-height:1.6; text-align:center;">
+            Ghost Protocol v4.5<br>Timeline & Weather Sync Active
+        </div>
+    </div>
+</div>
+
+<div class="chat-area">
+    <div class="chat-header">
+        <div class="avatar">💀</div>
+        <div class="header-info">
+            <b id="header-name">Simon Riley</b>
+            <span>Active now • Task Force 141</span>
+        </div>
+        <div class="header-actions">
+            <div class="shop-btn" title="Joint Store" onclick="openShop()">🛍️</div>
+            <div class="love-space-btn" title="Love Space" onclick="toggleLoveSpace()">💕</div>
+        </div>
+    </div>
+
+    <div id="chat-window"></div>
+
+    <div class="input-bar">
+        <div class="input-box">
+            <input type="text" id="user-input" placeholder="Message Simon..." onkeypress="if(event.keyCode==13) sendMessage()">
+            <div class="send-btn" onclick="sendMessage()">▲</div>
+        </div>
+    </div>
+    
+    <div id="shop-overlay">
+        <div class="shop-header">
+            <span class="shop-back" onclick="closeShop()">‹ Back</span>
+            <span>Joint Store</span>
+            <span style="width: 50px;"></span>
+        </div>
+        <div class="shop-body">
+            <div id="shop-content"></div>
+        </div>
+
+        <div class="pay-terminal" id="pay-terminal">
+            <div class="pay-terminal-box">
+                <div class="pay-terminal-title">Payment Success</div>
+                <div class="pay-terminal-body" id="pay-terminal-body"></div>
+                <div class="pay-terminal-actions">
+                    <button class="pay-terminal-btn" onclick="closePayTerminal()">Close</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // 新增：移动端菜单切换逻辑
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            const ov = document.getElementById('sidebar-overlay');
-            sb.classList.toggle('open');
-            ov.classList.toggle('active');
-        }
+    <div id="love-space-overlay">
+        <div class="ls-header">
+            <span class="ls-close" onclick="toggleLoveSpace()">‹ Back</span>
+            <span>🌸 Love Space 💀</span>
+            <span style="width: 50px;"></span>
+        </div>
+        <div class="ls-content">
+            <div class="ls-feed-container">
+                <button class="ls-btn ls-refresh-btn" onclick="fetchAIPost()">✨ 刷新小队动态 (Load New Tweets)</button>
+                <div class="ls-compose">
+                    <textarea id="ls-textarea" placeholder="What's happening, Shangy? (@ghost141)"></textarea>
+                    <div class="ls-compose-actions">
+                        <span style="font-size: 20px; cursor:pointer;" onclick="alert('Text + emoji only.')">🖼️</span>
+                        <button class="ls-btn" onclick="postMyTweet()">Post</button>
+                    </div>
+                </div>
+                <div id="ls-feed"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
-        const MY_NAME = "Shangy";
+<script>
+    // ============== 核心身份配置 =================
+    const MY_NAME = "Shangy";
     const MY_ID = "@bunny030ghostie";
     const GHOST_NAME = "Ghost";
     const GHOST_ID = "@ghost141";
@@ -711,40 +763,10 @@ Rules:
     // ============== 时区与天气 (Weather & Time) ==============
     function updateClocks() {
         return;
-        const now = new Date();
-        const options = { hour: '2-digit', minute:'2-digit', hour12: false };
-        
-        const ukTime = now.toLocaleTimeString("en-GB", { timeZone: "Europe/London", ...options });
-        const cnTime = now.toLocaleTimeString("zh-CN", { timeZone: "Asia/Shanghai", ...options });
-        
-        document.getElementById('uk-time').innerText = ukTime;
-        document.getElementById('cn-time').innerText = cnTime;
-
-        // 计算时差
-        const ukDate = new Date(now.toLocaleString("en-US", { timeZone: "Europe/London" }));
-        const cnDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Shanghai" }));
-        const diffHrs = Math.round((cnDate - ukDate) / 3600000);
-        document.getElementById('time-diff').innerText = `Time Difference: You are ${diffHrs} hours ahead of Simon`;
     }
 
     async function fetchWeatherData() {
         return;
-        try {
-            // London (Simon)
-            const resUK = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.5&longitude=-0.12&current_weather=true');
-            const dataUK = await resUK.json();
-            const wUK = dataUK.current_weather;
-            document.getElementById('uk-weather').innerText = `${wUK.is_day ? "☀️" : "🌙"} ${wUK.temperature}°C`;
-            
-            // Zhengzhou (Shangy) 
-            const resCN = await fetch('https://api.open-meteo.com/v1/forecast?latitude=34.75&longitude=113.66&current_weather=true');
-            const dataCN = await resCN.json();
-            const wCN = dataCN.current_weather;
-            document.getElementById('cn-weather').innerText = `${wCN.is_day ? "☀️" : "🌙"} ${wCN.temperature}°C`;
-        } catch(e) {
-            document.getElementById('uk-weather').innerText = "Radar offline";
-            document.getElementById('cn-weather').innerText = "Radar offline";
-        }
     }
 
     // ============== 聊天主功能 ==============
@@ -771,7 +793,6 @@ Rules:
         const text = input.value.trim();
         if(!text || !key) return;
         
-        // 获取带时区的时间戳
         const now = new Date();
         const userTimeStr = now.toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
         const cnTime = now.toLocaleTimeString("zh-CN", { timeZone: "Asia/Shanghai", hour: '2-digit', minute:'2-digit' });
@@ -784,11 +805,9 @@ Rules:
 
         const requestedTransferPennies = extractTransferRequestPenniesV2(text);
         if (requestedTransferPennies) {
-            // Guarantee: always render the transfer card when requested.
             executeGhostTransfer(requestedTransferPennies, 'Requested in chat');
         }
         
-        // Build time awareness + transfer note
         const transferNote = requestedTransferPennies ? `\n[SYSTEM NOTE: A transfer to Shangy has already been authorized and sent. Confirm it briefly in English.]` : "";
         const timeAwareness = `\n[SYSTEM NOTE: The current time for Shangy (China) is ${cnTime}. The current time for you, Simon (UK), is ${ukTime}. Be aware of this time difference. Adjust your tone accordingly (e.g., say goodnight if it's late for her, mention what you're doing at your local time).]${transferNote}`;
 
@@ -814,10 +833,8 @@ Rules:
             renderMsgUI('bot', botReply, botTimeStr);
             chatHistory.push({ role: 'bot', content: botReply, time: botTimeStr });
 
-            // Riley sync: mission status follows Ghost.
             syncRileyFromGhostMessage(botReply);
 
-            // Transfers: occasional spontaneous deposits only when no explicit request.
             if (!requestedTransferPennies) maybeSpontaneousGhostTransfer();
 
             localStorage.setItem('ghost_chat_history_v4', JSON.stringify(chatHistory));
@@ -831,7 +848,6 @@ Rules:
         const wrap = document.createElement('div');
         wrap.className = `msg-wrap ${role}`;
         
-        // 兼容旧记录没有时间的情况
         const displayTime = timeStr || new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
         
         wrap.innerHTML = `
@@ -873,20 +889,16 @@ ${text}`;
         let t = String(rawText || '').replace(/\r/g, '').trim();
         if (!t) return "look at me. breathe slow, love.";
 
-        // Hard rule: no parentheses, ever.
         t = t.replace(/\uFF08[^\uFF09]*\uFF09/g, '');
         t = t.replace(/\([^)]*\)/g, '');
         t = t.replace(/[()\uFF08\uFF09]/g, '');
 
-        // Single line, no extra formatting.
         t = t.split('\n').map(x => x.trim()).filter(Boolean).join(' ');
         t = t.replace(/\s{2,}/g, ' ').trim();
 
-        // Allow a few sentences; just keep it tidy.
         const maxChars = 420;
         if (t.length > maxChars) t = t.slice(0, maxChars).replace(/\s+\S*$/, '').trim();
 
-        // Strip trailing weird punctuation repeats.
         t = t.replace(/[.]{2,}/g, '.').replace(/[!]{2,}/g, '!').replace(/[?]{2,}/g, '?').trim();
 
         if (!t) return "good. stay close, love.";
@@ -897,23 +909,19 @@ ${text}`;
         if (!text) return null;
         const raw = String(text);
         
-        // 扩大了关键词的捕获范围，增加了“没钱了”、“爆金币”等口语化词汇
         const hasIntent = /(转账|转点钱|转我|转给我|给我转|给我钱|发我|打钱|汇款|爆金币|没钱|transfer|send me|pay me)/i.test(raw);
 
         let m = raw.match(/£\s*(\d{1,6})/i);
         if (!m) m = raw.match(/(\d{1,6})\s*£/i);
         if (!m) m = raw.match(/(\d{1,6})\s*(英镑|镑|gbp|pounds?)/i);
-        // 如果有转账意图，且后面跟了数字
         if (!m && hasIntent) m = raw.match(/(转账|转点钱|转我|转给我|给我转|给我钱|发我|打钱|汇款|爆金币|没钱|transfer|send me|pay me)[^\d]*(\d{1,6})/i);
 
-        // 情况1：你指定了具体金额
         if (m) {
             const amountStr = m[2] ? m[2] : m[1];
             const amount = parseInt(amountStr, 10);
             if (Number.isFinite(amount) && amount > 0) return amount * 100;
         }
 
-        // 情况2：你只是表达了要钱的意图，但没说多少，让 Ghost 随机转 £100 - £500
         if (hasIntent) {
             return (Math.floor(Math.random() * 401) + 100) * 100; 
         }
@@ -921,35 +929,17 @@ ${text}`;
         return null;
     }
 
-    // Robust transfer detector: works with English/Chinese/Spanish and does not require a specific trigger phrase.
     function extractTransferRequestPenniesV2(text) {
         const raw = String(text || '').trim();
         if (!raw) return null;
 
         const intentRe = new RegExp(
             [
-                '\\u8f6c\\u8d26',                 // 转账
-                '\\u7ed9\\u6211',                 // 给我
-                '\\u53d1\\u6211',                 // 发我
-                '\\u6253\\u94b1',                 // 打钱
-                '\\u6c47\\u6b3e',                 // 汇款
-                'transfer',
-                'send\\s*(?:me|over|it)?',
-                'pay\\s*(?:me)?',
-                'wire',
-                'remit',
-                'deposit',
-                'give\\s*me',
-                'spot\\s*me',
-                'transfiere',
-                'transferir',
-                'env[ií]ame',
-                'm[aá]ndame',
-                'p[aá]same',
-                'p[aá]game',
-                'dep[oó]sita(?:me)?'
-            ].join('|'),
-            'i'
+                '\\u8f6c\\u8d26', '\\u7ed9\\u6211', '\\u53d1\\u6211', '\\u6253\\u94b1', '\\u6c47\\u6b3e',
+                'transfer', 'send\\s*(?:me|over|it)?', 'pay\\s*(?:me)?', 'wire', 'remit', 'deposit',
+                'give\\s*me', 'spot\\s*me', 'transfiere', 'transferir', 'env[ií]ame', 'm[aá]ndame',
+                'p[aá]same', 'p[aá]game', 'dep[oó]sita(?:me)?'
+            ].join('|'), 'i'
         );
 
         const hasIntent = intentRe.test(raw);
@@ -964,16 +954,13 @@ ${text}`;
             return Math.round(num * 100);
         }
 
-        // Currency symbol: treat as a transfer request even if intent words are missing.
         let m = raw.match(/[£$€]\s*(\d{1,9}(?:[.,]\d{1,2})?)/i);
         if (!m) m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)\s*[£$€]/i);
         if (m) return parseMoneyNumber(m[1]);
 
-        // GBP words: English + Spanish
         m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)\s*(gbp|pounds?|quid|libras?)/i);
         if (m) return parseMoneyNumber(m[1]);
 
-        // If there's clear intent, accept a plain number (assume GBP).
         if (hasIntent) {
             m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)/);
             if (m) return parseMoneyNumber(m[1]);
@@ -985,7 +972,6 @@ ${text}`;
     function renderTransferMsgUI(msg, timeStr) {
         const win = document.getElementById('chat-window');
         const wrap = document.createElement('div');
-        // 卡片作为独立的消息气泡显示
         wrap.className = `msg-wrap bot`; 
 
         const displayTime = timeStr || new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
@@ -1029,7 +1015,7 @@ ${text}`;
         if (Math.random() >= 0.07) return;
 
         localStorage.setItem(key, todayStr);
-        const amount = (Math.floor(Math.random() * 151) + 50) * 100; // £50 ~ £200
+        const amount = (Math.floor(Math.random() * 151) + 50) * 100;
         executeGhostTransfer(amount, 'Just because.');
 
         const botTimeStr = new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
@@ -1299,7 +1285,6 @@ ${text}`;
         renderShopHeader();
         overlay.classList.add('active');
 
-        // Close side panels so the shop feels like a separate page.
         const panels = document.getElementById('panels-container');
         if (panels) panels.classList.remove('open');
         document.querySelectorAll('.dock-icon').forEach(i => i.classList.remove('active'));
@@ -1431,7 +1416,7 @@ ${text}`;
             petState = {
                 hunger: 35,
                 mood: 78,
-                mode: 'home', // home | training | duty
+                mode: 'home', 
                 statusText: 'Standing by.',
                 lastUpdateTs: Date.now()
             };
@@ -1455,7 +1440,6 @@ ${text}`;
         const hours = Math.min(72, Math.max(0, (now - (petState.lastUpdateTs || now)) / 3600000));
         if (hours <= 0) return;
 
-        // Gradual drift while you are away.
         petState.hunger = clamp01to100(petState.hunger + hours * 6);
         petState.mood = clamp01to100(petState.mood - hours * 4);
         petState.lastUpdateTs = now;
@@ -1640,18 +1624,15 @@ ${text}`;
         const btn = document.querySelector('.ls-refresh-btn');
         btn.innerText = "🔄 Loading intel...";
         
-        // 显式定义角色池，增加多样性
             const pool = [
                 { name: "Ghost", handle: "@ghost141" },
                 { name: "Price", handle: "@bravo_six" },
                 { name: "Gaz", handle: "@gaz_141" },
                 { name: "Soap", handle: "@soap_mactavish" }
             ];
-            // Increase Ghost post frequency
             const selected = (Math.random() < 0.6) ? pool[0] : pool[1 + Math.floor(Math.random() * 3)];
 
         try {
-            // 在指令中明确指定发帖人，防止 AI 总是选 Soap
             const resp = await callAI(
                 `Generate 1 random tweet-style post from ${selected.name} (${selected.handle}). 
                 Include their specific personality: ${selected.name==='Ghost' ? 'blunt/overprotective' : (selected.name==='Price' ? 'stern/fatherly' : 'chill/professional')}. 
@@ -1677,16 +1658,6 @@ ${text}`;
             btn.innerText = "✨ 刷新小队动态 (Load New Tweets)"; 
         }
     }
-
-        // 针对 iOS 输入框的优化处理
-        document.getElementById('user-input').addEventListener('focus', () => {
-            setTimeout(() => {
-                window.scrollTo(0, 0);
-                document.body.scrollTop = 0;
-                const win = document.getElementById('chat-window');
-                win.scrollTop = win.scrollHeight;
-            }, 300);
-        });
-    </script>
+</script>
 </body>
 </html>
