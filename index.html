@@ -3,8 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#05070e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ghost">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Ghost | Steel Anchor Terminal</title>
     <style>
+        html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+            background: #000;
+        }
+
         :root {
             --ios-blue: #007aff;
             --ios-grey: #262629;
@@ -21,6 +34,10 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
             margin: 0; display: flex; height: 100vh; width: 100vw;
             overflow: hidden;
+            overscroll-behavior: none;
+            position: fixed;
+            inset: 0;
+            touch-action: manipulation;
         }
 
         #dynamic-bg {
@@ -410,6 +427,8 @@
             min-height: 100svh;
             min-height: 100dvh;
             display: block;
+            width: 100%;
+            height: 100%;
         }
 
         body.modal-open {
@@ -424,6 +443,7 @@
             min-height: 100dvh;
             height: 100svh;
             height: 100dvh;
+            width: 100%;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -437,6 +457,8 @@
         .chat-header {
             position: sticky;
             top: 0;
+            z-index: 7;
+            flex: 0 0 auto;
             padding: calc(12px + env(safe-area-inset-top)) 18px 12px 18px;
             background: rgba(5, 7, 14, 0.72);
             border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -490,6 +512,7 @@
             flex: 1 1 auto;
             min-height: 0;
             overflow-y: auto;
+            overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             padding: 22px 14px 16px 14px;
             padding-top: 18px;
@@ -498,6 +521,7 @@
             scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom));
             width: 100%;
             box-sizing: border-box;
+            overscroll-behavior: contain;
         }
 
         .msg-wrap {
