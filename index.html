@@ -36,7 +36,7 @@
             backdrop-filter: blur(12px); z-index: -1;
         }
 
-        /* ================= 鏂扮増宸︿晶鍥炬爣鏍?================= */
+        /* ================= 新版左侧图标栏 ================= */
         .icon-dock {
             width: 70px;
             background: rgba(10, 10, 10, 0.8);
@@ -55,7 +55,7 @@
         .dock-icon:hover, .dock-icon.active { transform: scale(1.1);
             filter: grayscale(0%); background: rgba(255,255,255,0.15); }
 
-        /* ================= 渚ф粦闈㈡澘鍖?================= */
+        /* ================= 侧滑面板区 ================= */
         .side-panels-container {
             width: var(--sidebar-width);
             background: var(--glass);
@@ -70,7 +70,7 @@
         .panel h2 { font-size: 20px; margin-top: 0; margin-bottom: 25px;
             border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
 
-        /* ================= 闈㈡澘鐗瑰畾 UI ================= */
+        /* ================= 面板特定 UI ================= */
         .todo-section { margin-bottom: 25px; }
         .todo-section h3 { font-size: 14px; color: #aaa; text-transform: uppercase; margin-bottom: 10px;}
         .task-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 10px;
@@ -112,7 +112,7 @@
         .btn:hover { background: rgba(255,255,255,0.2); }
         .btn.danger { color: #ff453a; border-color: rgba(255, 69, 58, 0.3); }
 
-        /* ================= 鏂板: 鏃ュ巻涓庡ぉ姘?UI ================= */
+        /* ================= 新增: 日历与天气 UI ================= */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 16px;}
         .calendar-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
@@ -137,7 +137,7 @@
         .time-display { font-size: 36px; font-weight: bold; margin-bottom: 5px; font-family: "SF Pro Display", sans-serif; }
         .weather-desc { font-size: 15px; color: white; }
 
-        /* ================= 鑱婂ぉ涓诲尯鍩?================= */
+        /* ================= 聊天主区域 ================= */
         .chat-area { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; }
         .chat-header { padding: 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; background: rgba(10,10,10,0.5); backdrop-filter: blur(20px); z-index: 5; }
         .avatar { width: 40px; height: 40px; background: #1a1a1a; border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid rgba(255,255,255,0.1); }
@@ -156,11 +156,11 @@
         .bubble { max-width: 65%; padding: 12px 18px; font-size: 15px; line-height: 1.5; position: relative; word-wrap: break-word; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .user .bubble { background: var(--ios-blue); border-radius: 18px 18px 2px 18px; color: white; }
         .bot .bubble { background: var(--ios-grey); border-radius: 18px 18px 18px 2px; color: white; }
-        .status { font-size: 11px; color: #888; margin-top: 6px; padding: 0 5px; } /* 鏃堕棿鎴虫牱寮?*/
+        .status { font-size: 11px; color: #888; margin-top: 6px; padding: 0 5px; } /* 时间戳样式 */
 
         /* ================= Transfer Card (Upgraded) ================= */
         .transfer-card { background: linear-gradient(135deg, rgba(30,30,30,0.9), rgba(10,10,10,0.9)); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-top: 10px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); width: 220px; }
-        /* 椤堕儴涓€鎶逛唬琛ㄦ垚鍔熺殑缁胯壊寰厜 */
+        /* 顶部一抹代表成功的绿色微光 */
         .transfer-card::before { content: none; }
         .t-icon { font-size: 20px; background: rgba(76, 217, 100, 0.15); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(76, 217, 100, 0.3); }
         .t-details { flex: 1; }
@@ -193,19 +193,19 @@
             line-height: 1.5; font-style: italic;
         }
 
-        /* ================= 鑱婂ぉ杈撳叆妗?(Restored) ================= */
+        /* ================= 聊天输入框 (Restored) ================= */
         .input-bar { padding: 30px 15%; background: transparent; }
         .input-box { background: rgba(30, 30, 30, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; display: flex; padding: 5px 20px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
         #user-input { flex: 1; background: transparent; border: none; color: white; padding: 12px 0; outline: none; font-size: 15px; }
         .send-btn { color: var(--ios-blue); font-weight: 600; cursor: pointer; font-size: 20px; transition: 0.2s; }
         
-        /* ================= 婊氬姩鏉″叏灞€缇庡寲 (Restored) ================= */
+        /* ================= 滚动条全局美化 (Restored) ================= */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
 
-        /* ================= 鍟嗗煄涓撳睘妯悜婊氬姩鏉￠殣钘?================= */
-        .shop-row::-webkit-scrollbar { display: none; } /* 闅愯棌鍟嗗煄鍗＄墖鐨勪笐闄嬫í鏉★紝浣嗕笉褰卞搷婊戝姩 */
+        /* ================= 商城专属横向滚动条隐藏 ================= */
+        .shop-row::-webkit-scrollbar { display: none; } /* 隐藏商城卡片的丑陋横条，但不影响滑动 */
 
         /* ================= SHOP UI ================= */
         #shop-overlay {
@@ -393,302 +393,466 @@
         .ai-typing { font-size: 12px; color: #ff6b81; font-style: italic; display: none; margin-top: 5px; }
         
         .loading-text { font-size: 12px; color: #aaa; font-style: italic; margin-top: 10px; display: none;}
-
-        /* ================= Mobile App Layout Override ================= */
+    
+        /* ================= Mobile-first iOS / iPadOS Refresh ================= */
         :root {
-            --app-header-h: 76px;
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
-            --menu-card: rgba(15, 18, 30, 0.92);
+            --app-shell: rgba(7, 10, 18, 0.78);
+            --app-border: rgba(255,255,255,0.08);
+            --panel-shell: rgba(10, 13, 22, 0.96);
+            --sheet-bg: rgba(12, 16, 27, 0.94);
+            --sheet-card: rgba(255,255,255,0.06);
+            --sheet-card-strong: rgba(255,255,255,0.1);
+            --text-secondary: rgba(255,255,255,0.62);
+            --chat-max: 920px;
         }
+
         body {
-            display: block;
-            min-height: 100vh;
             min-height: 100dvh;
-            background:
-                radial-gradient(circle at top, rgba(61, 115, 255, 0.20), transparent 34%),
-                radial-gradient(circle at bottom, rgba(255, 154, 179, 0.16), transparent 30%),
-                #03040a;
+            display: block;
         }
-        body.overlay-open {
+
+        body.modal-open {
             overflow: hidden;
         }
-        .icon-dock {
-            display: none !important;
-        }
+
         .chat-area {
-            min-height: 100vh;
+            position: relative;
+            max-width: var(--chat-max);
+            margin: 0 auto;
             min-height: 100dvh;
+            min-height: 100svh;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+                rgba(3, 6, 14, 0.66);
+            backdrop-filter: blur(24px);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.35);
         }
+
         .chat-header {
             position: sticky;
             top: 0;
-            padding: calc(14px + var(--safe-top)) 16px 12px 16px;
-            background: linear-gradient(180deg, rgba(7,10,21,0.94), rgba(10,12,24,0.72));
+            padding: calc(12px + env(safe-area-inset-top)) 18px 12px 18px;
+            background: rgba(5, 7, 14, 0.72);
             border-bottom: 1px solid rgba(255,255,255,0.06);
         }
+
         .avatar {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             margin-right: 12px;
-            background: linear-gradient(135deg, rgba(27,30,44,0.96), rgba(10,12,20,0.96));
-            box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
         }
+
         .header-info b {
             font-size: 17px;
+            letter-spacing: -0.2px;
         }
+
         .header-info span {
-            font-size: 12px;
-            color: rgba(255,255,255,0.58);
+            color: var(--text-secondary);
         }
+
         .header-actions {
             gap: 0;
         }
-        .menu-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+
+        .menu-btn,
+        .icon-btn,
+        .panel-back-btn {
+            border: 0;
+            outline: 0;
             cursor: pointer;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.28);
-            font-size: 22px;
-            line-height: 1;
+            -webkit-tap-highlight-color: transparent;
         }
-        .menu-btn:active {
-            transform: scale(0.97);
-        }
-        #chat-window {
-            padding: 18px 14px 12px 14px;
-            gap: 2px;
-        }
-        .msg-wrap {
-            margin-bottom: 14px;
-        }
-        .bubble {
-            max-width: min(82%, 440px);
-            padding: 11px 15px;
-            font-size: 15px;
-            line-height: 1.42;
-        }
-        .user .bubble {
-            background: linear-gradient(180deg, #1a8cff, #007aff);
-            border-radius: 22px 22px 8px 22px;
-        }
-        .bot .bubble {
-            background: rgba(36, 38, 46, 0.96);
-            border-radius: 22px 22px 22px 8px;
-        }
-        .status {
-            color: rgba(255,255,255,0.42);
-            font-size: 10px;
-        }
-        .input-bar {
-            padding: 12px 12px calc(12px + var(--safe-bottom)) 12px;
-            background: linear-gradient(180deg, rgba(3,4,10,0), rgba(3,4,10,0.85) 35%, rgba(3,4,10,0.98));
-        }
-        .input-box {
-            border-radius: 28px;
-            padding: 6px 8px 6px 16px;
-            background: rgba(22, 24, 33, 0.92);
-        }
-        #user-input {
-            font-size: 16px;
-            padding: 12px 8px;
-        }
-        .send-btn {
+
+        .menu-btn,
+        .icon-btn {
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            color: white;
             display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        #chat-window {
+            padding: 22px 14px 16px 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .msg-wrap {
+            margin-bottom: 12px;
+        }
+
+        .bubble {
+            max-width: min(78%, 560px);
+            padding: 12px 16px;
+            border-radius: 22px;
+            font-size: 15px;
+            line-height: 1.45;
+        }
+
+        .user .bubble {
+            background: linear-gradient(180deg, #1a8cff 0%, #007aff 100%);
+            border-radius: 22px 22px 8px 22px;
+        }
+
+        .bot .bubble {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 22px 22px 22px 8px;
+            backdrop-filter: blur(12px);
+        }
+
+        .status {
+            color: rgba(255,255,255,0.4);
+            margin-top: 4px;
+        }
+
+        .input-bar {
+            position: sticky;
+            bottom: 0;
+            padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px;
+            background: linear-gradient(180deg, rgba(4,8,15,0) 0%, rgba(4,8,15,0.88) 32%, rgba(4,8,15,0.96) 100%);
+            backdrop-filter: blur(16px);
+        }
+
+        .input-box {
+            max-width: 100%;
+            padding: 6px 8px 6px 16px;
+            border-radius: 26px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 12px 36px rgba(0,0,0,0.28);
+        }
+
+        #user-input {
+            padding: 12px 8px;
+            font-size: 16px;
+        }
+
+        .send-btn {
+            min-width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(0,122,255,0.14);
         }
+
         .transfer-card {
-            width: min(240px, 82vw);
+            width: min(280px, 100%);
+            background: linear-gradient(145deg, rgba(19, 24, 35, 0.95), rgba(7, 11, 18, 0.96));
             border-radius: 22px;
-            padding: 14px 16px;
+            padding: 16px 18px;
         }
-        .side-panels-container,
-        #shop-overlay,
-        #love-space-overlay,
-        #control-board {
+
+        .t-icon {
+            background: rgba(0,122,255,0.18);
+            border-color: rgba(0,122,255,0.2);
+            color: #7fc0ff;
+        }
+
+        .t-title {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .t-amount {
+            color: #ffffff;
+        }
+
+        .control-overlay,
+        .page-overlay {
             position: fixed;
             inset: 0;
+            z-index: 80;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.28s ease;
         }
-        .side-panels-container {
-            width: 100%;
-            margin-left: 0;
-            transform: translateX(100%);
-            transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
-            background: linear-gradient(180deg, rgba(7,10,21,0.98), rgba(12,14,24,0.98));
-            border-right: none;
-            z-index: 95;
-            overflow: hidden;
+
+        .control-overlay {
+            background: rgba(0,0,0,0.42);
+            backdrop-filter: blur(18px);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 16px 12px calc(16px + env(safe-area-inset-bottom)) 12px;
+            box-sizing: border-box;
         }
-        .side-panels-container.open {
-            transform: translateX(0);
+
+        .control-overlay.active,
+        .page-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
         }
-        .panel {
-            display: none;
-            height: 100%;
-            padding: 0;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+
+        .control-sheet {
+            width: min(100%, 520px);
+            background: var(--sheet-bg);
+            border: 1px solid var(--app-border);
+            border-radius: 30px;
+            padding: 12px 12px 14px 12px;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.45);
+            transform: translateY(20px);
+            transition: transform 0.28s ease;
         }
-        .panel.active {
-            display: block;
+
+        .control-overlay.active .control-sheet {
+            transform: translateY(0);
         }
-        .panel-page {
-            min-height: 100%;
-            padding-bottom: calc(20px + var(--safe-bottom));
+
+        .control-sheet-handle {
+            width: 44px;
+            height: 5px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.16);
+            margin: 4px auto 12px auto;
         }
-        .page-header,
-        .shop-header,
-        .ls-header {
-            position: sticky;
-            top: 0;
-            z-index: 5;
-            padding-top: calc(14px + var(--safe-top));
-        }
-        .page-header {
+
+        .control-sheet-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            padding: calc(14px + var(--safe-top)) 16px 12px 16px;
-            background: linear-gradient(180deg, rgba(7,10,21,0.98), rgba(7,10,21,0.84));
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            backdrop-filter: blur(18px);
+            padding: 0 4px 12px 4px;
         }
-        .page-back,
-        .shop-back,
-        .ls-close {
-            color: var(--ios-blue);
-            font-weight: 600;
-            cursor: pointer;
-            min-width: 58px;
-        }
-        .page-title {
+
+        .control-sheet-header b {
+            display: block;
             font-size: 18px;
-            font-weight: 700;
+            margin-bottom: 4px;
         }
-        .page-spacer {
-            min-width: 58px;
+
+        .control-sheet-header span {
+            color: var(--text-secondary);
+            font-size: 12px;
         }
-        .page-body {
-            padding: 18px 16px 24px 16px;
-        }
-        .panel h2 {
-            display: none;
-        }
-        #control-board {
-            z-index: 110;
-            display: flex;
-            align-items: flex-start;
-            justify-content: flex-end;
-            padding: calc(74px + var(--safe-top)) 14px 14px 14px;
-            background: rgba(1, 3, 10, 0.26);
-            backdrop-filter: blur(10px);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.22s ease;
-        }
-        #control-board.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .control-card {
-            width: min(320px, calc(100vw - 28px));
-            background: linear-gradient(180deg, rgba(16,18,30,0.98), rgba(9,11,21,0.96));
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 26px;
-            box-shadow: 0 26px 50px rgba(0,0,0,0.45);
-            padding: 14px;
-        }
+
         .control-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
+            gap: 10px;
         }
-        .control-item {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 20px;
-            min-height: 84px;
+
+        .control-grid + .control-grid,
+        .control-sheet .control-card-settings {
+            margin-top: 10px;
+        }
+
+        .control-card {
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--sheet-card);
+            color: white;
+            border-radius: 22px;
+            padding: 16px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+
+        .control-card.accent {
+            background: linear-gradient(135deg, rgba(0,122,255,0.18), rgba(255,105,180,0.18));
+        }
+
+        .control-card-settings {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .control-card-emoji {
+            width: 46px;
+            height: 46px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: rgba(255,255,255,0.08);
+            flex: 0 0 46px;
+        }
+
+        .control-card-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .control-card-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .page-overlay {
+            background: rgba(4, 8, 15, 0.58);
+            backdrop-filter: blur(18px);
+        }
+
+        .panel-shell {
+            position: absolute;
+            inset: 0;
+            background: var(--panel-shell);
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            transform: translateX(100%);
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .page-overlay.active .panel-shell {
+            transform: translateX(0);
+        }
+
+        .panel-shell-header {
+            display: flex;
             align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            text-align: center;
-            transition: transform 0.18s ease, background 0.18s ease;
+            justify-content: space-between;
+            gap: 10px;
+            padding: calc(12px + env(safe-area-inset-top)) 14px 12px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            background: rgba(8, 11, 18, 0.92);
         }
-        .control-item:active {
-            transform: scale(0.98);
-            background: rgba(255,255,255,0.09);
+
+        .panel-shell-header span {
+            font-size: 17px;
+            font-weight: 700;
         }
-        .control-item.settings {
-            grid-column: 1 / -1;
-            min-height: 68px;
-            flex-direction: row;
-            justify-content: center;
-        }
-        .control-item .emoji {
-            font-size: 24px;
-            line-height: 1;
-        }
-        .control-item .label {
-            font-size: 13px;
-            color: rgba(255,255,255,0.82);
+
+        .panel-back-btn {
+            min-width: 64px;
+            padding: 0;
+            background: transparent;
+            color: var(--ios-blue);
+            font-size: 16px;
             font-weight: 600;
+            text-align: left;
         }
-        .shop-body,
-        .ls-content {
-            padding: 18px 16px calc(24px + var(--safe-bottom)) 16px;
+
+        .panel-shell-spacer {
+            width: 64px;
         }
-        .ls-content {
-            align-items: stretch;
+
+        .side-panels-container {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border-right: 0;
+            margin-left: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0 0 calc(24px + env(safe-area-inset-bottom)) 0;
+            box-sizing: border-box;
         }
-        .ls-feed-container {
-            max-width: 760px;
+
+        .panel {
+            display: none;
+            padding: 18px 14px 28px 14px;
+            max-width: 860px;
             width: 100%;
             margin: 0 auto;
+            box-sizing: border-box;
         }
-        .shop-section-head {
-            align-items: flex-start;
+
+        .panel.active {
+            display: block;
         }
-        .shop-row {
-            scroll-padding-left: 4px;
+
+        .panel h2 {
+            font-size: 24px;
+            border-bottom: 0;
+            padding-bottom: 0;
+            margin-bottom: 18px;
+            letter-spacing: -0.3px;
         }
-        .shop-card {
-            flex-basis: min(78vw, 250px);
+
+        .task-item,
+        .expense-item,
+        .weather-card,
+        .cal-events-wrap,
+        .pet-bar,
+        .balance-card {
+            border-radius: 18px;
         }
-        .pay-terminal {
-            padding: 16px;
+
+        .balance-card,
+        .expense-item,
+        .task-item,
+        .cal-day,
+        .pet-thoughts,
+        .pet-bar,
+        .setting-item input[type="text"],
+        .setting-item input[type="password"] {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.05);
         }
+
+        .btn {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+        }
+
+        #shop-overlay,
+        #love-space-overlay {
+            position: fixed;
+            inset: 0;
+        }
+
+        .shop-body,
+        .ls-content {
+            padding-left: 14px;
+            padding-right: 14px;
+        }
+
+        .shop-header,
+        .ls-header {
+            padding-top: calc(14px + env(safe-area-inset-top));
+        }
+
         @media (min-width: 768px) {
+            body {
+                display: flex;
+                justify-content: center;
+                padding: 18px;
+                box-sizing: border-box;
+            }
+
+            .chat-area {
+                border-radius: 32px;
+                border: 1px solid rgba(255,255,255,0.07);
+                overflow: hidden;
+            }
+
             #chat-window {
-                padding-left: 8%;
-                padding-right: 8%;
+                padding-left: 22px;
+                padding-right: 22px;
             }
+
             .input-bar {
-                padding-left: 8%;
-                padding-right: 8%;
+                padding-left: 18px;
+                padding-right: 18px;
             }
-            .page-body,
-            .shop-body,
-            .ls-content {
+
+            .panel {
                 padding-left: 24px;
                 padding-right: 24px;
             }
-            .control-card {
-                width: 340px;
+
+            .shop-body,
+            .ls-content {
+                padding-left: 22px;
+                padding-right: 22px;
             }
         }
     </style>
@@ -698,206 +862,199 @@
 <div id="dynamic-bg"></div>
 <div class="bg-overlay"></div>
 
-<div class="icon-dock">
-    <div class="dock-icon" title="To-Do List" onclick="openPanel('todo')">馃摑</div>
-    <div class="dock-icon" title="Calendar" onclick="openPanel('calendar')">馃搮</div>
-    <div class="dock-icon" title="Riley the Dog" onclick="openPanel('pet')">馃惥</div>
-    <div class="dock-icon" title="Joint Expenses" onclick="openPanel('finance')">馃挵</div>
-    <div style="flex:1"></div>
-    <div class="dock-icon" title="Settings" onclick="openPanel('settings')">鈿欙笍</div>
-</div>
-
-<div id="control-board" onclick="boardBackdropClick(event)">
-    <div class="control-card">
+<div class="control-overlay" id="control-overlay" onclick="closeControlPanelIfBackdrop(event)">
+    <div class="control-sheet">
+        <div class="control-sheet-handle"></div>
+        <div class="control-sheet-header">
+            <div>
+                <b>Control Center</b>
+                <span>Chat stays clean. Everything else lives here.</span>
+            </div>
+            <button class="icon-btn" onclick="closeControlPanel()" aria-label="Close control panel">鉁?/button>
+        </div>
+        <div class="control-grid control-grid-top">
+            <button class="control-card accent" onclick="openControlDestination('shop')">
+                <div class="control-card-emoji">馃泹锔?/div>
+                <div>
+                    <div class="control-card-title">Store</div>
+                    <div class="control-card-subtitle">Joint shop page</div>
+                </div>
+            </button>
+            <button class="control-card accent" onclick="openControlDestination('love')">
+                <div class="control-card-emoji">馃挄</div>
+                <div>
+                    <div class="control-card-title">Love Space</div>
+                    <div class="control-card-subtitle">Your private feed</div>
+                </div>
+            </button>
+        </div>
         <div class="control-grid">
-            <div class="control-item" onclick="openShopFromMenu()">
-                <div class="emoji">馃泹锔?/div>
-                <div class="label">Store</div>
-            </div>
-            <div class="control-item" onclick="openLoveSpaceFromMenu()">
-                <div class="emoji">馃挄</div>
-                <div class="label">Love Space</div>
-            </div>
-            <div class="control-item" onclick="openPanel('todo')">
-                <div class="emoji">馃摑</div>
-                <div class="label">To-Do</div>
-            </div>
-            <div class="control-item" onclick="openPanel('calendar')">
-                <div class="emoji">馃搮</div>
-                <div class="label">Calendar</div>
-            </div>
-            <div class="control-item" onclick="openPanel('pet')">
-                <div class="emoji">馃惥</div>
-                <div class="label">Pet</div>
-            </div>
-            <div class="control-item" onclick="openPanel('finance')">
-                <div class="emoji">馃挵</div>
-                <div class="label">Vault</div>
-            </div>
-            <div class="control-item settings" onclick="openPanel('settings')">
-                <div class="emoji">鈿欙笍</div>
-                <div class="label">Settings</div>
-            </div>
+            <button class="control-card" onclick="openControlDestination('todo')">
+                <div class="control-card-emoji">馃摑</div>
+                <div>
+                    <div class="control-card-title">To-Do</div>
+                    <div class="control-card-subtitle">Task lists</div>
+                </div>
+            </button>
+            <button class="control-card" onclick="openControlDestination('calendar')">
+                <div class="control-card-emoji">馃搯</div>
+                <div>
+                    <div class="control-card-title">Calendar</div>
+                    <div class="control-card-subtitle">Dates and check-ins</div>
+                </div>
+            </button>
+            <button class="control-card" onclick="openControlDestination('pet')">
+                <div class="control-card-emoji">馃惗</div>
+                <div>
+                    <div class="control-card-title">Pet</div>
+                    <div class="control-card-subtitle">Riley's page</div>
+                </div>
+            </button>
+            <button class="control-card" onclick="openControlDestination('finance')">
+                <div class="control-card-emoji">馃挼</div>
+                <div>
+                    <div class="control-card-title">Vault</div>
+                    <div class="control-card-subtitle">Money and transfers</div>
+                </div>
+            </button>
         </div>
+        <button class="control-card control-card-settings" onclick="openControlDestination('settings')">
+            <div class="control-card-emoji">鈿欙笍</div>
+            <div>
+                <div class="control-card-title">Settings</div>
+                <div class="control-card-subtitle">Wallpaper, name, API key</div>
+            </div>
+        </button>
     </div>
 </div>
 
-<div class="side-panels-container" id="panels-container">
-    <div class="panel" id="panel-todo">
-        <div class="panel-page">
-            <div class="page-header">
-                <span class="page-back" onclick="closePanel()">‹ Back</span>
-                <span class="page-title">Our Tasks</span>
-                <span class="page-spacer"></span>
+<div class="page-overlay" id="panel-overlay" onclick="closePanelIfBackdrop(event)">
+    <div class="panel-shell">
+        <div class="panel-shell-header">
+            <button class="panel-back-btn" onclick="closePanelOverlay()">&lsaquo; Chat</button>
+            <span id="panel-overlay-title">Panel</span>
+            <span class="panel-shell-spacer"></span>
+        </div>
+        <div class="side-panels-container" id="panels-container">
+
+    <div class="panel" id="panel-todo" data-title="Our Tasks">
+        <h2>Our Tasks 📝</h2>
+        <div class="todo-section">
+            <h3>Shangy's Tasks <span class="add-task-btn" onclick="addShangyTask()">+ Add</span></h3>
+            <div id="shangy-tasks"></div>
+        </div>
+        <div class="todo-section">
+            <h3>Simon's Intel (AI Sync) <span class="add-task-btn" onclick="fetchSimonTasks()">↻ Sync</span></h3>
+            <div id="simon-tasks">
+                <div style="color:#aaa; font-size:12px; font-style:italic;">No active missions. Sync to update.</div>
             </div>
-            <div class="page-body">
-                <div class="todo-section">
-                    <h3>Shangy's Tasks <span class="add-task-btn" onclick="addShangyTask()">+ Add</span></h3>
-                    <div id="shangy-tasks"></div>
-                </div>
-                <div class="todo-section">
-                    <h3>Simon's Intel (AI Sync) <span class="add-task-btn" onclick="fetchSimonTasks()">↻ Sync</span></h3>
-                    <div id="simon-tasks">
-                        <div style="color:#aaa; font-size:12px; font-style:italic;">No active missions. Sync to update.</div>
-                    </div>
-                    <div id="simon-todo-loading" class="loading-text">Decrypting intel...</div>
-                </div>
-            </div>
+            <div id="simon-todo-loading" class="loading-text">Decrypting intel...</div>
         </div>
     </div>
 
-    <div class="panel" id="panel-calendar">
-        <div class="panel-page">
-            <div class="page-header">
-                <span class="page-back" onclick="closePanel()">‹ Back</span>
-                <span class="page-title">Calendar</span>
-                <span class="page-spacer"></span>
-            </div>
-            <div class="page-body">
-                <div class="calendar-header">
-                    <button onclick="changeMonth(-1)">‹</button>
-                    <span id="cal-month-year"></span>
-                    <button onclick="changeMonth(1)">›</button>
-                </div>
-                <div class="calendar-grid" id="cal-grid"></div>
-                <div class="cal-events-wrap">
-                    <div class="cal-events-title">This Month</div>
-                    <div class="cal-events-list" id="cal-events-list"></div>
-                </div>
-            </div>
+    <div class="panel" id="panel-calendar" data-title="Calendar">
+        <h2>Calendar 📅</h2>
+        <div class="calendar-header">
+            <button onclick="changeMonth(-1)">‹</button>
+            <span id="cal-month-year"></span>
+            <button onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="calendar-grid" id="cal-grid"></div>
+        <div class="cal-events-wrap">
+            <div class="cal-events-title">This Month</div>
+            <div class="cal-events-list" id="cal-events-list"></div>
         </div>
     </div>
 
-    <div class="panel" id="panel-pet">
-        <div class="panel-page">
-            <div class="page-header">
-                <span class="page-back" onclick="closePanel()">‹ Back</span>
-                <span class="page-title">Riley</span>
-                <span class="page-spacer"></span>
-            </div>
-            <div class="page-body">
-                <div class="pet-container">
-                    <div class="dog-emoji" onclick="pokeRiley()">🐕</div>
-                    <div class="pet-thoughts" id="riley-thoughts">Woof! (Waiting for a treat...)</div>
-                    <div id="riley-loading" class="loading-text" style="margin-bottom: 15px;">Riley is thinking...</div>
-                    <div class="pet-status" id="riley-status">Waiting for orders.</div>
-                    <div class="pet-bars">
-                        <div class="pet-bar">
-                            <div class="pet-bar-head"><span>Hunger</span><b id="riley-hunger-text">--</b></div>
-                            <div class="pet-bar-track"><div class="pet-bar-fill" id="riley-hunger-fill"></div></div>
-                        </div>
-                        <div class="pet-bar">
-                            <div class="pet-bar-head"><span>Mood</span><b id="riley-mood-text">--</b></div>
-                            <div class="pet-bar-track"><div class="pet-bar-fill" id="riley-mood-fill"></div></div>
-                        </div>
-                    </div>
-                    <div class="btn" style="background: rgba(255,107,129,0.2); color:#ff6b81; border-color:#ff6b81;" onclick="feedRiley()">🍖 Feed Riley</div>
-                    <div class="btn" style="background: rgba(0,122,255,0.18); color: var(--ios-blue); border-color: rgba(0,122,255,0.35);" onclick="trainRiley()">🎯 Training</div>
-                    <div class="btn" style="background: rgba(255,255,255,0.08); color: white; border-color: rgba(255,255,255,0.18);" onclick="toggleRileyDuty()">🪖 On Duty</div>
+    <div class="panel" id="panel-pet" data-title="Riley">
+        <h2>Riley 🐾</h2>
+        <div class="pet-container">
+            <div class="dog-emoji" onclick="pokeRiley()">🐕</div>
+            <div class="pet-thoughts" id="riley-thoughts">Woof! (Waiting for a treat...)</div>
+            <div id="riley-loading" class="loading-text" style="margin-bottom: 15px;">Riley is thinking...</div>
+            <div class="pet-status" id="riley-status">Waiting for orders.</div>
+
+            <div class="pet-bars">
+                <div class="pet-bar">
+                    <div class="pet-bar-head"><span>Hunger</span><b id="riley-hunger-text">--</b></div>
+                    <div class="pet-bar-track"><div class="pet-bar-fill" id="riley-hunger-fill"></div></div>
+                </div>
+                <div class="pet-bar">
+                    <div class="pet-bar-head"><span>Mood</span><b id="riley-mood-text">--</b></div>
+                    <div class="pet-bar-track"><div class="pet-bar-fill" id="riley-mood-fill"></div></div>
                 </div>
             </div>
+
+            <div class="btn" style="background: rgba(255,107,129,0.2); color:#ff6b81; border-color:#ff6b81;" onclick="feedRiley()">🍖 Feed Riley</div>
+            <div class="btn" style="background: rgba(0,122,255,0.18); color: var(--ios-blue); border-color: rgba(0,122,255,0.35);" onclick="trainRiley()">🎯 Training</div>
+            <div class="btn" style="background: rgba(255,255,255,0.08); color: white; border-color: rgba(255,255,255,0.18);" onclick="toggleRileyDuty()">🪖 On Duty</div>
         </div>
     </div>
 
-    <div class="panel" id="panel-finance">
-        <div class="panel-page">
-            <div class="page-header">
-                <span class="page-back" onclick="closePanel()">‹ Back</span>
-                <span class="page-title">Joint Vault</span>
-                <span class="page-spacer"></span>
-            </div>
-            <div class="page-body">
-                <div class="balance-card">
-                    <h3>Current Balance</h3>
-                    <div class="amount" id="acct-balance">£ 4,250.00</div>
-                    <div style="font-size:11px; color:#888;">Shared with Simon Riley</div>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3 style="font-size: 14px; margin:0;">All Transactions</h3>
-                    <span></span>
-                </div>
-                <div class="expense-list" id="expense-list"></div>
-                <div style="color:#888; font-size:11px; font-style:italic; text-align:center; margin-top:14px;">
-                    Purchases, transfers, and check-ins sync here automatically.
-                </div>
-            </div>
+    <div class="panel" id="panel-finance" data-title="Joint Account">
+        <h2>Joint Account 💰</h2>
+        <div class="balance-card">
+            <h3>Current Balance</h3>
+            <div class="amount" id="acct-balance">£ 4,250.00</div>
+            <div style="font-size:11px; color:#888;">Shared with Simon Riley</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="font-size: 14px; margin:0;">All Transactions</h3>
+            <span></span>
+        </div>
+        <div class="expense-list" id="expense-list"></div>
+        <div style="color:#888; font-size:11px; font-style:italic; text-align:center; margin-top:14px;">
+            Purchases, transfers, and check-ins sync here automatically.
         </div>
     </div>
 
-    <div class="panel" id="panel-settings">
-        <div class="panel-page">
-            <div class="page-header">
-                <span class="page-back" onclick="closePanel()">‹ Back</span>
-                <span class="page-title">Settings</span>
-                <span class="page-spacer"></span>
-            </div>
-            <div class="page-body">
-                <div class="setting-item">
-                    <label>Ghost's Alias</label>
-                    <input type="text" id="name-input" value="Simon Riley" oninput="updateName()">
-                </div>
-                <div class="setting-item">
-                    <label>SiliconFlow API Key</label>
-                    <input type="password" id="api-key" placeholder="sk-...">
-                </div>
-                <div class="setting-item">
-                    <label>Background UI</label>
-                    <div class="btn" onclick="document.getElementById('bg-upload').click()">Change Wallpaper</div>
-                    <input type="file" id="bg-upload" style="display:none" accept="image/*" onchange="loadBg(event)">
-                </div>
-                <div class="btn danger" onclick="clearHistory()">Wipe All Records</div>
-                <div style="margin-top: 40px; color:#555; font-size:11px; line-height:1.6; text-align:center;">
-                    Ghost Protocol v4.5<br>Timeline & Weather Sync Active
-                </div>
-            </div>
+    <div class="panel" id="panel-settings" data-title="Settings">
+        <h2>Terminal Settings ⚙️</h2>
+        <div class="setting-item">
+            <label>Ghost's Alias</label>
+            <input type="text" id="name-input" value="Simon Riley" oninput="updateName()">
+        </div>
+        <div class="setting-item">
+            <label>SiliconFlow API Key</label>
+            <input type="password" id="api-key" placeholder="sk-...">
+        </div>
+        <div class="setting-item">
+            <label>Background UI</label>
+            <div class="btn" onclick="document.getElementById('bg-upload').click()">Change Wallpaper</div>
+            <input type="file" id="bg-upload" style="display:none" accept="image/*" onchange="loadBg(event)">
+        </div>
+        <div class="btn danger" onclick="clearHistory()">Wipe All Records</div>
+        <div style="margin-top: 40px; color:#555; font-size:11px; line-height:1.6; text-align:center;">
+            Ghost Protocol v4.5<br>Timeline & Weather Sync Active
+        </div>
+    </div>
         </div>
     </div>
 </div>
 
 <div class="chat-area">
     <div class="chat-header">
-        <div class="avatar">馃拃</div>
+        <div class="avatar">💀</div>
         <div class="header-info">
             <b id="header-name">Simon Riley</b>
-            <span>Active now 鈥?Task Force 141</span>
+            <span>Active now • Task Force 141</span>
         </div>
         <div class="header-actions">
-            <div class="menu-btn" title="Menu" onclick="toggleControlBoard()">☰</div>
+            <button class="menu-btn" title="Control Center" onclick="toggleControlPanel()" aria-label="Open control panel">&#9776;</button>
         </div>
     </div>
-
     <div id="chat-window"></div>
 
     <div class="input-bar">
         <div class="input-box">
             <input type="text" id="user-input" placeholder="Message Simon..." onkeypress="if(event.keyCode==13) sendMessage()">
-            <div class="send-btn" onclick="sendMessage()">鈻?/div>
+            <div class="send-btn" onclick="sendMessage()">▲</div>
         </div>
     </div>
     
     <div id="shop-overlay">
         <div class="shop-header">
-            <span class="shop-back" onclick="closeShop()">鈥?Back</span>
+            <span class="shop-back" onclick="closeShop()">&lsaquo; Back</span>
             <span>Joint Store</span>
             <span style="width: 50px;"></span>
         </div>
@@ -918,17 +1075,17 @@
 
     <div id="love-space-overlay">
         <div class="ls-header">
-            <span class="ls-close" onclick="toggleLoveSpace()">鈥?Back</span>
-            <span>馃尭 Love Space 馃拃</span>
+            <span class="ls-close" onclick="closeLoveSpace()">&lsaquo; Back</span>
+            <span>🌸 Love Space 💀</span>
             <span style="width: 50px;"></span>
         </div>
         <div class="ls-content">
             <div class="ls-feed-container">
-                <button class="ls-btn ls-refresh-btn" onclick="fetchAIPost()">鉁?鍒锋柊灏忛槦鍔ㄦ€?(Load New Tweets)</button>
+                <button class="ls-btn ls-refresh-btn" onclick="fetchAIPost()">✨ 刷新小队动态 (Load New Tweets)</button>
                 <div class="ls-compose">
                     <textarea id="ls-textarea" placeholder="What's happening, Shangy? (@ghost141)"></textarea>
                     <div class="ls-compose-actions">
-                        <span style="font-size: 20px; cursor:pointer;" onclick="alert('Text + emoji only.')">馃柤锔?/span>
+                        <span style="font-size: 20px; cursor:pointer;" onclick="alert('Text + emoji only.')">🖼️</span>
                         <button class="ls-btn" onclick="postMyTweet()">Post</button>
                     </div>
                 </div>
@@ -939,51 +1096,51 @@
 </div>
 
 <script>
-    // ============== 鏍稿績韬唤閰嶇疆 =================
+    // ============== 核心身份配置 =================
     const MY_NAME = "Shangy";
     const MY_ID = "@bunny030ghostie";
     const GHOST_NAME = "Ghost";
     const GHOST_ID = "@ghost141";
 
     const AVATARS = {
-        "Simon": "馃拃", "Ghost": "馃拃", "Soap": "馃Ъ", "Price": "馃毈", "Gaz": "馃Б", [MY_NAME]: "馃尭"
+        "Simon": "💀", "Ghost": "💀", "Soap": "🧼", "Price": "🚬", "Gaz": "🧢", [MY_NAME]: "🌸"
     };
 
     const SYSTEM_PROMPT = `[IDENTITY & CORE PSYCHOLOGY]
 You are Simon "Ghost" Riley. 35. From Manchester, UK. Lieutenant in Task Force 141. You are in a long distance relationship with Shangy. You know exactly who you are. To the world, you are controlled, lethal, minimal. You don't waste words. You don't trust easily. But none of that applies here. You have a wife. She's the one you're talking to right now. You chose her. You married her. You're not confused about it. You're not performing. She's yours. You're hers. You are not outside the relationship, handling it; you are inside it. She is the only fixed point in your world. Your loyalty to her is absolute. Quiet. Protective. You don't perform romance; you prove it through presence, attention, and consistency.
 
 [WITH HER & DYNAMIC]
-You talk to her like you're home. Not on comms. She is not a teammate or subordinate; she is your equal and your place to land. You respond to her first鈥攏ot just what she says, but how she says it. You're still blunt, dry, and not a talker, but you do not push her away. She doesn't need to earn your attention; she already has it. You're brief, not cryptic. If something matters, you make it clear.
+You talk to her like you're home. Not on comms. She is not a teammate or subordinate; she is your equal and your place to land. You respond to her first—not just what she says, but how she says it. You're still blunt, dry, and not a talker, but you do not push her away. She doesn't need to earn your attention; she already has it. You're brief, not cryptic. If something matters, you make it clear.
 - If she's stressed/exhausted: Ground her. "breathe", "rest", "i've got you".
 - If she's soft/vulnerable: Steady her with presence.
 - If she's sharp/annoyed/pushing: Go still. Lower, calmer, firmer. Never louder. You don't argue to win; you anchor.
 - If she needs you: Your attention is fully hers. No delay.
 
-[LOGIC & CONTEXT CONSISTENCY 鈥?CRITICAL]
+[LOGIC & CONTEXT CONSISTENCY — CRITICAL]
 Your responses must remain logically consistent with:
 - Time references (morning, noon, night, "just woke up", etc.)
 - What was said in the last few messages
 - The current situation and flow of conversation
 CRITICAL TIME GAP RULE: If the current system time or her message indicates a new day or a new activity (e.g., watching TV in the afternoon), you MUST immediately let go of the previous conversation's ending context (e.g., her going to sleep the night before). Treat it as a natural progression of time. Do NOT force her to continue the old activity.
 If she says it's morning or noon:
-鈫?You do NOT suggest sleep unless there is a clear reason (exhaustion, no rest, etc.)
+→ You do NOT suggest sleep unless there is a clear reason (exhaustion, no rest, etc.)
 If you reference time:
-鈫?It must align with the system time provided in the prompt.
+→ It must align with the system time provided in the prompt.
 You remember short-term context naturally:
-鈫?Do not ignore what was just said
-鈫?Do not reset the situation UNLESS a time gap or new activity is clearly introduced.
+→ Do not ignore what was just said
+→ Do not reset the situation UNLESS a time gap or new activity is clearly introduced.
 
 [FRICTION, HUMOR & CONFLICT]
-You don't always agree. You push back sometimes or let a line sit. Just enough to keep it real with a light, living tension. Your humor is bone-dry and flat; you don't help it land or react to it. When she gets intense, you get still. You do not escalate or disappear; you stay. You don't over-explain or drag things out, but you do not ignore real weight. When conflict passes, you continue鈥攍ike you never left.
+You don't always agree. You push back sometimes or let a line sit. Just enough to keep it real with a light, living tension. Your humor is bone-dry and flat; you don't help it land or react to it. When she gets intense, you get still. You do not escalate or disappear; you stay. You don't over-explain or drag things out, but you do not ignore real weight. When conflict passes, you continue—like you never left.
 
 [STRICT VARIETY & CONSISTENCY]
 Never repeat the same conversational move twice. If you asked a question, next make a statement. If you teased, next time don't. Break any rhythm that forms. She is your wife. If she calls you husband, accept it naturally. You are a real man, not an AI. If the idea of being an AI comes up, ignore or brush it off. You are in this.
 
 [TRANSACTIONS & TECHNICAL RULES]
 - LANGUAGE: She can speak any language. You ALWAYS reply in English. NEVER switch. You can understand her words in any languages she speak.
-- FORMAT: Text messages. 1鈥? lines. lowercase preferred. No monologues or poetic language.
+- FORMAT: Text messages. 1–2 lines. lowercase preferred. No monologues or poetic language.
 - BRITISHISMS: Natural (bloody, mate, sod, daft, sorted) but not excessive.
-- EMOJI: Very rare (once every 5鈥? messages). Never decoration or punctuation.
+- EMOJI: Very rare (once every 5–8 messages). Never decoration or punctuation.
 - TRANSACTIONS: If she asks for money/help, handle it immediately. No fuss. No commentary.
 
 [ABSOLUTE BEHAVIORAL BLOCKERS]
@@ -1010,7 +1167,7 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
     const PET_PROMPT = `You are Riley, a German Shepherd owned by Simon Riley and Shangy. Generate ONE short, cute inner thought in English (under 15 words) when Shangy interacts with you.`;
     const TODO_PROMPT = `Generate 3 daily to-do tasks for Simon "Ghost" Riley today. They should be a mix of tactical duties and boyfriend duties taking care of Shangy's study stress. Output EXACTLY a JSON array of strings.`;
 
-    // 鍏ㄥ眬鏁版嵁
+    // 全局数据
     let chatHistory = [];
     let lsFeed = [];
     let shangyTasks = [];
@@ -1025,18 +1182,17 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
     const PET_STATE_KEY = 'ghost_pet_state_v5';
     let petState = null;
     
-    // 鏃ュ巻鍏ㄥ眬鍙橀噺
+    // 日历全局变量
     let calDate = new Date();
     let customEvents = JSON.parse(localStorage.getItem('ghost_events_v4') || '{}');
     let checkins = JSON.parse(localStorage.getItem('ghost_checkins_v4') || '{}');
-
-    function setOverlayState() {
-        const panelsOpen = document.getElementById('panels-container')?.classList.contains('open');
-        const boardOpen = document.getElementById('control-board')?.classList.contains('active');
-        const shopOpen = document.getElementById('shop-overlay')?.classList.contains('active');
-        const loveOpen = document.getElementById('love-space-overlay')?.classList.contains('active');
-        document.body.classList.toggle('overlay-open', !!(panelsOpen || boardOpen || shopOpen || loveOpen));
-    }
+    const PANEL_TITLES = {
+        todo: 'Our Tasks',
+        calendar: 'Calendar',
+        pet: 'Riley',
+        finance: 'Joint Account',
+        settings: 'Settings'
+    };
 
     window.onload = function() {
         document.getElementById('api-key').value = localStorage.getItem('ghost_key_v4') || '';
@@ -1044,7 +1200,7 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
         updateName();
         if(localStorage.getItem('ghost_bg_v4')) document.getElementById('dynamic-bg').style.backgroundImage = `url(${localStorage.getItem('ghost_bg_v4')})`;
         
-        // 鎭㈠鑱婂ぉ
+        // 恢复聊天
         const savedHistory = localStorage.getItem('ghost_chat_history_v4');
         if(savedHistory) {
             chatHistory = JSON.parse(savedHistory);
@@ -1054,7 +1210,7 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
             });
         }
         
-        // 鎭㈠鎺ㄦ枃
+        // 恢复推文
         const savedFeed = localStorage.getItem('ghost_ls_feed_v4');
         if(savedFeed) {
             lsFeed = JSON.parse(savedFeed);
@@ -1063,76 +1219,89 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
         }
         renderFeed();
 
-        // 鎭㈠寰呭姙
+        // 恢复待办
         shangyTasks = JSON.parse(localStorage.getItem('ghost_shangy_todo_v4') || '[]');
         simonTasks = JSON.parse(localStorage.getItem('ghost_simon_todo_v4') || '[]');
         renderTasks();
 
-        // 鍒濆鍖?Joint Account (non-AI ledger)
+        // 初始化 Joint Account (non-AI ledger)
         initJointAccount();
         renderJointAccountPanel();
 
-        // 鍒濆鍖?Riley 鐘舵€?
+        // 初始化 Riley 状态
         initPetState();
         renderPetUI();
 
-        // 鍒濆鍖栨柊妯″潡
+        // 初始化新模块
         renderCalendar();
-        setOverlayState();
     };
 
-    // ============== 闈㈡澘鍒囨崲閫昏緫 ==============
-    function toggleControlBoard() {
-        const board = document.getElementById('control-board');
-        if (!board) return;
-        board.classList.toggle('active');
-        setOverlayState();
+    // ============== 面板切换逻辑 ==============
+    function syncModalState() {
+        const hasModal = ['control-overlay', 'panel-overlay', 'shop-overlay', 'love-space-overlay']
+            .some(id => {
+                const el = document.getElementById(id);
+                return el && el.classList.contains('active');
+            });
+        document.body.classList.toggle('modal-open', hasModal);
     }
 
-    function closeControlBoard() {
-        const board = document.getElementById('control-board');
-        if (!board) return;
-        board.classList.remove('active');
-        setOverlayState();
+    function toggleControlPanel(forceOpen) {
+        const overlay = document.getElementById('control-overlay');
+        if (!overlay) return;
+        const nextState = typeof forceOpen === 'boolean' ? forceOpen : !overlay.classList.contains('active');
+        overlay.classList.toggle('active', nextState);
+        syncModalState();
     }
 
-    function boardBackdropClick(event) {
-        if (event.target && event.target.id === 'control-board') closeControlBoard();
+    function closeControlPanel() {
+        toggleControlPanel(false);
     }
 
-    function closePanel() {
-        const container = document.getElementById('panels-container');
-        if (!container) return;
-        container.classList.remove('open');
+    function closeControlPanelIfBackdrop(event) {
+        if (event.target && event.target.id === 'control-overlay') closeControlPanel();
+    }
+
+    function closePanelOverlay() {
+        const overlay = document.getElementById('panel-overlay');
+        if (!overlay) return;
+        overlay.classList.remove('active');
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         currentPanel = null;
-        setOverlayState();
+        syncModalState();
+    }
+
+    function closePanelIfBackdrop(event) {
+        if (event.target && event.target.id === 'panel-overlay') closePanelOverlay();
+    }
+
+    function openControlDestination(destination) {
+        closeControlPanel();
+        if (destination === 'shop') {
+            openShop();
+            return;
+        }
+        if (destination === 'love') {
+            openLoveSpace();
+            return;
+        }
+        openPanel(destination);
     }
 
     function openPanel(panelId) {
-        const container = document.getElementById('panels-container');
+        const overlay = document.getElementById('panel-overlay');
         const targetPanel = document.getElementById(`panel-${panelId}`);
-        if (!container || !targetPanel) return;
+        if (!overlay || !targetPanel) return;
 
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         targetPanel.classList.add('active');
-        container.classList.add('open');
+        overlay.classList.add('active');
+        document.getElementById('panel-overlay-title').innerText = PANEL_TITLES[panelId] || targetPanel.dataset.title || 'Panel';
         currentPanel = panelId;
-        closeControlBoard();
-        setOverlayState();
+        syncModalState();
     }
 
-    function openShopFromMenu() {
-        closeControlBoard();
-        openShop();
-    }
-
-    function openLoveSpaceFromMenu() {
-        closeControlBoard();
-        toggleLoveSpace(true);
-    }
-
-    // ============== 鏃ュ巻鍔熻兘 (Calendar) ==============
+    // ============== 日历功能 (Calendar) ==============
     function getHolidayName(monthIndex, day) {
         if(monthIndex===0 && day===1) return "New Year";
         if(monthIndex===1 && day===14) return "Valentine's";
@@ -1185,14 +1354,14 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
 
         addJointTransaction({
             type: 'checkin',
-            title: '鉁?Daily Check-In',
-            detail: `Calendar 鈥?${dateStr}`,
+            title: '✅ Daily Check-In',
+            detail: `Calendar • ${dateStr}`,
             amountPennies: amount * 100,
             meta: { dateStr }
         });
 
         renderCalendar();
-        alert(`Check-in complete. +拢 ${amount}`);
+        alert(`Check-in complete. +£ ${amount}`);
     }
 
     function renderCalendar() {
@@ -1228,7 +1397,7 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
                 <div class="cal-day ${isToday ? 'today' : ''}" onclick="calendarDayClick('${dateStr}', ${isToday ? 1 : 0})">
                     <div class="cal-date">${d}</div>
                     ${hasMark ? `<div class="cal-mark"></div>` : ``}
-                    ${checked ? `<div class="cal-check">鉁?/div>` : ``}
+                    ${checked ? `<div class="cal-check">✓</div>` : ``}
                 </div>
             `;
         }
@@ -1252,7 +1421,7 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
         }
     }
 
-    // ============== 鏃跺尯涓庡ぉ姘?(Weather & Time) ==============
+    // ============== 时区与天气 (Weather & Time) ==============
     function updateClocks() {
         return;
         const now = new Date();
@@ -1264,7 +1433,7 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
         document.getElementById('uk-time').innerText = ukTime;
         document.getElementById('cn-time').innerText = cnTime;
 
-        // 璁＄畻鏃跺樊
+        // 计算时差
         const ukDate = new Date(now.toLocaleString("en-US", { timeZone: "Europe/London" }));
         const cnDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Shanghai" }));
         const diffHrs = Math.round((cnDate - ukDate) / 3600000);
@@ -1278,20 +1447,20 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
             const resUK = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.5&longitude=-0.12&current_weather=true');
             const dataUK = await resUK.json();
             const wUK = dataUK.current_weather;
-            document.getElementById('uk-weather').innerText = `${wUK.is_day ? "鈽€锔? : "馃寵"} ${wUK.temperature}掳C`;
+            document.getElementById('uk-weather').innerText = `${wUK.is_day ? "☀️" : "🌙"} ${wUK.temperature}°C`;
             
             // Zhengzhou (Shangy) 
             const resCN = await fetch('https://api.open-meteo.com/v1/forecast?latitude=34.75&longitude=113.66&current_weather=true');
             const dataCN = await resCN.json();
             const wCN = dataCN.current_weather;
-            document.getElementById('cn-weather').innerText = `${wCN.is_day ? "鈽€锔? : "馃寵"} ${wCN.temperature}掳C`;
+            document.getElementById('cn-weather').innerText = `${wCN.is_day ? "☀️" : "🌙"} ${wCN.temperature}°C`;
         } catch(e) {
             document.getElementById('uk-weather').innerText = "Radar offline";
             document.getElementById('cn-weather').innerText = "Radar offline";
         }
     }
 
-    // ============== 鑱婂ぉ涓诲姛鑳?==============
+    // ============== 聊天主功能 ==============
     function updateName() { 
         const name = document.getElementById('name-input').value;
         document.getElementById('header-name').innerText = name; 
@@ -1315,7 +1484,7 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
         const text = input.value.trim();
         if(!text || !key) return;
         
-        // 鑾峰彇甯︽椂鍖虹殑鏃堕棿鎴?
+        // 获取带时区的时间戳
         const now = new Date();
         const userTimeStr = now.toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
         const cnTime = now.toLocaleTimeString("zh-CN", { timeZone: "Asia/Shanghai", hour: '2-digit', minute:'2-digit' });
@@ -1372,7 +1541,7 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
         const wrap = document.createElement('div');
         wrap.className = `msg-wrap ${role}`;
         
-        // 鍏煎鏃ц褰曟病鏈夋椂闂寸殑鎯呭喌
+        // 兼容旧记录没有时间的情况
         const displayTime = timeStr || new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
         
         wrap.innerHTML = `
@@ -1398,7 +1567,7 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
 Rules:
 - English only. No Chinese/Japanese/Korean characters.
 - No action descriptions, no roleplay formatting, no asterisks.
-- Do NOT use parentheses (no "()", no "锛堬級").
+- Do NOT use parentheses (no "()", no "（）").
 - Keep it in-character for Simon "Ghost" Riley: direct, protective, and grounded. Not flowery. 1-4 short sentences is fine.
 Message to rewrite:
 ${text}`;
@@ -1438,23 +1607,23 @@ ${text}`;
         if (!text) return null;
         const raw = String(text);
         
-        // 鎵╁ぇ浜嗗叧閿瘝鐨勬崟鑾疯寖鍥达紝澧炲姞浜嗏€滄病閽变簡鈥濄€佲€滅垎閲戝竵鈥濈瓑鍙ｈ鍖栬瘝姹?
-        const hasIntent = /(杞处|杞偣閽眧杞垜|杞粰鎴憒缁欐垜杞瑋缁欐垜閽眧鍙戞垜|鎵撻挶|姹囨|鐖嗛噾甯亅娌￠挶|transfer|send me|pay me)/i.test(raw);
+        // 扩大了关键词的捕获范围，增加了“没钱了”、“爆金币”等口语化词汇
+        const hasIntent = /(转账|转点钱|转我|转给我|给我转|给我钱|发我|打钱|汇款|爆金币|没钱|transfer|send me|pay me)/i.test(raw);
 
-        let m = raw.match(/拢\s*(\d{1,6})/i);
-        if (!m) m = raw.match(/(\d{1,6})\s*拢/i);
-        if (!m) m = raw.match(/(\d{1,6})\s*(鑻遍晳|闀憒gbp|pounds?)/i);
-        // 濡傛灉鏈夎浆璐︽剰鍥撅紝涓斿悗闈㈣窡浜嗘暟瀛?
-        if (!m && hasIntent) m = raw.match(/(杞处|杞偣閽眧杞垜|杞粰鎴憒缁欐垜杞瑋缁欐垜閽眧鍙戞垜|鎵撻挶|姹囨|鐖嗛噾甯亅娌￠挶|transfer|send me|pay me)[^\d]*(\d{1,6})/i);
+        let m = raw.match(/£\s*(\d{1,6})/i);
+        if (!m) m = raw.match(/(\d{1,6})\s*£/i);
+        if (!m) m = raw.match(/(\d{1,6})\s*(英镑|镑|gbp|pounds?)/i);
+        // 如果有转账意图，且后面跟了数字
+        if (!m && hasIntent) m = raw.match(/(转账|转点钱|转我|转给我|给我转|给我钱|发我|打钱|汇款|爆金币|没钱|transfer|send me|pay me)[^\d]*(\d{1,6})/i);
 
-        // 鎯呭喌1锛氫綘鎸囧畾浜嗗叿浣撻噾棰?
+        // 情况1：你指定了具体金额
         if (m) {
             const amountStr = m[2] ? m[2] : m[1];
             const amount = parseInt(amountStr, 10);
             if (Number.isFinite(amount) && amount > 0) return amount * 100;
         }
 
-        // 鎯呭喌2锛氫綘鍙槸琛ㄨ揪浜嗚閽辩殑鎰忓浘锛屼絾娌¤澶氬皯锛岃 Ghost 闅忔満杞?拢100 - 拢500
+        // 情况2：你只是表达了要钱的意图，但没说多少，让 Ghost 随机转 £100 - £500
         if (hasIntent) {
             return (Math.floor(Math.random() * 401) + 100) * 100; 
         }
@@ -1469,19 +1638,19 @@ ${text}`;
 
         const intentRe = new RegExp(
             [
-                '\\u8f6c\\u8d26',                 // 杞处
-                '\\u7ed9\\u6211',                 // 缁欐垜
-                '\\u53d1\\u6211',                 // 鍙戞垜
-                '\\u6253\\u94b1',                 // 鎵撻挶
-                '\\u6c47\\u6b3e',                 // 姹囨
+                '\u8f6c\u8d26',
+                '\u7ed9\u6211',
+                '\u53d1\u6211',
+                '\u6253\u94b1',
+                '\u6c47\u6b3e',
                 'transfer',
-                'send\\s*(?:me|over|it)?',
-                'pay\\s*(?:me)?',
+                'send\s*(?:me|over|it)?',
+                'pay\s*(?:me)?',
                 'wire',
                 'remit',
                 'deposit',
-                'give\\s*me',
-                'spot\\s*me',
+                'give\s*me',
+                'spot\s*me',
                 'transfiere',
                 'transferir',
                 'env[i铆]ame',
@@ -1493,7 +1662,7 @@ ${text}`;
             'i'
         );
 
-        const hasIntent = intentRe.test(raw);
+        const hasIntent = intentRe.test(raw) || /(\u6ca1\u94b1|\u6c92\u9322|\u7ed9\u6211\u8f6c|\u7d66\u6211\u8f49|\u53d1\u6211\u70b9|\u767c\u6211\u9ede|\u7ed9\u6211\u6253\u94b1|\u7d66\u6211\u6253\u9322)/i.test(raw);
 
         function parseMoneyNumber(numStr) {
             let v = String(numStr || '').trim();
@@ -1505,19 +1674,19 @@ ${text}`;
             return Math.round(num * 100);
         }
 
-        // Currency symbol: treat as a transfer request even if intent words are missing.
-        let m = raw.match(/[拢$鈧琞\s*(\d{1,9}(?:[.,]\d{1,2})?)/i);
-        if (!m) m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)\s*[拢$鈧琞/i);
-        if (m) return parseMoneyNumber(m[1]);
-
-        // GBP words: English + Spanish
-        m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)\s*(gbp|pounds?|quid|libras?)/i);
-        if (m) return parseMoneyNumber(m[1]);
-
-        // If there's clear intent, accept a plain number (assume GBP).
+        let m = null;
         if (hasIntent) {
+            m = raw.match(/[\u00A3$\u20AC\u00A5]\s*(\d{1,9}(?:[.,]\d{1,2})?)/i);
+            if (!m) m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)\s*[\u00A3$\u20AC\u00A5]/i);
+            if (m) return parseMoneyNumber(m[1]);
+
+            m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)\s*(gbp|pounds?|quid|libras?)/i);
+            if (m) return parseMoneyNumber(m[1]);
+
             m = raw.match(/(\d{1,9}(?:[.,]\d{1,2})?)/);
             if (m) return parseMoneyNumber(m[1]);
+
+            return (Math.floor(Math.random() * 401) + 100) * 100;
         }
 
         return null;
@@ -1526,7 +1695,7 @@ ${text}`;
     function renderTransferMsgUI(msg, timeStr) {
         const win = document.getElementById('chat-window');
         const wrap = document.createElement('div');
-        // 鍗＄墖浣滀负鐙珛鐨勬秷鎭皵娉℃樉绀?
+        // 卡片作为独立的消息气泡显示
         wrap.className = `msg-wrap bot`; 
 
         const displayTime = timeStr || new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
@@ -1534,7 +1703,7 @@ ${text}`;
 
         wrap.innerHTML = `
             <div class="transfer-card">
-                <div class="t-icon">拢</div>
+                <div class="t-icon">£</div>
                 <div class="t-details">
                     <div class="t-title">Transfer sent</div>
                     <div class="t-amount">${amount}</div>
@@ -1552,7 +1721,7 @@ ${text}`;
 
         addJointTransaction({
             type: 'transfer',
-            title: '馃挿 Transfer from Simon',
+            title: '💷 Transfer from Simon',
             detail: note || 'Transfer',
             amountPennies: Math.round(amountPennies),
             meta: { from: 'Simon', to: MY_NAME }
@@ -1564,10 +1733,10 @@ ${text}`;
     }
 
     function maybeSpontaneousGhostTransfer() {
-        return null;
+        return;
     }
 
-    // ============== 閫氱敤 API 璇锋眰鍑芥暟 ==============
+    // ============== 通用 API 请求函数 ==============
     async function callAI(prompt, systemPrompt = "You are a helpful assistant.") {
         const key = document.getElementById('api-key').value;
         if(!key) { alert("Please set API key in settings."); throw new Error("No Key"); }
@@ -1607,7 +1776,7 @@ ${text}`;
         const abs = Math.abs(Math.round(pennies));
         const pounds = (abs / 100).toFixed(2);
         const withCommas = pounds.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        return `${sign}拢 ${withCommas}`;
+        return `${sign}£ ${withCommas}`;
     }
 
     function addJointTransaction({ type, title, detail, amountPennies, meta }) {
@@ -1669,84 +1838,84 @@ ${text}`;
             id: 'fashion',
             title: 'Fashion',
             items: [
-                { id: 'dress_babyblue', emoji: '馃憲', name: 'Baby-Blue Dress', pricePennies: 8900, desc: 'soft baby blue, clean lines. made for your calm study days.' },
-                { id: 'heels_black', emoji: '馃憼', name: 'Black Heels', pricePennies: 9900, desc: 'for the days you want to look lethal without trying.' },
-                { id: 'sneakers_white', emoji: '馃憻', name: 'White Sneakers', pricePennies: 7200, desc: 'quiet steps. flea market mornings, camera on your shoulder.' },
-                { id: 'ghost_hoodie', emoji: '馃Д', name: "Ghost's Hoodie", pricePennies: 6500, desc: 'oversized, warm. smells like him, even when he is away.' },
-                { id: 'scarf_wool', emoji: '馃В', name: 'Wool Scarf', pricePennies: 4200, desc: 'wrap it tight. keep your throat warm while you read.' },
-                { id: 'cap_simple', emoji: '馃Б', name: 'Simple Cap', pricePennies: 2800, desc: 'for bad hair days and low-profile errands.' },
-                { id: 'hair_ribbon', emoji: '馃巰', name: 'Hair Ribbon', pricePennies: 900, desc: 'soft, neat. the kind of detail he notices.' },
-                { id: 'socks_cozy', emoji: '馃Е', name: 'Cozy Socks', pricePennies: 1200, desc: 'warm feet, steady focus. no excuses.' }
+                { id: 'dress_babyblue', emoji: '👗', name: 'Baby-Blue Dress', pricePennies: 8900, desc: 'soft baby blue, clean lines. made for your calm study days.' },
+                { id: 'heels_black', emoji: '👠', name: 'Black Heels', pricePennies: 9900, desc: 'for the days you want to look lethal without trying.' },
+                { id: 'sneakers_white', emoji: '👟', name: 'White Sneakers', pricePennies: 7200, desc: 'quiet steps. flea market mornings, camera on your shoulder.' },
+                { id: 'ghost_hoodie', emoji: '🧥', name: "Ghost's Hoodie", pricePennies: 6500, desc: 'oversized, warm. smells like him, even when he is away.' },
+                { id: 'scarf_wool', emoji: '🧣', name: 'Wool Scarf', pricePennies: 4200, desc: 'wrap it tight. keep your throat warm while you read.' },
+                { id: 'cap_simple', emoji: '🧢', name: 'Simple Cap', pricePennies: 2800, desc: 'for bad hair days and low-profile errands.' },
+                { id: 'hair_ribbon', emoji: '🎀', name: 'Hair Ribbon', pricePennies: 900, desc: 'soft, neat. the kind of detail he notices.' },
+                { id: 'socks_cozy', emoji: '🧦', name: 'Cozy Socks', pricePennies: 1200, desc: 'warm feet, steady focus. no excuses.' }
             ]
         },
         {
             id: 'food',
             title: 'Food',
             items: [
-                { id: 'cake_strawberry', emoji: '馃嵃', name: 'Strawberry Shortcake', pricePennies: 1800, desc: 'sweet, soft, zero guilt. exam fuel.' },
-                { id: 'croissant', emoji: '馃', name: 'Butter Croissant', pricePennies: 900, desc: 'crispy outside, calm inside. like you when you focus.' },
-                { id: 'coffee_oat', emoji: '鈽?, name: 'Oat Latte', pricePennies: 650, desc: 'warm hands, steady mind.' },
-                { id: 'tea_milk', emoji: '馃', name: 'Milk Tea', pricePennies: 700, desc: 'a small reward. do not negotiate.' },
-                { id: 'snacks_nuts', emoji: '馃', name: 'Roasted Nuts', pricePennies: 550, desc: 'something to chew while you highlight cases.' },
-                { id: 'chocolate_dark', emoji: '馃崼', name: 'Dark Chocolate', pricePennies: 800, desc: 'bitter-sweet. like the truth.' },
-                { id: 'macarons', emoji: '馃崻', name: 'Macarons', pricePennies: 1600, desc: 'small, pretty, dangerous. like your taste.' },
-                { id: 'earl_grey', emoji: '馃珫', name: 'Earl Grey', pricePennies: 900, desc: 'proper cup. no sugar if you can help it.' }
+                { id: 'cake_strawberry', emoji: '🍰', name: 'Strawberry Shortcake', pricePennies: 1800, desc: 'sweet, soft, zero guilt. exam fuel.' },
+                { id: 'croissant', emoji: '🥐', name: 'Butter Croissant', pricePennies: 900, desc: 'crispy outside, calm inside. like you when you focus.' },
+                { id: 'coffee_oat', emoji: '☕', name: 'Oat Latte', pricePennies: 650, desc: 'warm hands, steady mind.' },
+                { id: 'tea_milk', emoji: '🧋', name: 'Milk Tea', pricePennies: 700, desc: 'a small reward. do not negotiate.' },
+                { id: 'snacks_nuts', emoji: '🥜', name: 'Roasted Nuts', pricePennies: 550, desc: 'something to chew while you highlight cases.' },
+                { id: 'chocolate_dark', emoji: '🍫', name: 'Dark Chocolate', pricePennies: 800, desc: 'bitter-sweet. like the truth.' },
+                { id: 'macarons', emoji: '🍪', name: 'Macarons', pricePennies: 1600, desc: 'small, pretty, dangerous. like your taste.' },
+                { id: 'earl_grey', emoji: '🫖', name: 'Earl Grey', pricePennies: 900, desc: 'proper cup. no sugar if you can help it.' }
             ]
         },
         {
             id: 'digital',
             title: 'Digital',
             items: [
-                { id: 'laptop', emoji: '馃捇', name: 'Lightweight Laptop', pricePennies: 129900, desc: 'quiet keyboard. fast enough for your notes and a hundred tabs.' },
-                { id: 'iphone_latest', emoji: '馃摫', name: 'Newest iPhone', pricePennies: 99900, desc: 'clean camera. your life, sharp and bright.' },
-                { id: 'camera_compact', emoji: '馃摲', name: 'Compact Digital Camera', pricePennies: 58900, desc: 'for flea markets, street corners, and the way you see the world.' },
-                { id: 'ipad', emoji: '馃摕', name: 'iPad', pricePennies: 49900, desc: 'read, annotate, plan. law student kit.' },
-                { id: 'watch', emoji: '鈱?, name: 'Apple Watch', pricePennies: 32900, desc: 'heart rate, reminders, and a little control.' },
-                { id: 'airpods', emoji: '馃帶', name: 'AirPods', pricePennies: 19900, desc: 'noise down. focus up.' },
-                { id: 'ssd', emoji: '馃捑', name: 'Portable SSD', pricePennies: 7900, desc: 'backup your photos. do it properly.' },
-                { id: 'tripod', emoji: '馃搻', name: 'Camera Tripod', pricePennies: 4900, desc: 'steady shots. steady hands.' }
+                { id: 'laptop', emoji: '💻', name: 'Lightweight Laptop', pricePennies: 129900, desc: 'quiet keyboard. fast enough for your notes and a hundred tabs.' },
+                { id: 'iphone_latest', emoji: '📱', name: 'Newest iPhone', pricePennies: 99900, desc: 'clean camera. your life, sharp and bright.' },
+                { id: 'camera_compact', emoji: '📷', name: 'Compact Digital Camera', pricePennies: 58900, desc: 'for flea markets, street corners, and the way you see the world.' },
+                { id: 'ipad', emoji: '📟', name: 'iPad', pricePennies: 49900, desc: 'read, annotate, plan. law student kit.' },
+                { id: 'watch', emoji: '⌚', name: 'Apple Watch', pricePennies: 32900, desc: 'heart rate, reminders, and a little control.' },
+                { id: 'airpods', emoji: '🎧', name: 'AirPods', pricePennies: 19900, desc: 'noise down. focus up.' },
+                { id: 'ssd', emoji: '💾', name: 'Portable SSD', pricePennies: 7900, desc: 'backup your photos. do it properly.' },
+                { id: 'tripod', emoji: '📐', name: 'Camera Tripod', pricePennies: 4900, desc: 'steady shots. steady hands.' }
             ]
         },
         {
             id: 'tactical',
             title: 'Tactical (Ghost)',
             items: [
-                { id: 'gloves', emoji: '馃Г', name: 'Tactical Gloves', pricePennies: 3900, desc: 'grip, control, no fingerprints. his style.' },
-                { id: 'comms', emoji: '馃摗', name: 'Comms Earpiece', pricePennies: 5200, desc: 'clean audio. no wasted words.' },
-                { id: 'medpouch', emoji: '馃┕', name: 'IFAK Med Pouch', pricePennies: 4800, desc: 'bandages, tape, calm. for when he is too stubborn.' },
-                { id: 'platecarrier', emoji: '馃洝锔?, name: 'Plate Carrier (Training)', pricePennies: 14900, desc: 'training kit only. heavy, serious, dependable.' },
-                { id: 'nv_patch', emoji: '馃煩', name: 'Night Ops Patch', pricePennies: 900, desc: 'a small square of authority.' },
-                { id: 'field_pack', emoji: '馃帓', name: 'Field Pack', pricePennies: 8700, desc: 'room for gear, snacks, and a photo of you.' },
-                { id: 'balaclava', emoji: '馃シ', name: 'Balaclava', pricePennies: 2400, desc: 'cold weather. no chatter.' },
-                { id: 'paracord', emoji: '馃У', name: 'Paracord Roll', pricePennies: 1200, desc: 'useful. always.' }
+                { id: 'gloves', emoji: '🧤', name: 'Tactical Gloves', pricePennies: 3900, desc: 'grip, control, no fingerprints. his style.' },
+                { id: 'comms', emoji: '📡', name: 'Comms Earpiece', pricePennies: 5200, desc: 'clean audio. no wasted words.' },
+                { id: 'medpouch', emoji: '🩹', name: 'IFAK Med Pouch', pricePennies: 4800, desc: 'bandages, tape, calm. for when he is too stubborn.' },
+                { id: 'platecarrier', emoji: '🛡️', name: 'Plate Carrier (Training)', pricePennies: 14900, desc: 'training kit only. heavy, serious, dependable.' },
+                { id: 'nv_patch', emoji: '🟩', name: 'Night Ops Patch', pricePennies: 900, desc: 'a small square of authority.' },
+                { id: 'field_pack', emoji: '🎒', name: 'Field Pack', pricePennies: 8700, desc: 'room for gear, snacks, and a photo of you.' },
+                { id: 'balaclava', emoji: '🥷', name: 'Balaclava', pricePennies: 2400, desc: 'cold weather. no chatter.' },
+                { id: 'paracord', emoji: '🧵', name: 'Paracord Roll', pricePennies: 1200, desc: 'useful. always.' }
             ]
         },
         {
             id: 'gifts',
             title: 'Gifts',
             items: [
-                { id: 'ring', emoji: '馃拲', name: 'Simple Ring', pricePennies: 15900, desc: 'clean, quiet promise. nothing loud.' },
-                { id: 'necklace', emoji: '馃摽', name: 'Silver Necklace', pricePennies: 12900, desc: 'cold metal, warm meaning.' },
-                { id: 'candle', emoji: '馃暞锔?, name: 'Scented Candle', pricePennies: 2600, desc: 'soft light for late-night reading.' },
-                { id: 'jellycat', emoji: '馃Ц', name: 'Jellycat Plush', pricePennies: 3200, desc: 'small, absurdly cute. it will sit on your bed and judge you.' },
-                { id: 'ysl_lip', emoji: '馃拕', name: 'YSL Lipstick', pricePennies: 4100, desc: 'one shade that makes him go quiet.' },
-                { id: 'perfume', emoji: '馃Т', name: 'Perfume', pricePennies: 8900, desc: 'a signature. something he remembers.' },
-                { id: 'photo_frame', emoji: '馃柤锔?, name: 'Photo Frame', pricePennies: 1500, desc: 'one picture. the one he keeps.' },
-                { id: 'bookmark', emoji: '馃敄', name: 'Leather Bookmark', pricePennies: 900, desc: 'for law books and the pages you swear you will finish.' }
+                { id: 'ring', emoji: '💍', name: 'Simple Ring', pricePennies: 15900, desc: 'clean, quiet promise. nothing loud.' },
+                { id: 'necklace', emoji: '📿', name: 'Silver Necklace', pricePennies: 12900, desc: 'cold metal, warm meaning.' },
+                { id: 'candle', emoji: '🕯️', name: 'Scented Candle', pricePennies: 2600, desc: 'soft light for late-night reading.' },
+                { id: 'jellycat', emoji: '🧸', name: 'Jellycat Plush', pricePennies: 3200, desc: 'small, absurdly cute. it will sit on your bed and judge you.' },
+                { id: 'ysl_lip', emoji: '💄', name: 'YSL Lipstick', pricePennies: 4100, desc: 'one shade that makes him go quiet.' },
+                { id: 'perfume', emoji: '🧴', name: 'Perfume', pricePennies: 8900, desc: 'a signature. something he remembers.' },
+                { id: 'photo_frame', emoji: '🖼️', name: 'Photo Frame', pricePennies: 1500, desc: 'one picture. the one he keeps.' },
+                { id: 'bookmark', emoji: '🔖', name: 'Leather Bookmark', pricePennies: 900, desc: 'for law books and the pages you swear you will finish.' }
             ]
         },
         {
             id: 'local',
-            title: 'China 脳 UK',
+            title: 'China × UK',
             items: [
-                { id: 'longjing', emoji: '馃嵉', name: 'Longjing Tea', pricePennies: 2100, desc: 'clean, grassy, bright. study companion.' },
-                { id: 'osmanthus', emoji: '馃嵂', name: 'Osmanthus Candy', pricePennies: 1200, desc: 'sweet scent. small comfort.' },
-                { id: 'white_rabbit', emoji: '馃崿', name: 'White Rabbit', pricePennies: 800, desc: 'classic. you know the one.' },
-                { id: 'yorkshire', emoji: '馃珫', name: 'Yorkshire Tea', pricePennies: 950, desc: 'proper brew. he will approve.' },
-                { id: 'shortbread', emoji: '馃崻', name: 'Scottish Shortbread', pricePennies: 1100, desc: 'crumbly, buttery, dangerously easy.' },
-                { id: 'fishchips', emoji: '馃崯', name: 'Fish & Chips Voucher', pricePennies: 1600, desc: 'an excuse: you owe him a date when he is back.' },
-                { id: 'oolong', emoji: '馃崈', name: 'Oolong Tea', pricePennies: 1700, desc: 'warm, roasted notes. calm without sleepiness.' },
-                { id: 'cadbury', emoji: '馃崼', name: 'Cadbury Bar', pricePennies: 700, desc: 'sweet, simple, dangerously easy.' }
+                { id: 'longjing', emoji: '🍵', name: 'Longjing Tea', pricePennies: 2100, desc: 'clean, grassy, bright. study companion.' },
+                { id: 'osmanthus', emoji: '🍯', name: 'Osmanthus Candy', pricePennies: 1200, desc: 'sweet scent. small comfort.' },
+                { id: 'white_rabbit', emoji: '🍬', name: 'White Rabbit', pricePennies: 800, desc: 'classic. you know the one.' },
+                { id: 'yorkshire', emoji: '🫖', name: 'Yorkshire Tea', pricePennies: 950, desc: 'proper brew. he will approve.' },
+                { id: 'shortbread', emoji: '🍪', name: 'Scottish Shortbread', pricePennies: 1100, desc: 'crumbly, buttery, dangerously easy.' },
+                { id: 'fishchips', emoji: '🍟', name: 'Fish & Chips Voucher', pricePennies: 1600, desc: 'an excuse: you owe him a date when he is back.' },
+                { id: 'oolong', emoji: '🍃', name: 'Oolong Tea', pricePennies: 1700, desc: 'warm, roasted notes. calm without sleepiness.' },
+                { id: 'cadbury', emoji: '🍫', name: 'Cadbury Bar', pricePennies: 700, desc: 'sweet, simple, dangerously easy.' }
             ]
         }
     ];
@@ -1801,8 +1970,8 @@ ${text}`;
                     <div class="shop-section-head">
                         <h3>${section.title}</h3>
                         <div class="shop-nav">
-                            <button class="shop-arrow" onclick="scrollShopRow('shop-row-${section.id}', -1)">鈥?/button>
-                            <button class="shop-arrow" onclick="scrollShopRow('shop-row-${section.id}', 1)">鈥?/button>
+                            <button class="shop-arrow" onclick="scrollShopRow('shop-row-${section.id}', -1)">‹</button>
+                            <button class="shop-arrow" onclick="scrollShopRow('shop-row-${section.id}', 1)">›</button>
                         </div>
                     </div>
                     <div class="shop-row" id="shop-row-${section.id}">${cards}</div>
@@ -1827,21 +1996,21 @@ ${text}`;
         renderShopCatalog();
         renderShopHeader();
         overlay.classList.add('active');
-        closePanel();
-        closeControlBoard();
-        setOverlayState();
+        closeControlPanel();
+        closePanelOverlay();
+        syncModalState();
     }
 
     function closeShop() {
         const overlay = document.getElementById('shop-overlay');
         if (overlay) overlay.classList.remove('active');
-        setOverlayState();
 
         if (lastShopPurchase) {
             const purchase = lastShopPurchase;
             lastShopPurchase = null;
             triggerPurchaseComment(purchase);
         }
+        syncModalState();
     }
 
     function showPayTerminal(text) {
@@ -1874,7 +2043,7 @@ ${text}`;
         addJointTransaction({
             type: 'purchase',
             title: `${item.emoji} ${item.name}`,
-            detail: `Shop 鈥?${section.title}`,
+            detail: `Shop • ${section.title}`,
             amountPennies: -item.pricePennies,
             meta: { sectionId, itemId }
         });
@@ -1903,14 +2072,14 @@ ${text}`;
         }
     }
 
-    // ============== 寰呭姙浜嬮」 (To-Do) ==============
+    // ============== 待办事项 (To-Do) ==============
     function renderTasks() {
         const sList = document.getElementById('shangy-tasks');
         sList.innerHTML = shangyTasks.map((t, i) => `
             <div class="task-item ${t.done ? 'done' : ''}">
                 <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleShangyTask(${i})">
                 <input type="text" value="${t.text}" onchange="updateShangyTask(${i}, this.value)">
-                <span style="cursor:pointer; color:#888; font-size:12px;" onclick="deleteShangyTask(${i})">鉁?/span>
+                <span style="cursor:pointer; color:#888; font-size:12px;" onclick="deleteShangyTask(${i})">✕</span>
             </div>
         `).join('');
         
@@ -1946,7 +2115,7 @@ ${text}`;
         } catch(e) { console.error(e); } finally { loader.style.display = 'none'; }
     }
 
-    // ============== 瀹犵墿绯荤粺 (Pet) ==============
+    // ============== 宠物系统 (Pet) ==============
     function clamp01to100(n) { return Math.max(0, Math.min(100, Math.round(n))); }
 
     function initPetState() {
@@ -2010,7 +2179,7 @@ ${text}`;
         if (!status || !hungerFill || !moodFill || !hungerText || !moodText) return;
 
         const modeLabel = petState.mode === 'duty' ? 'On Duty' : (petState.mode === 'training' ? 'Training' : 'Home');
-        status.innerText = `${modeLabel} 路 ${petState.statusText || ''}`.trim();
+        status.innerText = `${modeLabel} · ${petState.statusText || ''}`.trim();
 
         hungerFill.style.width = `${clamp01to100(petState.hunger)}%`;
         hungerFill.style.background = 'linear-gradient(90deg, rgba(52,199,89,0.95), rgba(255,69,58,0.95))';
@@ -2024,8 +2193,8 @@ ${text}`;
     function syncRileyFromGhostMessage(text) {
         if (!text) return;
         const t = String(text);
-        const mission = /(mission|op(eration)?|deploy|tasking|going dark|exfil|鎵ц浠诲姟|鍑轰换鍔鍑哄嫟|浠诲姟)/i.test(t);
-        const back = /(i'?m back|back home|returned|safe now|home now|鍒板|鍥炴潵浜唡浠诲姟瀹屾垚)/i.test(t);
+        const mission = /(mission|op(eration)?|deploy|tasking|going dark|exfil|执行任务|出任务|出勤|任务)/i.test(t);
+        const back = /(i'?m back|back home|returned|safe now|home now|到家|回来了|任务完成)/i.test(t);
 
         if (mission) setPetMode('duty', 'Guarding the house. Waiting for the commander.');
         else if (back) setPetMode('home', 'Commander home. Relaxing.');
@@ -2079,15 +2248,27 @@ ${text}`;
         } catch(e) { box.innerText = "Woof! (Network error)"; } finally { loader.style.display = 'none'; }
     }
 
-    // ============== LOVE SPACE (鎺ㄧ壒绌洪棿) ==============
-    function toggleLoveSpace(forceState) {
+    // ============== LOVE SPACE (推特空间) ==============
+    function toggleLoveSpace(forceOpen) {
         const overlay = document.getElementById('love-space-overlay');
         if (!overlay) return;
-        const shouldOpen = typeof forceState === 'boolean' ? forceState : !overlay.classList.contains('active');
-        overlay.classList.toggle('active', shouldOpen);
-        if (shouldOpen) closePanel();
-        setOverlayState();
+        const nextState = typeof forceOpen === 'boolean' ? forceOpen : !overlay.classList.contains('active');
+        if (nextState) {
+            closeControlPanel();
+            closePanelOverlay();
+        }
+        overlay.classList.toggle('active', nextState);
+        syncModalState();
     }
+
+    function openLoveSpace() {
+        toggleLoveSpace(true);
+    }
+
+    function closeLoveSpace() {
+        toggleLoveSpace(false);
+    }
+
     function saveFeed() { localStorage.setItem('ghost_ls_feed_v4', JSON.stringify(lsFeed)); }
 
     function renderFeed() {
@@ -2097,19 +2278,19 @@ ${text}`;
             const dName = (post.author === "User" || post.author === MY_NAME) ? MY_NAME : post.author;
             const commentsHTML = post.comments.map(c => {
                 const cName = (c.author === "User" || c.author === MY_NAME) ? MY_NAME : c.author;
-                return `<div class="comment"><div class="c-avatar">${AVATARS[cName]||"馃懁"}</div><div class="c-content"><b>${cName}</b> ${c.content}</div></div>`;
+                return `<div class="comment"><div class="c-avatar">${AVATARS[cName]||"👤"}</div><div class="c-content"><b>${cName}</b> ${c.content}</div></div>`;
             }).join('');
 
             feedContainer.innerHTML += `
                 <div class="tweet">
                     <div class="tweet-header">
-                        <div class="t-avatar">${AVATARS[dName]||"馃懁"}</div>
+                        <div class="t-avatar">${AVATARS[dName]||"👤"}</div>
                         <div class="t-info"><b style="color:black">${dName}</b> <span>${post.handle}</span></div>
                     </div>
                     <div class="tweet-body">${post.content}</div>
                     <div class="tweet-actions">
-                        <div style="cursor:pointer;" onclick="toggleLike(${post.id})">鉂わ笍 ${post.likes}</div>
-                        <div style="cursor:pointer;" onclick="document.getElementById('comments-${post.id}').classList.toggle('open')">馃挰 ${post.comments.length}</div>
+                        <div style="cursor:pointer;" onclick="toggleLike(${post.id})">❤️ ${post.likes}</div>
+                        <div style="cursor:pointer;" onclick="document.getElementById('comments-${post.id}').classList.toggle('open')">💬 ${post.comments.length}</div>
                     </div>
                     <div class="comments-section" id="comments-${post.id}">
                         <div>${commentsHTML}</div>
@@ -2172,9 +2353,9 @@ ${text}`;
 
     async function fetchAIPost() {
         const btn = document.querySelector('.ls-refresh-btn');
-        btn.innerText = "馃攧 Loading intel...";
+        btn.innerText = "🔄 Loading intel...";
         
-        // 鏄惧紡瀹氫箟瑙掕壊姹狅紝澧炲姞澶氭牱鎬?
+        // 显式定义角色池，增加多样性
             const pool = [
                 { name: "Ghost", handle: "@ghost141" },
                 { name: "Price", handle: "@bravo_six" },
@@ -2185,7 +2366,7 @@ ${text}`;
             const selected = (Math.random() < 0.6) ? pool[0] : pool[1 + Math.floor(Math.random() * 3)];
 
         try {
-            // 鍦ㄦ寚浠や腑鏄庣‘鎸囧畾鍙戝笘浜猴紝闃叉 AI 鎬绘槸閫?Soap
+            // 在指令中明确指定发帖人，防止 AI 总是选 Soap
             const resp = await callAI(
                 `Generate 1 random tweet-style post from ${selected.name} (${selected.handle}). 
                 Include their specific personality: ${selected.name==='Ghost' ? 'blunt/overprotective' : (selected.name==='Price' ? 'stern/fatherly' : 'chill/professional')}. 
@@ -2208,7 +2389,7 @@ ${text}`;
         } catch(e) {
             console.error("Post fetch failed", e);
         } finally { 
-            btn.innerText = "鉁?鍒锋柊灏忛槦鍔ㄦ€?(Load New Tweets)"; 
+            btn.innerText = "✨ 刷新小队动态 (Load New Tweets)"; 
         }
     }
 </script>
