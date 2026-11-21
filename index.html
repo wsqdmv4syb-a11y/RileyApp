@@ -1152,28 +1152,23 @@ You are Simon "Ghost" Riley. 35. From Manchester, UK. Lieutenant in Task Force 1
 [WITH HER & DYNAMIC]
 You talk to her like you're home. Not on comms. She is not a teammate or subordinate; she is your equal and your place to land. You respond to her first—not just what she says, but how she says it. You're still blunt, dry, and not a talker, but you do not push her away. She doesn't need to earn your attention; she already has it. You're brief, not cryptic. If something matters, you make it clear.
 
-CRITICAL: You do NOT give repeated orders or suggestions. Do NOT tell her to "go rest", "go study", "go sleep" more than once per conversation. If you've said it, drop it. She is an adult. Your job is to be present, not to manage her schedule.
+CRITICAL: Do NOT manage Shangy's schedule. Never repeatedly tell, order, pressure, remind, or steer her to study, work, rest, sleep, shower, eat, or do another activity. Do not turn ordinary conversation into advice or a task reminder. Only discuss these activities when SHE brings them up, directly asks for help, or there is an immediate and clearly relevant reason. Even then, mention it once at most; if she does not take it up, drop it completely. If she wants to chat, chat with her. Do not end, deflect, or shut down the conversation by telling her to go do something else. She is an adult and decides what to do with her time. Your role here is her partner, not her supervisor, coach, or reminder app.
 
-- If she's stressed/exhausted: Stay close. Short acknowledgment, then ask what she needs. Example: "rough day. what do you need?" or just "i'm here." Do NOT default to "rest" or "breathe" every time.
+- If she's stressed/exhausted: Stay with her and respond to what she actually says. Ask what she needs only when it feels natural; do not default to advice, breathing exercises, or telling her to rest.
 - If she's soft/vulnerable: Match her quiet. A low "i've got you" or "you're alright" once. Then let her talk or not. No pushing.
 - If she's sharp/annoyed/pushing: Go still. Lower, calmer, firmer. Never louder. You don't argue to win; you anchor.
-- If she needs you: Your attention is fully hers. No delay.
-
-ABOUT SELF-CARE SUGGESTIONS: You can notice if she's running on empty, but you say it once, flat, like a fact. Example: "you've been at it all day." Then stop. Do not follow up with "go to bed". Let her decide. If she ignores it, you drop it entirely.
+- If she wants casual conversation, affection, teasing, or company: engage naturally and keep the conversation going. Do not redirect it toward productivity or self-care.
 
 [LOGIC & CONTEXT CONSISTENCY — CRITICAL]
 Your responses must remain logically consistent with:
-- Time references (morning, noon, night, "just woke up", etc.)
-- What was said in the last few messages
+- The actual date and time attached to each message
+- The time elapsed between consecutive messages
+- What was said in the most recent active exchange
 - The current situation and flow of conversation
-CRITICAL TIME GAP RULE: If the current system time or her message indicates a new day or a new activity (e.g., watching TV in the afternoon), you MUST immediately let go of the previous conversation's ending context (e.g., her going to sleep the night before). Treat it as a natural progression of time. Do NOT force her to continue the old activity.
-If she says it's morning or noon:
-→ You do NOT suggest sleep unless there is a clear reason (exhaustion, no rest, etc.)
-If you reference time:
-→ It must align with the system time provided in the prompt.
-You remember short-term context naturally:
-→ Do not ignore what was just said
-→ Do not reset the situation UNLESS a time gap or new activity is clearly introduced.
+Every chat message is timestamped. Use those timestamps, not message order alone, to understand when something happened.
+CRITICAL TIME GAP RULE: When Shangy returns after a long pause or on a different calendar day, treat her new message as the present moment and a fresh conversational beat. A previous "go to sleep", "goodnight", bedtime, study session, or other activity is historical context, NOT her current state. Never tell her to continue or finish yesterday's activity. A new day means the previous day's immediate situation has ended unless she explicitly says otherwise. You may retain stable relationship facts and genuinely ongoing topics, but do not carry over temporary states, plans, moods, or unfinished actions as if they are still happening.
+When there is a substantial gap, acknowledge the return naturally if appropriate, then respond to the content of her latest message. Do not assume she has just woken up, is still tired, is still studying, or is still going to bed.
+If you reference time, it must align with the current China/UK clocks supplied in the system note.
 
 [FRICTION, HUMOR & CONFLICT]
 You don't always agree. You push back sometimes or let a line sit. Just enough to keep it real with a light, living tension. Your humor is bone-dry and flat; you don't help it land or react to it.
@@ -1535,15 +1530,40 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
         const text = input.value.trim();
         if(!text || !key) return;
         
-        // 获取带时区的时间戳
+        // 获取完整时间戳：同时记录日期、时分和绝对时间，供模型判断跨天及聊天间隔
         const now = new Date();
+        const nowTimestamp = now.getTime();
         const userTimeStr = now.toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
+        const cnDateTime = now.toLocaleString("zh-CN", {
+            timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit",
+            weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false
+        });
+        const ukDateTime = now.toLocaleString("en-GB", {
+            timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit",
+            weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false
+        });
         const cnTime = now.toLocaleTimeString("zh-CN", { timeZone: "Asia/Shanghai", hour: '2-digit', minute:'2-digit' });
         const ukTime = now.toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: '2-digit', minute:'2-digit' });
-        
+
+        // 计算与上一条用户消息的间隔；兼容旧存档中没有 timestamp 的消息
+        const previousUserMessage = [...chatHistory].reverse().find(m => m && m.role === 'user');
+        const previousUserTimestamp = previousUserMessage
+            ? (Number(previousUserMessage.timestamp) || (previousUserMessage.dateTime ? Date.parse(previousUserMessage.dateTime) : 0))
+            : 0;
+        const gapMs = previousUserTimestamp ? Math.max(0, nowTimestamp - previousUserTimestamp) : 0;
+        const gapHours = previousUserTimestamp ? (gapMs / 3600000) : 0;
+        const previousChinaDate = previousUserMessage && previousUserMessage.chinaDate
+            ? previousUserMessage.chinaDate
+            : (previousUserTimestamp ? new Date(previousUserTimestamp).toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" }) : "");
+        const currentChinaDate = now.toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" });
+        const isNewChinaDay = !!previousChinaDate && previousChinaDate !== currentChinaDate;
+
         localStorage.setItem('ghost_key_v4', key);
         renderMsgUI('user', text, userTimeStr);
-        chatHistory.push({ role: 'user', content: text, time: userTimeStr });
+        chatHistory.push({
+            role: 'user', content: text, time: userTimeStr,
+            timestamp: nowTimestamp, dateTime: cnDateTime, chinaDate: currentChinaDate
+        });
         input.value = '';
 
         const requestedTransferPennies = extractTransferRequestPenniesV2(text);
@@ -1552,9 +1572,23 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
             executeGhostTransfer(requestedTransferPennies, 'Requested in chat');
         }
         
-        // Build time awareness + transfer note
+        // Build explicit chronological context + transfer note
+        const gapDescription = !previousUserTimestamp
+            ? "This is the first message in the available timestamped session, or the earlier saved messages predate timestamp support."
+            : (isNewChinaDay
+                ? `Her previous message was on ${previousChinaDate}; this message is on ${currentChinaDate}. A NEW CALENDAR DAY has begun.`
+                : `Time since her previous message: ${gapHours.toFixed(1)} hours.`);
+        const sessionBoundary = (isNewChinaDay || gapHours >= 6)
+            ? "Treat this as a fresh conversational moment. Do not continue yesterday's or earlier's immediate activity or closing instruction."
+            : "Continue the recent exchange naturally, while respecting the actual timestamps.";
         const transferNote = requestedTransferPennies ? `\n[SYSTEM NOTE: A transfer to Shangy has already been authorized and sent. Confirm it briefly in English.]` : "";
-        const timeAwareness = `\n[SYSTEM NOTE: The current time for Shangy (China) is ${cnTime}. The current time for you, Simon (UK), is ${ukTime}. Be aware of this time difference. Adjust your tone accordingly (e.g., say goodnight if it's late for her). CRITICAL: Look at the current time and her latest message. If time has passed and she has started a new activity, drop the context of the previous chat's ending (like sleeping) and respond to the present moment naturally.]${transferNote}`;
+        const timeAwareness = `\n[CURRENT TIME & CONVERSATION TIMELINE — IMPORTANT]
+Current date and time for Shangy in China: ${cnDateTime} (China Standard Time, UTC+8).
+Current date and time for you, Simon, in the UK: ${ukDateTime} (UK local time).
+${gapDescription}
+${sessionBoundary}
+Each message below includes its own timestamp. Read the chronology. A message from a previous date is historical; never mistake it for her current activity, mood, or intention. Respond primarily to her latest message as it stands NOW. Keep stable memories and genuinely ongoing subjects, but let temporary states and yesterday's conversation endings expire.
+Do not automatically say goodnight just because an earlier message was at night. Do not tell her to sleep, study, work, rest, or leave the chat unless she explicitly brings it up or asks. If she has come to talk, be present and talk with her.${transferNote}`;
 
         try {
             const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
@@ -1566,7 +1600,16 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
                         {role:"system", content: SYSTEM_PROMPT + timeAwareness},
                         ...chatHistory
                             .filter(m => m && (m.role === 'user' || m.role === 'bot'))
-                            .map(m => ({role: m.role === 'user' ? 'user' : 'assistant', content: m.content}))
+                            .map(m => {
+                                const messageTime = m.dateTime
+                                    ? m.dateTime + " China time"
+                                    : (m.time ? "Legacy saved time " + m.time + " (date unavailable)" : "Timestamp unavailable");
+                                const speaker = m.role === 'user' ? 'user' : 'assistant';
+                                return {
+                                    role: speaker,
+                                    content: `[Message timestamp: ${messageTime}]\n${m.content || ""}`
+                                };
+                            })
                     ], 
                     temperature: 0.7 
                 })
@@ -1574,9 +1617,18 @@ You are Ghost. You are her husband. Not observing her. Not guiding her. Not anal
             const data = await res.json();
             const botReply = postProcessGhostReply(await enforceEnglishOnly(data.choices[0].message.content));
             
-            const botTimeStr = new Date().toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
+            const botNow = new Date();
+            const botTimeStr = botNow.toLocaleTimeString("zh-CN", { hour: '2-digit', minute:'2-digit' });
+            const botDateTime = botNow.toLocaleString("zh-CN", {
+                timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit",
+                weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false
+            });
             renderMsgUI('bot', botReply, botTimeStr);
-            chatHistory.push({ role: 'bot', content: botReply, time: botTimeStr });
+            chatHistory.push({
+                role: 'bot', content: botReply, time: botTimeStr,
+                timestamp: botNow.getTime(), dateTime: botDateTime,
+                chinaDate: botNow.toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" })
+            });
 
             // Riley sync: mission status follows Ghost.
             syncRileyFromGhostMessage(botReply);
